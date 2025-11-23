@@ -293,12 +293,13 @@
         const lvl = document.getElementById('level').value;
         const sem = document.getElementById('semester').value;
 
+        // --- MODIFICATION ICI : PLUS DE DOSSIER RESULTS ---
         const possibleFiles = [
-            `results/${lvl.toLowerCase()}_${maj.toLowerCase()}_${sem.toLowerCase()}.pdf`,
-            `results/${lvl.toLowerCase()}2_${maj.toLowerCase()}_${sem.toLowerCase()}.pdf`,
-            `results/${lvl.toUpperCase()}_${maj.toUpperCase()}_${sem.toUpperCase()}.pdf`,
-            `results/${lvl.toUpperCase()}2_${maj.toUpperCase()}_${sem.toUpperCase()}.pdf`
+            `${lvl.toUpperCase()}_${maj.toUpperCase()}_${sem.toUpperCase()}.pdf`, // Ex: L1_BA_S1.pdf
+            `${lvl.toLowerCase()}_${maj.toLowerCase()}_${sem.toLowerCase()}.pdf`, // Ex: l1_ba_s1.pdf
+            `${lvl.toUpperCase()}2_${maj.toUpperCase()}_${sem.toUpperCase()}.pdf` // Ex: L12_BA_S1.pdf (Variante)
         ];
+        // --------------------------------------------------
 
         let foundData = null;
         let usedFile = "";
@@ -311,7 +312,7 @@
                 foundData = result.studentData;
                 rankInfo = result.rankInfo;
                 topStudents = result.topStudents;
-                usedFile = filePath.split('/').pop();
+                usedFile = filePath;
                 break; 
             } catch (error) {
                 continue;
@@ -324,7 +325,10 @@
             renderTranscript(foundData, id, usedFile, maj, lvl, sem, rankInfo, topStudents);
         } else {
             document.getElementById('error-msg').style.display = 'block';
-            document.getElementById('error-msg').innerText = "Aucun résultat trouvé pour " + id + ".";
+            document.getElementById('error-msg').innerHTML = `
+                Aucun résultat trouvé pour ${id}.<br>
+                <small>Vérifiez que le fichier <b>${possibleFiles[0]}</b> est bien dans le même dossier.</small>
+            `;
         }
     });
 
@@ -358,16 +362,12 @@
                         let rowText = items.map(itm => itm.t).join(" ").trim();
                         
                         // --- DATA COLLECTION FOR RANKING ---
-                        // Check if this line is a student header (Ixxxx ... Average)
                         let headerMatch = rowText.match(/(I\d{4,})(.*?)(\b(?:[0-1]?\d|20)[.,]\d{1,2}\b)/);
                         if (headerMatch) {
                             let sId = headerMatch[1];
-                            // Get Average (Last number)
                             let allNumbers = rowText.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
                             if (allNumbers) {
                                 let sAvg = parseFloat(allNumbers[allNumbers.length - 1].replace(',', '.'));
-                                
-                                // Extract Name (between ID and Grades)
                                 let rawName = rowText.replace(sId, "").replace(/[\d\.,]+\s*(Validé|Rattrapage|Admis|Ajourné)?.*$/i, "").trim();
                                 rawName = rawName.replace(/\d{3,}/g, "").trim();
 
@@ -400,10 +400,9 @@
                 }
 
                 if (studentRows.length > 0) {
-                    // Calculate Rankings
                     allStudents.sort((a, b) => b.avg - a.avg);
                     let rank = allStudents.findIndex(s => s.id === targetId) + 1;
-                    let top3 = allStudents.slice(0, 3); // Get top 3
+                    let top3 = allStudents.slice(0, 3);
 
                     resolve({ 
                         studentData: studentRows, 
@@ -447,12 +446,10 @@
         document.getElementById('sem-avg').innerText = semAvg;
         document.getElementById('sem-decision').innerText = semDec;
         
-        // Show Rank
         if (rankInfo) {
             document.getElementById('sem-rank').innerText = `${rankInfo.rank} / ${rankInfo.total}`;
         }
 
-        // Render Palmares
         const palmaresBody = document.getElementById('palmares-body');
         palmaresBody.innerHTML = '';
         topStudents.forEach((s, index) => {
