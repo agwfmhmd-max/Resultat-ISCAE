@@ -6,12 +6,9 @@
     <meta name="theme-color" content="#003366">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>ISCAE Résultats</title>
+    <title>Résultats ISCAE</title>
     
-    <!-- رابط ملف التعريف للتثبيت -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon.png">
-
+    <!-- PDF.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';</script>
 
@@ -19,100 +16,123 @@
         :root { --primary: #003366; --secondary: #c5a017; --bg: #f3f5f8; --text: #333; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; display: flex; flex-direction: column; min-height: 100vh; color: var(--text); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         
-        header { background-color: var(--primary); color: white; padding: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-bottom: 4px solid var(--secondary); z-index: 100; position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; }
-        header h1 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; text-transform: uppercase; flex-grow: 1; }
+        /* Header */
+        header { background-color: var(--primary); color: white; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-bottom: 4px solid var(--secondary); z-index: 100; position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 1.1rem; letter-spacing: 1px; text-transform: uppercase; }
         
-        /* زر التثبيت */
-        #installBtn { display: none; background: var(--secondary); color: white; border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
+        /* Install Button */
+        .install-btn { background: var(--secondary); color: white; border: none; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(197, 160, 23, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(197, 160, 23, 0); } 100% { box-shadow: 0 0 0 0 rgba(197, 160, 23, 0); } }
 
-        .container { display: flex; flex-grow: 1; max-width: 1600px; margin: 0 auto; width: 100%; height: 100%; }
+        .container { display: flex; flex-grow: 1; max-width: 1600px; margin: 0 auto; width: 100%; }
         
-        /* Sidebar Styling */
-        .sidebar { width: 300px; background: white; padding: 25px; border-right: 1px solid #e1e4e8; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.05); overflow-y: auto; height: calc(100vh - 70px); position: sticky; top: 70px; }
+        /* Sidebar */
+        .sidebar { width: 300px; background: white; padding: 25px; border-right: 1px solid #e1e4e8; display: flex; flex-direction: column; height: calc(100vh - 70px); position: sticky; top: 70px; overflow-y: auto; }
         
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 6px; font-weight: 700; color: #444; font-size: 0.9rem; }
         select, input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box; background: #fff; }
         
-        button.search-btn { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        button.search-btn { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
         button.search-btn:active { transform: scale(0.98); }
 
-        .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+        .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding-bottom: 60px; /* Space for footer */ }
 
         /* Transcript Card */
-        .transcript-card {
-            background: white;
-            width: 100%;
-            max-width: 900px;
-            padding: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            border-radius: 12px;
-            display: none;
-            border-top: 5px solid var(--primary);
-            margin-bottom: 40px;
-        }
+        .transcript-card { background: white; width: 100%; max-width: 900px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-radius: 12px; display: none; border-top: 5px solid var(--primary); margin-bottom: 20px; position: relative; z-index: 10; }
 
-        .student-header { display: flex; flex-direction: row; justify-content: space-between; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .student-header { display: flex; justify-content: space-between; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         .student-info h2 { margin: 0; color: var(--primary); font-size: 1.4rem; }
         .student-info .matricule-badge { background: var(--secondary); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem; display: inline-block; margin-top: 5px; }
-        .meta-info { text-align: right; font-size: 0.85rem; color: #666; }
-
-        /* Responsive Table */
-        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; margin-top: 10px; border-radius: 6px; border: 1px solid #ddd; }
-        .transcript-table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        .transcript-table th { background-color: #f4f4f4; padding: 12px; text-align: center; font-weight: 700; border-bottom: 2px solid #ddd; font-size: 0.85rem; white-space: nowrap; }
-        .transcript-table td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 0.9rem; }
-        .col-module { text-align: left !important; font-weight: 600; min-width: 180px; }
         
+        /* Table */
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; margin-top: 10px; border: 1px solid #eee; border-radius: 6px; }
+        .transcript-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .transcript-table th { background-color: #f4f4f4; padding: 10px; text-align: center; font-weight: 700; border-bottom: 2px solid #ddd; font-size: 0.85rem; white-space: nowrap; }
+        .transcript-table td { padding: 8px; border-bottom: 1px solid #eee; text-align: center; font-size: 0.9rem; }
+        .col-module { text-align: left !important; font-weight: 600; min-width: 180px; }
         .row-ue { background-color: #f9fbff; }
         .status-valid { color: #008000; font-weight: bold; }
         .status-ratt { color: #cc0000; font-weight: bold; }
 
-        /* Summary Section */
+        /* Summary */
         .sem-summary { margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .summary-box { border: 2px solid var(--primary); padding: 15px; border-radius: 8px; text-align: center; background: #fff; }
         .summary-value { font-size: 2rem; font-weight: bold; color: var(--primary); }
-        .summary-dec { font-size: 1rem; font-weight: bold; text-transform: uppercase; margin-top: 5px; }
-
-        /* Footer */
-        footer { margin-top: auto; background-color: #002244; color: white; text-align: center; padding: 15px; font-size: 0.8rem; }
-
-        /* Mobile Optimization */
-        @media (max-width: 900px) {
-            .container { flex-direction: column; display: block; }
-            .sidebar { width: 100%; height: auto; position: static; padding: 20px; box-shadow: none; border-bottom: 1px solid #ddd; border-right: none; }
-            .main-content { padding: 15px; }
-            .transcript-card { padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-            .student-header { flex-direction: column; text-align: center; }
-            .meta-info { text-align: center; margin-top: 10px; }
-            .sem-summary { grid-template-columns: 1fr; }
-            header h1 { font-size: 1.1rem; }
-        }
-
-        /* Print styles */
-        @media print {
-            .sidebar, header, footer, #installBtn { display: none; }
-            .container { display: block; }
-            .transcript-card { box-shadow: none; border: none; max-width: 100%; }
-        }
-
-        /* Utilities */
-        .loader { display: none; text-align: center; margin-top: 30px; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #ddd; border-top: 4px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-        .alert { padding: 15px; background: #ffecec; color: #d63031; border-radius: 6px; margin-top: 20px; display: none; text-align: center; }
-        @keyframes spin { to { transform: rotate(360deg); } }
         
         /* Palmares */
         .palmares-box { margin-top: 30px; background: #fffdf0; border: 1px solid #e0c040; border-radius: 8px; padding: 15px; overflow-x: auto; }
         .palmares-table { width: 100%; border-collapse: collapse; min-width: 300px; }
-        .palmares-table th, .palmares-table td { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
+        .palmares-table td { padding: 8px; border-bottom: 1px solid #ddd; }
+
+        /* Footer Styles - NEW & IMPROVED */
+        footer {
+            margin-top: auto;
+            background: #002244;
+            color: white;
+            text-align: center;
+            padding: 30px 20px 40px; /* مسافة علوية 30، سفلية 40 */
+            border-top: 4px solid var(--secondary);
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 20;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+        }
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .dev-name {
+            color: var(--secondary);
+            font-weight: bold;
+            display: inline-block;
+        }
+        .copyright {
+            font-size: 0.8rem;
+            color: #ccc;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Celebration Animation */
+        .confetti { position: fixed; top: -50px; z-index: 9999; pointer-events: none; animation: fall linear forwards; font-size: 25px; }
+        @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        
+        .congrats-popup { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(255, 255, 255, 0.98); padding: 20px 40px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border: 4px solid var(--secondary); z-index: 10000; text-align: center; display: none; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; width: 80%; max-width: 400px; }
+        .congrats-popup h2 { margin: 0; color: var(--primary); font-size: 1.8rem; }
+        @keyframes popIn { to { transform: translate(-50%, -50%) scale(1); } }
+
+        /* Install Guide Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 10px; max-width: 350px; width: 90%; text-align: center; }
+        .modal-step { margin: 10px 0; font-size: 0.95rem; color: #444; }
+        .modal-icon { font-size: 1.5rem; margin-bottom: 5px; display: block; }
+
+        /* Mobile Optimization */
+        @media (max-width: 900px) {
+            .container { flex-direction: column; display: block; }
+            .sidebar { width: 100%; height: auto; position: static; padding: 20px; box-sizing: border-box; border-bottom: 1px solid #ddd; }
+            .main-content { padding: 15px; }
+            .sem-summary { grid-template-columns: 1fr; }
+        }
+        
+        @media print {
+            .sidebar, header, .print-btn, .congrats-popup, .install-btn, footer { display: none; }
+            .container { display: block; }
+            .transcript-card { box-shadow: none; border: none; padding: 0; margin: 0; }
+        }
+
+        .loader { display: none; text-align: center; margin-top: 30px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #ddd; border-top: 4px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        .alert { padding: 15px; background: #ffecec; color: #d63031; border-radius: 6px; margin-top: 20px; display: none; text-align: center; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <header>
     <h1>ISCAE Résultats</h1>
-    <button id="installBtn">📲 Installer</button>
+    <button class="install-btn" onclick="openInstallModal()">📲 App</button>
 </header>
 
 <div class="container">
@@ -160,14 +180,20 @@
         <div id="loader" class="loader"><div class="spinner"></div><p>Traitement...</p></div>
         <div id="error-msg" class="alert"></div>
 
+        <!-- Banner Celebration -->
+        <div id="congrats-banner" class="congrats-popup">
+            <h2>🎉 Félicitations ! 💐</h2>
+            <p style="margin:5px 0; color:#555;">Semestre Validé</p>
+        </div>
+
         <div id="transcript-view" class="transcript-card">
             <div class="student-header">
                 <div class="student-info">
-                    <h2 id="st-name">Nom de l'étudiant</h2>
+                    <h2 id="st-name">Nom</h2>
                     <span class="matricule-badge" id="st-id">I00000</span>
                 </div>
-                <div class="meta-info">
-                    <p><strong>2024-2025</strong></p>
+                <div style="text-align:right; font-size:0.85rem; color:#666;">
+                    <p>2024-2025</p>
                     <p id="res-context">CONTEXTE</p>
                 </div>
             </div>
@@ -176,30 +202,27 @@
                 <table class="transcript-table">
                     <thead>
                         <tr>
-                            <th class="col-module">Modules</th>
+                            <th class="col-module">Module</th>
                             <th>CC</th>
                             <th>CF</th>
                             <th>Note</th>
                             <th>Crédit</th>
-                            <th>Décision</th>
+                            <th>Déc.</th>
                         </tr>
                     </thead>
-                    <tbody id="grade-body">
-                        <!-- Rows -->
-                    </tbody>
+                    <tbody id="grade-body"></tbody>
                 </table>
             </div>
 
             <div class="sem-summary">
-                <div class="summary-box" style="background: #fffdf0; border-color: var(--secondary);">
-                    <div class="summary-label" style="font-size:0.8rem;">Classement</div>
-                    <div class="summary-value" id="sem-rank" style="color: var(--secondary); font-size: 1.8rem;">--/--</div>
+                <div class="summary-box" style="background:#fffdf0; border-color:var(--secondary);">
+                    <div style="font-size:0.8rem; text-transform:uppercase;">Classement</div>
+                    <div class="summary-value" id="sem-rank" style="color:var(--secondary);">--</div>
                 </div>
-
                 <div class="summary-box">
-                    <div class="summary-label" style="font-size:0.8rem;">Moyenne</div>
+                    <div style="font-size:0.8rem; text-transform:uppercase;">Moyenne</div>
                     <div class="summary-value" id="sem-avg">--</div>
-                    <div class="summary-dec" id="sem-decision">--</div>
+                    <div id="sem-decision" style="font-weight:bold; margin-top:5px;">--</div>
                 </div>
             </div>
 
@@ -210,36 +233,38 @@
                 </table>
             </div>
 
-            <button onclick="window.print()" style="background:#555; color:white; padding:10px; width:100%; border:none; border-radius:5px; margin-top:20px; cursor:pointer;">🖨️ Imprimer / PDF</button>
+            <button class="print-btn" onclick="window.print()" style="background:#555; color:white; padding:12px; width:100%; border:none; border-radius:5px; margin-top:20px; cursor:pointer;">🖨️ Imprimer / PDF</button>
         </div>
     </main>
 </div>
 
+<!-- Footer Updated -->
 <footer>
-    <p>Dev: Mohamed Dah Agove &copy; 2025</p>
+    <div class="footer-content">
+        <p>Développé avec ❤️ par <span class="dev-name">Mohamed Dah Agove</span></p>
+        <div class="copyright">&copy; 2025 - Tous droits réservés</div>
+    </div>
 </footer>
 
-<script>
-    // PWA Install Logic
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        const installBtn = document.getElementById('installBtn');
-        installBtn.style.display = 'block';
-        installBtn.addEventListener('click', () => {
-            installBtn.style.display = 'none';
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted install');
-                }
-                deferredPrompt = null;
-            });
-        });
-    });
+<!-- Install Guide Modal -->
+<div id="installModal" class="modal-overlay" onclick="closeInstallModal(event)">
+    <div class="modal-content">
+        <h3 style="color:var(--primary); margin-top:0;"> تثبيت التطبيق 📲</h3>
+        <p style="font-size:0.9rem;">لتثبيت التطبيق على هاتفك:</p>
+        <div class="modal-step">
+            <span class="modal-icon">🍏 <b>iPhone</b></span>
+            اضغط على زر <b>Mosharka</b> <br> ثم اختر <b>"Sur l'écran d'accueil"</b>
+        </div>
+        <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
+        <div class="modal-step">
+            <span class="modal-icon">🤖 <b>Android</b></span>
+            اضغط على الثلاث نقاط (⋮) <br> ثم اختر <b>"Ajouter à l'écran d'accueil"</b>
+        </div>
+        <button onclick="document.getElementById('installModal').style.display='none'" style="margin-top:15px; background:var(--primary); color:white; border:none; padding:8px 20px; border-radius:5px;">Fermer</button>
+    </div>
+</div>
 
-    // Configuration & Logic
+<script>
     const semsData = {
         'l1': {'s1':'Semestre 1','s2':'Semestre 2'},
         'l2': {'s3':'Semestre 3','s4':'Semestre 4'},
@@ -260,12 +285,20 @@
         }
     }
 
+    function openInstallModal() {
+        document.getElementById('installModal').style.display = 'flex';
+    }
+    function closeInstallModal(e) {
+        if(e.target.id === 'installModal') document.getElementById('installModal').style.display = 'none';
+    }
+
     document.getElementById('searchForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        // UI Reset
         document.getElementById('transcript-view').style.display = 'none';
         document.getElementById('error-msg').style.display = 'none';
+        document.getElementById('congrats-banner').style.display = 'none';
+        stopCelebration();
         
         let id = document.getElementById('studentId').value.trim().toUpperCase();
         if (!id.startsWith('I')) {
@@ -279,7 +312,6 @@
         const lvl = document.getElementById('level').value;
         const sem = document.getElementById('semester').value;
 
-        // Smart File Detection
         const possibleFiles = [
             `${lvl.toUpperCase()}_${maj.toUpperCase()}_${sem.toUpperCase()}.pdf`, 
             `${lvl.toLowerCase()}_${maj.toLowerCase()}_${sem.toLowerCase()}.pdf`,
@@ -315,7 +347,6 @@
         err.innerText = msg;
     }
 
-    // PDF Processing (Same logic, minified slightly)
     function processPDF(url, targetId) {
         return new Promise(async (resolve, reject) => {
             try {
@@ -385,7 +416,6 @@
         let textWithoutID = headerRow.replace(studentId, "");
         let gradeMatch = textWithoutID.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
         let semAvg = (gradeMatch && gradeMatch.length > 0) ? gradeMatch[gradeMatch.length - 1] : "--";
-
         let semDec = headerRow.includes("Validé") ? "Validé" : (headerRow.includes("Admis") ? "Admis" : (headerRow.includes("Rattrapage") ? "Rattrapage" : "Ajourné"));
 
         document.getElementById('st-name').innerText = nameClean;
@@ -393,11 +423,13 @@
         document.getElementById('res-context').innerText = `${lvl.toUpperCase()} - ${maj.toUpperCase()} - ${sem.toUpperCase()}`;
         document.getElementById('sem-avg').innerText = semAvg;
         document.getElementById('sem-decision').innerText = semDec;
-        document.getElementById('sem-decision').style.color = (semDec === "Validé" || semDec === "Admis") ? "#008000" : "#cc0000";
+        
+        let isSuccess = (semDec === "Validé" || semDec === "Admis");
+        document.getElementById('sem-decision').style.color = isSuccess ? "#008000" : "#cc0000";
         if (rankInfo) document.getElementById('sem-rank').innerText = `${rankInfo.rank} / ${rankInfo.total}`;
 
         document.getElementById('palmares-body').innerHTML = topStudents.map((s, i) => `
-            <tr><td>${i===0?'🥇':(i===1?'🥈':'🥉')} ${i+1}</td><td>${s.id}</td><td>${s.name.split(' ').slice(0,2).join(' ')}..</td><td><b>${s.avg}</b></td></tr>
+            <tr><td>${i===0?'🥇':(i===1?'🥈':'🥉')} ${i+1}</td><td>${s.id}</td><td>${s.name.split(' ').slice(0,2).join(' ')}</td><td><b>${s.avg}</b></td></tr>
         `).join('');
 
         rows.slice(1).forEach(row => {
@@ -417,11 +449,35 @@
             }
         });
         document.getElementById('transcript-view').style.display = 'block';
+
+        if (isSuccess) launchCelebration();
     }
 
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Fail', err));
+    let confettiInterval;
+    function launchCelebration() {
+        const banner = document.getElementById('congrats-banner');
+        banner.style.display = 'block';
+        const symbols = ['🎉', '💐', '🌹', '🌺', '❤️', '💖', '✨', '🎓'];
+        const colors = ['#FFD700', '#FF6347', '#32CD32', '#1E90FF', '#FF1493'];
+
+        confettiInterval = setInterval(() => {
+            const el = document.createElement('div');
+            el.classList.add('confetti');
+            el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (Math.random() * 3 + 2) + 's'; 
+            el.style.color = colors[Math.floor(Math.random() * colors.length)];
+            document.body.appendChild(el);
+            setTimeout(() => { el.remove(); }, 4000);
+        }, 100); 
+
+        setTimeout(stopCelebration, 5000);
+    }
+
+    function stopCelebration() {
+        clearInterval(confettiInterval);
+        document.querySelectorAll('.confetti').forEach(el => el.remove());
+        document.getElementById('congrats-banner').style.display = 'none';
     }
 </script>
 
