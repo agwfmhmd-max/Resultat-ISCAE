@@ -2,130 +2,117 @@
 <html lang="fr" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Résultats ISCAE - Relevé Officiel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#003366">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>ISCAE Résultats</title>
     
+    <!-- رابط ملف التعريف للتثبيت -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';</script>
 
     <style>
         :root { --primary: #003366; --secondary: #c5a017; --bg: #f3f5f8; --text: #333; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; display: flex; flex-direction: column; min-height: 100vh; color: var(--text); overflow-x: hidden; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; display: flex; flex-direction: column; min-height: 100vh; color: var(--text); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         
-        header { background-color: var(--primary); color: white; padding: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-bottom: 4px solid var(--secondary); z-index: 100; position: relative; }
-        header h1 { margin: 0; font-size: 1.5rem; letter-spacing: 1px; text-transform: uppercase; }
+        header { background-color: var(--primary); color: white; padding: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-bottom: 4px solid var(--secondary); z-index: 100; position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; text-transform: uppercase; flex-grow: 1; }
         
-        .container { display: flex; flex-grow: 1; max-width: 1600px; margin: 0 auto; width: 100%; }
-        .sidebar { width: 320px; background: white; padding: 30px; border-right: 1px solid #e1e4e8; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
-        
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 700; color: #444; font-size: 0.9rem; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; box-sizing: border-box; transition: 0.3s; }
-        select:focus, input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1); }
-        
-        button { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin-top: 10px; transition: 0.3s; }
-        button:hover { background-color: #002244; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        /* زر التثبيت */
+        #installBtn { display: none; background: var(--secondary); color: white; border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
 
-        .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .container { display: flex; flex-grow: 1; max-width: 1600px; margin: 0 auto; width: 100%; height: 100%; }
+        
+        /* Sidebar Styling */
+        .sidebar { width: 300px; background: white; padding: 25px; border-right: 1px solid #e1e4e8; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.05); overflow-y: auto; height: calc(100vh - 70px); position: sticky; top: 70px; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 700; color: #444; font-size: 0.9rem; }
+        select, input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box; background: #fff; }
+        
+        button.search-btn { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        button.search-btn:active { transform: scale(0.98); }
+
+        .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
 
         /* Transcript Card */
         .transcript-card {
             background: white;
             width: 100%;
-            max-width: 1000px;
-            padding: 40px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            border-radius: 10px;
+            max-width: 900px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border-radius: 12px;
             display: none;
             border-top: 5px solid var(--primary);
-            position: relative;
-            z-index: 10;
+            margin-bottom: 40px;
         }
 
-        .student-header {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 20px;
-            margin-bottom: 25px;
-        }
-        .student-info h2 { margin: 0 0 8px 0; color: var(--primary); font-size: 1.6rem; }
-        .student-info .matricule-badge { background: var(--secondary); color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 1rem; }
-        .meta-info { text-align: right; font-size: 0.95rem; color: #666; }
+        .student-header { display: flex; flex-direction: row; justify-content: space-between; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .student-info h2 { margin: 0; color: var(--primary); font-size: 1.4rem; }
+        .student-info .matricule-badge { background: var(--secondary); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem; display: inline-block; margin-top: 5px; }
+        .meta-info { text-align: right; font-size: 0.85rem; color: #666; }
 
-        /* Table */
-        .transcript-table { width: 100%; border-collapse: collapse; margin-top: 10px; border: 2px solid #444; }
-        .transcript-table th { background-color: #f0f0f0; color: #000; padding: 10px; text-align: center; font-weight: 700; border: 1px solid #444; font-size: 0.9rem; }
-        .transcript-table td { padding: 8px 10px; border: 1px solid #444; vertical-align: middle; font-size: 0.95rem; }
-
-        .col-module { text-align: left; font-weight: 600; }
-        .col-num { text-align: center; width: 10%; font-family: 'Courier New', monospace; font-weight: bold; }
-        .col-dec { text-align: center; width: 15%; font-weight: bold; }
-
-        .row-ue { background-color: #eef6ff; }
-        .row-subject { background-color: #fff; }
+        /* Responsive Table */
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; margin-top: 10px; border-radius: 6px; border: 1px solid #ddd; }
+        .transcript-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .transcript-table th { background-color: #f4f4f4; padding: 12px; text-align: center; font-weight: 700; border-bottom: 2px solid #ddd; font-size: 0.85rem; white-space: nowrap; }
+        .transcript-table td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 0.9rem; }
+        .col-module { text-align: left !important; font-weight: 600; min-width: 180px; }
         
-        .status-valid { color: #008000; }
-        .status-ratt { color: #cc0000; }
+        .row-ue { background-color: #f9fbff; }
+        .status-valid { color: #008000; font-weight: bold; }
+        .status-ratt { color: #cc0000; font-weight: bold; }
 
         /* Summary Section */
-        .sem-summary { margin-top: 30px; display: flex; justify-content: flex-end; gap: 20px; }
-        .summary-box { border: 2px solid var(--primary); padding: 15px 30px; border-radius: 8px; text-align: center; background: #f9fbff; min-width: 180px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .summary-label { font-size: 0.9rem; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        .summary-value { font-size: 2.5rem; font-weight: bold; color: var(--primary); line-height: 1.2; margin: 5px 0; letter-spacing: -1px; }
-        .summary-dec { font-size: 1.2rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
-        
-        /* Palmares (Top Students) Style */
-        .palmares-box {
-            margin-top: 40px;
-            border: 2px solid #gold;
-            background: #fffdf0;
-            border-radius: 8px;
-            padding: 20px;
-            border: 1px solid #ddd;
-        }
-        .palmares-title { font-size: 1.2rem; font-weight: bold; color: #b38f00; margin-bottom: 15px; text-align: center; text-transform: uppercase; border-bottom: 2px solid #b38f00; display: inline-block; padding-bottom: 5px; }
-        .palmares-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-        .palmares-table th { text-align: left; color: #555; padding: 8px; border-bottom: 1px solid #ccc; }
-        .palmares-table td { padding: 8px; border-bottom: 1px solid #eee; }
-        .rank-1 { color: #d4af37; font-weight: bold; } /* Gold */
-        .rank-2 { color: #c0c0c0; font-weight: bold; } /* Silver */
-        .rank-3 { color: #cd7f32; font-weight: bold; } /* Bronze */
-
-        /* Loader & Alerts */
-        .loader { display: none; text-align: center; margin-top: 50px; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #ddd; border-top: 5px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
-        .alert { padding: 15px; background: #ffecec; color: #d63031; border: 1px solid #fab1a0; border-radius: 6px; margin-top: 20px; display: none; text-align: center; font-weight: bold; }
+        .sem-summary { margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .summary-box { border: 2px solid var(--primary); padding: 15px; border-radius: 8px; text-align: center; background: #fff; }
+        .summary-value { font-size: 2rem; font-weight: bold; color: var(--primary); }
+        .summary-dec { font-size: 1rem; font-weight: bold; text-transform: uppercase; margin-top: 5px; }
 
         /* Footer */
-        footer { margin-top: auto; background-color: #002244; color: white; text-align: center; padding: 15px; font-size: 0.9rem; border-top: 4px solid var(--secondary); z-index: 20; position: relative; }
-        .dev-name { color: var(--secondary); font-weight: bold; }
+        footer { margin-top: auto; background-color: #002244; color: white; text-align: center; padding: 15px; font-size: 0.8rem; }
 
-        /* Celebration */
-        .confetti { position: fixed; top: -50px; z-index: 9999; user-select: none; pointer-events: none; animation: fall linear forwards; }
-        @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
-        
-        .congrats-popup { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(255, 255, 255, 0.98); padding: 30px 60px; border-radius: 50px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); border: 4px solid var(--secondary); z-index: 10000; text-align: center; display: none; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        .congrats-popup h2 { margin: 0; color: var(--primary); font-size: 2.5rem; }
-        .congrats-popup p { font-size: 1.2rem; color: #555; margin-top: 5px; font-weight: bold; }
-        
-        @keyframes popIn { to { transform: translate(-50%, -50%) scale(1); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        @media print {
-            .sidebar, header, footer, .print-btn, .congrats-popup { display: none; }
-            .container { display: block; margin: 0; width: 100%; max-width: 100%; }
-            .transcript-card { box-shadow: none; padding: 0; border: none; }
-            .main-content { padding: 0; }
-            body { background: white; -webkit-print-color-adjust: exact; }
+        /* Mobile Optimization */
+        @media (max-width: 900px) {
+            .container { flex-direction: column; display: block; }
+            .sidebar { width: 100%; height: auto; position: static; padding: 20px; box-shadow: none; border-bottom: 1px solid #ddd; border-right: none; }
+            .main-content { padding: 15px; }
+            .transcript-card { padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+            .student-header { flex-direction: column; text-align: center; }
+            .meta-info { text-align: center; margin-top: 10px; }
+            .sem-summary { grid-template-columns: 1fr; }
+            header h1 { font-size: 1.1rem; }
         }
-        @media (max-width: 900px) { .container { flex-direction: column; } .sidebar { width: 100%; box-sizing: border-box; border-right: none; border-bottom: 1px solid #ddd; } .sem-summary { flex-direction: column; align-items: center; } }
+
+        /* Print styles */
+        @media print {
+            .sidebar, header, footer, #installBtn { display: none; }
+            .container { display: block; }
+            .transcript-card { box-shadow: none; border: none; max-width: 100%; }
+        }
+
+        /* Utilities */
+        .loader { display: none; text-align: center; margin-top: 30px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #ddd; border-top: 4px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        .alert { padding: 15px; background: #ffecec; color: #d63031; border-radius: 6px; margin-top: 20px; display: none; text-align: center; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Palmares */
+        .palmares-box { margin-top: 30px; background: #fffdf0; border: 1px solid #e0c040; border-radius: 8px; padding: 15px; overflow-x: auto; }
+        .palmares-table { width: 100%; border-collapse: collapse; min-width: 300px; }
+        .palmares-table th, .palmares-table td { padding: 8px; border-bottom: 1px solid #ddd; text-align: left; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>ISCAE - Résultats des Examens</h1>
+    <h1>ISCAE Résultats</h1>
+    <button id="installBtn">📲 Installer</button>
 </header>
 
 <div class="container">
@@ -162,21 +149,16 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Numéro Matricule (Ex: I21567):</label>
+                <label>Matricule (Ex: I21567):</label>
                 <input type="text" id="studentId" placeholder="Ex: I21567" required style="text-transform: uppercase;">
             </div>
-            <button type="submit">Rechercher</button>
+            <button type="submit" class="search-btn">Rechercher / بحث</button>
         </form>
     </aside>
 
     <main class="main-content">
-        <div id="loader" class="loader"><div class="spinner"></div><p>Analyse et calcul du classement...</p></div>
+        <div id="loader" class="loader"><div class="spinner"></div><p>Traitement...</p></div>
         <div id="error-msg" class="alert"></div>
-
-        <div id="congrats-banner" class="congrats-popup">
-            <h2>💐 Félicitations ! ❤️</h2>
-            <p>Semestre Validé avec succès</p>
-        </div>
 
         <div id="transcript-view" class="transcript-card">
             <div class="student-header">
@@ -185,71 +167,79 @@
                     <span class="matricule-badge" id="st-id">I00000</span>
                 </div>
                 <div class="meta-info">
-                    <p>Année Académique: <strong>2024-2025</strong></p>
+                    <p><strong>2024-2025</strong></p>
                     <p id="res-context">CONTEXTE</p>
-                    <p>Source: <span id="file-src"></span></p>
                 </div>
             </div>
 
-            <table class="transcript-table">
-                <thead>
-                    <tr>
-                        <th style="text-align:left; width:35%;">Modules / Éléments</th>
-                        <th>CC</th>
-                        <th>CF</th>
-                        <th style="background:#e0e0e0;">Note</th>
-                        <th>Crédit</th>
-                        <th>Décision</th>
-                    </tr>
-                </thead>
-                <tbody id="grade-body">
-                    <!-- Rows here -->
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="transcript-table">
+                    <thead>
+                        <tr>
+                            <th class="col-module">Modules</th>
+                            <th>CC</th>
+                            <th>CF</th>
+                            <th>Note</th>
+                            <th>Crédit</th>
+                            <th>Décision</th>
+                        </tr>
+                    </thead>
+                    <tbody id="grade-body">
+                        <!-- Rows -->
+                    </tbody>
+                </table>
+            </div>
 
             <div class="sem-summary">
-                <div class="summary-box" style="border-color: var(--secondary); background: #fffdf0;">
-                    <div class="summary-label">Classement</div>
-                    <div class="summary-value" id="sem-rank" style="color: var(--secondary);">--/--</div>
-                    <div style="font-size:0.8rem; color:#666;">Ordre de Mérite</div>
+                <div class="summary-box" style="background: #fffdf0; border-color: var(--secondary);">
+                    <div class="summary-label" style="font-size:0.8rem;">Classement</div>
+                    <div class="summary-value" id="sem-rank" style="color: var(--secondary); font-size: 1.8rem;">--/--</div>
                 </div>
 
                 <div class="summary-box">
-                    <div class="summary-label">MOYENNE SEMESTRE</div>
+                    <div class="summary-label" style="font-size:0.8rem;">Moyenne</div>
                     <div class="summary-value" id="sem-avg">--</div>
                     <div class="summary-dec" id="sem-decision">--</div>
                 </div>
             </div>
 
-            <!-- Top Students List -->
             <div class="palmares-box">
-                <div style="text-align:center;"><span class="palmares-title">🏆 Palmarès de la Promotion (Top 3)</span></div>
+                <div style="text-align:center; font-weight:bold; color:#b38f00; margin-bottom:10px;">🏆 Top 3 Étudiants</div>
                 <table class="palmares-table">
-                    <thead>
-                        <tr>
-                            <th>Rang</th>
-                            <th>Matricule</th>
-                            <th>Nom Complet</th>
-                            <th>Moyenne</th>
-                        </tr>
-                    </thead>
-                    <tbody id="palmares-body">
-                        <!-- Filled by JS -->
-                    </tbody>
+                    <tbody id="palmares-body"></tbody>
                 </table>
             </div>
 
-            <button class="print-btn" onclick="window.print()" style="background:#555; color:white; padding:10px 20px; border:none; border-radius:5px; margin-top:20px; float:left; cursor:pointer;">Imprimer</button>
+            <button onclick="window.print()" style="background:#555; color:white; padding:10px; width:100%; border:none; border-radius:5px; margin-top:20px; cursor:pointer;">🖨️ Imprimer / PDF</button>
         </div>
     </main>
 </div>
 
 <footer>
-    <p>Conçu et Développé par <span class="dev-name">Mohamed Dah Agove</span> &copy; 2025</p>
+    <p>Dev: Mohamed Dah Agove &copy; 2025</p>
 </footer>
 
 <script>
-    // 1. Configuration
+    // PWA Install Logic
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const installBtn = document.getElementById('installBtn');
+        installBtn.style.display = 'block';
+        installBtn.addEventListener('click', () => {
+            installBtn.style.display = 'none';
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted install');
+                }
+                deferredPrompt = null;
+            });
+        });
+    });
+
+    // Configuration & Logic
     const semsData = {
         'l1': {'s1':'Semestre 1','s2':'Semestre 2'},
         'l2': {'s3':'Semestre 3','s4':'Semestre 4'},
@@ -270,20 +260,16 @@
         }
     }
 
-    // 2. Search Logic
     document.getElementById('searchForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
+        // UI Reset
         document.getElementById('transcript-view').style.display = 'none';
         document.getElementById('error-msg').style.display = 'none';
-        document.getElementById('congrats-banner').style.display = 'none';
-        stopCelebration();
         
         let id = document.getElementById('studentId').value.trim().toUpperCase();
-
         if (!id.startsWith('I')) {
-            document.getElementById('error-msg').style.display = 'block';
-            document.getElementById('error-msg').innerText = "Le numéro doit commencer par la lettre 'I' (ex: I21567).";
+            showError("Le matricule doit commencer par 'I' (ex: I21567)");
             return;
         }
 
@@ -293,16 +279,14 @@
         const lvl = document.getElementById('level').value;
         const sem = document.getElementById('semester').value;
 
-        // --- MODIFICATION ICI : PLUS DE DOSSIER RESULTS ---
+        // Smart File Detection
         const possibleFiles = [
-            `${lvl.toUpperCase()}_${maj.toUpperCase()}_${sem.toUpperCase()}.pdf`, // Ex: L1_BA_S1.pdf
-            `${lvl.toLowerCase()}_${maj.toLowerCase()}_${sem.toLowerCase()}.pdf`, // Ex: l1_ba_s1.pdf
-            `${lvl.toUpperCase()}2_${maj.toUpperCase()}_${sem.toUpperCase()}.pdf` // Ex: L12_BA_S1.pdf (Variante)
+            `${lvl.toUpperCase()}_${maj.toUpperCase()}_${sem.toUpperCase()}.pdf`, 
+            `${lvl.toLowerCase()}_${maj.toLowerCase()}_${sem.toLowerCase()}.pdf`,
+            `${lvl.toUpperCase()}2_${maj.toUpperCase()}_${sem.toUpperCase()}.pdf`
         ];
-        // --------------------------------------------------
 
         let foundData = null;
-        let usedFile = "";
         let rankInfo = null;
         let topStudents = [];
 
@@ -312,41 +296,38 @@
                 foundData = result.studentData;
                 rankInfo = result.rankInfo;
                 topStudents = result.topStudents;
-                usedFile = filePath;
                 break; 
-            } catch (error) {
-                continue;
-            }
+            } catch (error) { continue; }
         }
 
         document.getElementById('loader').style.display = 'none';
 
         if (foundData && foundData.length > 0) {
-            renderTranscript(foundData, id, usedFile, maj, lvl, sem, rankInfo, topStudents);
+            renderTranscript(foundData, id, maj, lvl, sem, rankInfo, topStudents);
         } else {
-            document.getElementById('error-msg').style.display = 'block';
-            document.getElementById('error-msg').innerHTML = `
-                Aucun résultat trouvé pour ${id}.<br>
-                <small>Vérifiez que le fichier <b>${possibleFiles[0]}</b> est bien dans le même dossier.</small>
-            `;
+            showError(`Aucun résultat pour ${id}. Vérifiez que le fichier PDF (ex: ${possibleFiles[0]}) est dans le dossier.`);
         }
     });
 
-    // 3. PDF Parsing Engine (Ranking + Top Students)
+    function showError(msg) {
+        const err = document.getElementById('error-msg');
+        err.style.display = 'block';
+        err.innerText = msg;
+    }
+
+    // PDF Processing (Same logic, minified slightly)
     function processPDF(url, targetId) {
         return new Promise(async (resolve, reject) => {
             try {
                 const loadingTask = pdfjsLib.getDocument(url);
                 const pdf = await loadingTask.promise;
-                
                 let isCapturing = false;
                 let studentRows = [];
-                let allStudents = []; // {id, name, avg}
+                let allStudents = [];
 
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
                     const textContent = await page.getTextContent();
-                    
                     let lines = {};
                     textContent.items.forEach(item => {
                         let y = Math.round(item.transform[5]);
@@ -356,192 +337,91 @@
                     });
 
                     let sortedY = Object.keys(lines).sort((a,b) => b - a);
-
                     for (let y of sortedY) {
                         let items = lines[y].sort((a,b) => a.x - b.x);
                         let rowText = items.map(itm => itm.t).join(" ").trim();
                         
-                        // --- DATA COLLECTION FOR RANKING ---
                         let headerMatch = rowText.match(/(I\d{4,})(.*?)(\b(?:[0-1]?\d|20)[.,]\d{1,2}\b)/);
                         if (headerMatch) {
                             let sId = headerMatch[1];
                             let allNumbers = rowText.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
                             if (allNumbers) {
                                 let sAvg = parseFloat(allNumbers[allNumbers.length - 1].replace(',', '.'));
-                                let rawName = rowText.replace(sId, "").replace(/[\d\.,]+\s*(Validé|Rattrapage|Admis|Ajourné)?.*$/i, "").trim();
-                                rawName = rawName.replace(/\d{3,}/g, "").trim();
-
-                                if (!allStudents.some(s => s.id === sId)) {
-                                    allStudents.push({ id: sId, name: rawName, avg: sAvg });
-                                }
+                                let rawName = rowText.replace(sId, "").replace(/[\d\.,]+\s*(Validé|Rattrapage|Admis|Ajourné)?.*$/i, "").trim().replace(/\d{3,}/g, "").trim();
+                                if (!allStudents.some(s => s.id === sId)) allStudents.push({ id: sId, name: rawName, avg: sAvg });
                             }
                         }
 
-                        // --- TARGET STUDENT CAPTURE ---
-                        if (rowText.includes(targetId)) {
-                            let regex = new RegExp("(^|\\s|\\|)" + targetId + "(\\s|\\||$)");
-                            if (regex.test(rowText)) {
-                                isCapturing = true;
-                                studentRows.push({ type: 'header', text: rowText });
-                                continue;
-                            }
+                        if (rowText.includes(targetId) && new RegExp("(^|\\s|\\|)" + targetId + "(\\s|\\||$)").test(rowText)) {
+                            isCapturing = true;
+                            studentRows.push({ type: 'header', text: rowText });
+                            continue;
                         }
-
                         if (isCapturing) {
-                            let nextStudentRegex = /(^|\s)(I\d{4,})(\s|$)/;
-                            let match = rowText.match(nextStudentRegex);
-                            if (match && !rowText.includes(targetId)) {
-                                isCapturing = false;
-                            } else if (rowText.length > 2 && !rowText.includes("Nom et Prénom")) {
-                                studentRows.push({ type: 'data', text: rowText });
-                            }
+                            if (/(^|\s)(I\d{4,})(\s|$)/.test(rowText) && !rowText.includes(targetId)) isCapturing = false;
+                            else if (rowText.length > 2 && !rowText.includes("Nom et Prénom")) studentRows.push({ type: 'data', text: rowText });
                         }
                     }
                 }
 
                 if (studentRows.length > 0) {
                     allStudents.sort((a, b) => b.avg - a.avg);
-                    let rank = allStudents.findIndex(s => s.id === targetId) + 1;
-                    let top3 = allStudents.slice(0, 3);
-
                     resolve({ 
                         studentData: studentRows, 
-                        rankInfo: { rank: rank, total: allStudents.length },
-                        topStudents: top3
+                        rankInfo: { rank: allStudents.findIndex(s => s.id === targetId) + 1, total: allStudents.length },
+                        topStudents: allStudents.slice(0, 3)
                     });
-                } else {
-                    reject("Not Found");
-                }
-            } catch (error) {
-                reject(error);
-            }
+                } else reject("Not Found");
+            } catch (error) { reject(error); }
         });
     }
 
-    // 4. Render Transcript & Palmares
-    function renderTranscript(rows, studentId, filename, maj, lvl, sem, rankInfo, topStudents) {
+    function renderTranscript(rows, studentId, maj, lvl, sem, rankInfo, topStudents) {
         const tbody = document.getElementById('grade-body');
         tbody.innerHTML = '';
         
         let headerRow = rows[0].text;
-        let nameClean = headerRow.replace(studentId, "")
-                                 .replace(/(\d{1,2}[\.,]\d{2})\s*(Validé|Rattrapage|Ajourné|Admis|Compensé)?.*$/i, "")
-                                 .trim()
-                                 .replace(/\d{3,}/, "").trim();
-
+        let nameClean = headerRow.replace(studentId, "").replace(/(\d{1,2}[\.,]\d{2})\s*(Validé|Rattrapage|Ajourné|Admis|Compensé)?.*$/i, "").trim().replace(/\d{3,}/, "").trim();
         let textWithoutID = headerRow.replace(studentId, "");
         let gradeMatch = textWithoutID.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
         let semAvg = (gradeMatch && gradeMatch.length > 0) ? gradeMatch[gradeMatch.length - 1] : "--";
 
-        let semDec = "";
-        if (headerRow.includes("Validé")) semDec = "Validé";
-        else if (headerRow.includes("Admis")) semDec = "Admis";
-        else if (headerRow.includes("Rattrapage")) semDec = "Rattrapage";
-        else if (headerRow.includes("Ajourné")) semDec = "Ajourné";
+        let semDec = headerRow.includes("Validé") ? "Validé" : (headerRow.includes("Admis") ? "Admis" : (headerRow.includes("Rattrapage") ? "Rattrapage" : "Ajourné"));
 
-        document.getElementById('st-name').innerText = nameClean || "Étudiant";
+        document.getElementById('st-name').innerText = nameClean;
         document.getElementById('st-id').innerText = studentId;
         document.getElementById('res-context').innerText = `${lvl.toUpperCase()} - ${maj.toUpperCase()} - ${sem.toUpperCase()}`;
-        document.getElementById('file-src').innerText = filename;
         document.getElementById('sem-avg').innerText = semAvg;
         document.getElementById('sem-decision').innerText = semDec;
-        
-        if (rankInfo) {
-            document.getElementById('sem-rank').innerText = `${rankInfo.rank} / ${rankInfo.total}`;
-        }
+        document.getElementById('sem-decision').style.color = (semDec === "Validé" || semDec === "Admis") ? "#008000" : "#cc0000";
+        if (rankInfo) document.getElementById('sem-rank').innerText = `${rankInfo.rank} / ${rankInfo.total}`;
 
-        const palmaresBody = document.getElementById('palmares-body');
-        palmaresBody.innerHTML = '';
-        topStudents.forEach((s, index) => {
-            let rankClass = index === 0 ? 'rank-1' : (index === 1 ? 'rank-2' : 'rank-3');
-            let badge = index === 0 ? '🥇' : (index === 1 ? '🥈' : '🥉');
-            let row = `
-                <tr>
-                    <td class="${rankClass}">${badge} ${index + 1}</td>
-                    <td>${s.id}</td>
-                    <td>${s.name}</td>
-                    <td style="font-weight:bold;">${s.avg}</td>
-                </tr>
-            `;
-            palmaresBody.innerHTML += row;
-        });
+        document.getElementById('palmares-body').innerHTML = topStudents.map((s, i) => `
+            <tr><td>${i===0?'🥇':(i===1?'🥈':'🥉')} ${i+1}</td><td>${s.id}</td><td>${s.name.split(' ').slice(0,2).join(' ')}..</td><td><b>${s.avg}</b></td></tr>
+        `).join('');
 
-        let isSuccess = (semDec === "Validé" || semDec === "Admis");
-        document.getElementById('sem-decision').style.color = isSuccess ? "#008000" : "#cc0000";
-
-        for (let i = 1; i < rows.length; i++) {
-            let raw = rows[i].text;
-            let tr = document.createElement('tr');
-
-            let subjectMatch = raw.match(/(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s*(.*)$/i);
-            
-            if (subjectMatch) {
-                tr.className = "row-subject";
-                let subName = raw.substring(0, raw.indexOf(subjectMatch[1])).trim();
-                let dec = subjectMatch[5].trim(); 
-                if (dec === "") dec = ""; 
-                let decColor = (dec.includes("Validé") || dec.includes("Admis")) ? "status-valid" : (dec.includes("Rattrapage") ? "status-ratt" : "");
-
-                tr.innerHTML = `
-                    <td class="col-module">${subName}</td>
-                    <td class="col-num">${subjectMatch[1]}</td>
-                    <td class="col-num">${subjectMatch[2]}</td>
-                    <td class="col-num" style="background:#f9f9f9;"><strong>${subjectMatch[3]}</strong></td>
-                    <td class="col-num">${subjectMatch[4]}</td>
-                    <td class="col-dec"><span class="${decColor}">${dec}</span></td>
-                `;
+        rows.slice(1).forEach(row => {
+            let raw = row.text;
+            let sm = raw.match(/(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s*(.*)$/i);
+            if (sm) {
+                let dec = sm[5].trim();
+                let decClass = (dec.includes("Validé") || dec.includes("Admis")) ? "status-valid" : "status-ratt";
+                tbody.innerHTML += `<tr><td class="col-module">${raw.substring(0, raw.indexOf(sm[1])).trim()}</td><td>${sm[1]}</td><td>${sm[2]}</td><td style="background:#f0f0f0;"><b>${sm[3]}</b></td><td>${sm[4]}</td><td class="${decClass}">${dec}</td></tr>`;
             } else {
-                let ueMatch = raw.match(/(\d{1,2}[\.,]\d{2})\s+(\d{1,2})\s*(.*)$/i);
-                if (ueMatch) {
-                    tr.className = "row-ue";
-                    let ueName = raw.substring(0, raw.indexOf(ueMatch[1])).trim();
-                    let dec = ueMatch[3].trim();
-                    let decColor = (dec.includes("Validé") || dec.includes("Acquis")) ? "status-valid" : "";
-
-                    tr.innerHTML = `
-                        <td class="col-module">${ueName}</td>
-                        <td class="col-num" colspan="2" style="font-size:0.8rem; color:#666;">Moyenne UE</td>
-                        <td class="col-num" style="background:#e3eefc;"><strong>${ueMatch[1]}</strong></td>
-                        <td class="col-num"><strong>${ueMatch[2]}</strong></td>
-                        <td class="col-dec"><span class="${decColor}">${dec}</span></td>
-                    `;
-                } else {
-                    continue; 
+                let um = raw.match(/(\d{1,2}[\.,]\d{2})\s+(\d{1,2})\s*(.*)$/i);
+                if (um) {
+                     let dec = um[3].trim();
+                     let decClass = (dec.includes("Validé") || dec.includes("Acquis")) ? "status-valid" : "";
+                     tbody.innerHTML += `<tr class="row-ue"><td class="col-module">${raw.substring(0, raw.indexOf(um[1])).trim()}</td><td colspan="2"><small>Moy UE</small></td><td style="background:#e3eefc;"><b>${um[1]}</b></td><td><b>${um[2]}</b></td><td class="${decClass}">${dec}</td></tr>`;
                 }
             }
-            tbody.appendChild(tr);
-        }
-
+        });
         document.getElementById('transcript-view').style.display = 'block';
-        if (isSuccess) launchCelebration();
     }
 
-    let confettiInterval;
-    function launchCelebration() {
-        const banner = document.getElementById('congrats-banner');
-        banner.style.display = 'block';
-        const symbols = ['🎉', '💐', '🌹', '🌺', '🌷', '🌻', '❤️', '💖', '💘', '✨', '🎓'];
-        const colors = ['#FFD700', '#FF6347', '#32CD32', '#1E90FF', '#FF1493', '#FF4500'];
-
-        confettiInterval = setInterval(() => {
-            const el = document.createElement('div');
-            el.classList.add('confetti');
-            el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
-            el.style.left = Math.random() * 100 + 'vw';
-            el.style.animationDuration = (Math.random() * 3 + 2) + 's'; 
-            el.style.fontSize = (Math.random() * 30 + 20) + 'px';
-            el.style.color = colors[Math.floor(Math.random() * colors.length)];
-            document.body.appendChild(el);
-            setTimeout(() => { el.remove(); }, 4000);
-        }, 50); 
-
-        setTimeout(stopCelebration, 6000);
-    }
-
-    function stopCelebration() {
-        clearInterval(confettiInterval);
-        document.querySelectorAll('.confetti').forEach(el => el.remove());
-        document.getElementById('congrats-banner').style.display = 'none';
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Fail', err));
     }
 </script>
 
