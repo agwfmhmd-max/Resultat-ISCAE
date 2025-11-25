@@ -3,108 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#ffffff">
-    <title>Relevé de Notes - ISCAE</title>
+    <meta name="theme-color" content="#003366">
+    <title>Résultats ISCAE</title>
     
     <!-- PDF.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';</script>
 
     <style>
-        :root { --primary: #003366; --text: #000; --border: #000; --header-bg: #e0e0e0; }
-        body { font-family: 'Times New Roman', Times, serif; background-color: #f4f4f4; margin: 0; display: flex; flex-direction: column; min-height: 100vh; color: var(--text); }
+        /* --- GLOBAL STYLES --- */
+        :root { --primary: #003366; --secondary: #c5a017; --bg: #f3f5f8; --text: #333; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; display: flex; flex-direction: column; min-height: 100vh; color: var(--text); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         
-        /* App Header (Hidden in Print) */
-        .app-header { background-color: #003366; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .app-header h1 { margin: 0; font-family: sans-serif; font-size: 1.2rem; }
+        /* Header */
+        header { background-color: var(--primary); color: white; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-bottom: 4px solid var(--secondary); z-index: 100; position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 1.1rem; letter-spacing: 1px; text-transform: uppercase; }
+        .install-btn { background: var(--secondary); color: white; border: none; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(197, 160, 23, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(197, 160, 23, 0); } 100% { box-shadow: 0 0 0 0 rgba(197, 160, 23, 0); } }
+
+        .container { display: flex; flex-grow: 1; max-width: 1600px; margin: 0 auto; width: 100%; }
         
-        .container { display: flex; flex-direction: row; max-width: 1400px; margin: 0 auto; width: 100%; gap: 20px; padding: 20px; box-sizing: border-box; }
-        
-        /* Sidebar (Search Form) */
-        .sidebar { width: 300px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); height: fit-content; }
+        /* Sidebar */
+        .sidebar { width: 300px; background: white; padding: 25px; border-right: 1px solid #e1e4e8; display: flex; flex-direction: column; height: calc(100vh - 70px); position: sticky; top: 70px; overflow-y: auto; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-family: sans-serif; font-size: 0.9rem; }
-        select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; box-sizing: border-box; }
-        button.search-btn { width: 100%; padding: 12px; background-color: #003366; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: bold; margin-top: 10px; font-family: sans-serif; }
-        
-        /* Main Content (The Transcript) */
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
+        label { display: block; margin-bottom: 6px; font-weight: 700; color: #444; font-size: 0.9rem; }
+        select, input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box; background: #fff; }
+        button.search-btn { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
+        button.search-btn:active { transform: scale(0.98); }
 
-        /* OFFICIAL DOCUMENT STYLE */
-        .official-doc {
-            background: white;
-            width: 100%;
-            max-width: 1000px; /* A4 width approx */
-            padding: 40px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.15);
-            display: none; /* Hidden by default */
-            position: relative;
-        }
+        .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding-bottom: 60px; }
 
-        /* Document Header */
+        /* --- 1. MODERN STYLE (SEMESTRE) --- */
+        .transcript-card { background: white; width: 100%; max-width: 900px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-radius: 12px; display: none; border-top: 5px solid var(--primary); margin-bottom: 20px; position: relative; z-index: 10; }
+        .student-header { display: flex; justify-content: space-between; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .student-info h2 { margin: 0; color: var(--primary); font-size: 1.4rem; }
+        .student-info .matricule-badge { background: var(--secondary); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem; display: inline-block; margin-top: 5px; }
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; margin-top: 10px; border: 1px solid #eee; border-radius: 6px; }
+        .transcript-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .transcript-table th { background-color: #f4f4f4; padding: 10px; text-align: center; font-weight: 700; border-bottom: 2px solid #ddd; font-size: 0.85rem; white-space: nowrap; }
+        .transcript-table td { padding: 8px; border-bottom: 1px solid #eee; text-align: center; font-size: 0.9rem; }
+        .col-module { text-align: left !important; font-weight: 600; min-width: 180px; }
+        .row-ue { background-color: #f9fbff; }
+        .status-valid { color: #008000; font-weight: bold; }
+        .status-ratt { color: #cc0000; font-weight: bold; }
+        .sem-summary { margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .summary-box { border: 2px solid var(--primary); padding: 15px; border-radius: 8px; text-align: center; background: #fff; }
+        .summary-value { font-size: 2rem; font-weight: bold; color: var(--primary); }
+        .palmares-box { margin-top: 30px; background: #fffdf0; border: 1px solid #e0c040; border-radius: 8px; padding: 15px; overflow-x: auto; }
+        .palmares-table { width: 100%; border-collapse: collapse; min-width: 300px; }
+        .palmares-table td { padding: 8px; border-bottom: 1px solid #ddd; }
+        .palmares-table tr:nth-child(1) td { font-weight: bold; color: #d4af37; background: rgba(255, 215, 0, 0.1); }
+
+        /* --- 2. OFFICIAL STYLE (ANNUEL) --- */
+        .official-doc { background: white; width: 100%; max-width: 1000px; padding: 40px; box-shadow: 0 0 20px rgba(0,0,0,0.15); display: none; position: relative; font-family: 'Times New Roman', Times, serif; color: #000; }
         .doc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; border-bottom: 1px solid #ccc; padding-bottom: 20px; }
         .header-left, .header-right { font-size: 0.8rem; line-height: 1.4; color: #444; width: 35%; }
         .header-center { text-align: center; width: 30%; }
-        .logo-placeholder { width: 80px; height: 80px; background: #f0f0f0; border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; color: #999; font-size: 0.7rem; }
-
+        .logo-placeholder { width: 70px; height: 70px; background: #f0f0f0; border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; color: #999; font-size: 0.7rem; }
         .doc-title { text-align: center; font-weight: bold; font-size: 1.4rem; margin: 20px 0 30px; text-transform: uppercase; letter-spacing: 1px; color: #000; background: #f9f9f9; padding: 10px; border-top: 2px solid #000; border-bottom: 2px solid #000; }
-
-        /* Student Info Grid */
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; background: #fcfcfc; padding: 15px; border: 1px solid #eee; }
         .info-row { display: flex; margin-bottom: 8px; font-size: 0.95rem; }
         .info-label { width: 160px; font-weight: bold; color: #555; }
         .info-val { font-weight: bold; color: #000; }
-
-        /* Results Tables */
         .semesters-container { display: flex; gap: 20px; margin-bottom: 20px; }
         .semester-box { flex: 1; border: 1px solid #000; }
-        
         .sem-header { background-color: #d0d0d0; padding: 8px; text-align: center; font-weight: bold; border-bottom: 1px solid #000; font-size: 0.9rem; text-transform: uppercase; }
-        
         .result-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         .result-table th { background-color: #e8e8e8; border-bottom: 1px solid #000; padding: 5px; text-align: center; font-weight: bold; font-size: 0.8rem; }
         .result-table td { padding: 6px 5px; border-bottom: 1px solid #ccc; text-align: center; }
         .result-table td:first-child { text-align: left; padding-left: 10px; font-weight: 500; }
-        
-        .col-credit { border-left: 1px solid #000; border-right: 1px solid #000; background: #f9f9f9; font-weight: bold; }
         .col-note { font-weight: bold; }
-
-        /* Annual Summary Box (Bottom Left) */
         .summary-section { display: flex; justify-content: space-between; margin-top: 30px; border-top: 2px solid #000; padding-top: 20px; }
-        
         .summary-table { border-collapse: collapse; width: 100%; max-width: 400px; font-size: 0.9rem; }
         .summary-table td { padding: 8px; border: 1px solid #999; }
         .summary-label { background: #e8e8e8; font-weight: bold; width: 60%; }
         .summary-val { font-weight: bold; text-align: center; font-size: 1.1rem; }
-
-        .jury-decision { margin-top: 20px; font-weight: bold; font-size: 1rem; }
-        
         .signature-section { text-align: center; width: 300px; margin-top: 20px; }
         .signature-title { font-weight: bold; margin-bottom: 60px; font-size: 0.9rem; text-decoration: underline; }
 
         /* Loader & Messages */
-        .loader { display: none; text-align: center; margin-top: 50px; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #ddd; border-top: 4px solid #003366; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-        .alert { padding: 15px; background: #ffecec; color: #d63031; border-radius: 4px; margin-top: 20px; display: none; text-align: center; font-family: sans-serif; }
+        .loader { display: none; text-align: center; margin-top: 30px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #ddd; border-top: 4px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        .alert { padding: 15px; background: #ffecec; color: #d63031; border-radius: 6px; margin-top: 20px; display: none; text-align: center; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* Footer */
+        footer { margin-top: auto; background: #002244; color: white; text-align: center; padding: 30px 20px 40px; border-top: 4px solid var(--secondary); font-size: 0.95rem; z-index: 20; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
+        .footer-content { max-width: 600px; margin: 0 auto; }
+        .dev-name { color: var(--secondary); font-weight: bold; display: inline-block; }
+        .copyright { font-size: 0.8rem; color: #ccc; margin-top: 8px; letter-spacing: 0.5px; }
+
         /* Celebration */
-        .confetti { position: fixed; top: -50px; z-index: 9999; pointer-events: none; animation: fall linear forwards; font-size: 25px; }
+        .confetti { position: fixed; top: -50px; z-index: 9999; pointer-events: none; animation: fall linear forwards; font-size: 30px; }
         @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        .congrats-popup { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(255, 255, 255, 0.98); padding: 25px 40px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border: 4px solid var(--secondary); z-index: 10000; text-align: center; display: none; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; width: 85%; max-width: 450px; }
+        .congrats-popup h2 { margin: 0; color: var(--primary); font-size: 2rem; }
+        @keyframes popIn { to { transform: translate(-50%, -50%) scale(1); } }
 
-        /* Print Styles */
-        @media print {
-            .sidebar, .app-header, .install-btn, .print-btn { display: none !important; }
-            body, .container, .main-content { background: white; margin: 0; padding: 0; display: block; }
-            .official-doc { box-shadow: none; padding: 20px; max-width: 100%; margin: 0; }
-            .sem-header, .result-table th { background-color: #d0d0d0 !important; -webkit-print-color-adjust: exact; }
-            .summary-label { background-color: #e8e8e8 !important; -webkit-print-color-adjust: exact; }
-        }
-
-        /* Responsive */
+        /* Media Queries */
         @media (max-width: 900px) {
-            .container { flex-direction: column; padding: 10px; }
-            .sidebar { width: 100%; }
+            .container { flex-direction: column; display: block; }
+            .sidebar { width: 100%; height: auto; position: static; padding: 20px; box-sizing: border-box; border-bottom: 1px solid #ddd; }
             .official-doc { padding: 15px; }
             .semesters-container { flex-direction: column; }
             .info-grid { grid-template-columns: 1fr; }
@@ -112,218 +111,187 @@
             .header-left, .header-right, .header-center { width: 100%; text-align: center; }
             .summary-section { flex-direction: column; align-items: center; gap: 30px; }
         }
+        @media print {
+            .sidebar, header, .print-btn, .congrats-popup, .install-btn, footer, .loader { display: none !important; }
+            body, .container, .main-content { background: white; margin: 0; padding: 0; display: block; }
+            .official-doc { display: block !important; box-shadow: none; padding: 0; margin: 0; width: 100%; max-width: 100%; }
+            .transcript-card { display: block !important; box-shadow: none; border: none; padding: 0; margin: 0; }
+            /* Hide the one that is not active */
+            body[data-view="annuel"] .transcript-card { display: none !important; }
+            body[data-view="semester"] .official-doc { display: none !important; }
+            .sem-header, .result-table th, .summary-label { background-color: #ddd !important; -webkit-print-color-adjust: exact; }
+        }
     </style>
 </head>
 <body>
 
-<div class="app-header">
+<header>
     <h1>ISCAE Résultats</h1>
-    <button onclick="window.print()" class="search-btn" style="width:auto; margin:0; padding:5px 15px; background:white; color:#003366;">🖨️ Imprimer</button>
-</div>
+    <button class="install-btn" onclick="alert('Ajouter à l\'écran d\'accueil')">📲 App</button>
+</header>
 
 <div class="container">
     <aside class="sidebar">
         <form id="searchForm">
             <div class="form-group">
-                <label>Filière:</label>
+                <label>Filière (التخصص):</label>
                 <select id="major" required>
+                    <option value="">-- Sélectionner --</option>
                     <option value="ba">Banques Assurances (BA)</option>
                     <option value="grh">Gestion des RH (GRH)</option>
                     <option value="fc">Finance Comptabilité (FC)</option>
                     <option value="fcfp">FCFP</option>
-                    <option value="sae">Statistique (SAE)</option>
+                    <option value="sae">Statistique appliquée (SAE)</option>
                     <option value="ig">Informatique de Gestion (IG)</option>
+                    <option value="igfp">IGFP</option>
                     <option value="di">Développement Info (DI)</option>
                     <option value="tcm">Marketing (TCM)</option>
-                    <option value="rt">Réseaux (RT)</option>
+                    <option value="rt">Réseaux Télécom (RT)</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>Niveau:</label>
+                <label>Niveau (السنة):</label>
+                <!-- تعديل هام: إضافة خيار فارغ لإجبار التغيير -->
                 <select id="level" onchange="updateSemesters()" required>
+                    <option value="">-- Choisir le niveau --</option>
                     <option value="l1">Licence 1 (L1)</option>
                     <option value="l2">Licence 2 (L2)</option>
                     <option value="l3">Licence 3 (L3)</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>Période:</label>
+                <label>Semestre (الفصل):</label>
                 <select id="semester" required>
-                    <option value="annuel">Résultat Annuel (سنوي)</option>
-                    <option value="s1">Semestre 1</option>
-                    <option value="s2">Semestre 2</option>
+                    <option value="">-- Sélectionner Niveau d'abord --</option>
                 </select>
             </div>
             <div class="form-group">
                 <label>Matricule (Ex: I21567):</label>
-                <input type="text" id="studentId" placeholder="I....." required style="text-transform: uppercase;">
+                <input type="text" id="studentId" placeholder="Ex: I21567" required style="text-transform: uppercase;">
             </div>
-            <button type="submit" class="search-btn">Rechercher</button>
+            <button type="submit" class="search-btn">Rechercher / بحث</button>
         </form>
     </aside>
 
     <main class="main-content">
-        <div id="loader" class="loader"><div class="spinner"></div><p>Recherche en cours...</p></div>
+        <div id="loader" class="loader"><div class="spinner"></div><p>Traitement...</p></div>
         <div id="error-msg" class="alert"></div>
 
-        <!-- OFFICIAL DOCUMENT LAYOUT -->
+        <!-- Banner Celebration -->
+        <div id="congrats-banner" class="congrats-popup">
+            <h2>🎉 Félicitations ! 💐</h2>
+            <p style="margin:5px 0; color:#2ecc71; font-weight:bold; font-size:1.2rem;">Admis / Validé</p>
+        </div>
+
+        <!-- 1. MODERN CARD (SEMESTER) -->
+        <div id="transcript-view" class="transcript-card">
+            <div class="student-header">
+                <div class="student-info">
+                    <h2 id="st-name-sem">Nom</h2>
+                    <span class="matricule-badge" id="st-id-sem">I00000</span>
+                </div>
+                <div style="text-align:right; font-size:0.85rem; color:#666;">
+                    <p>2024-2025</p>
+                    <p id="res-context-sem">CONTEXTE</p>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="transcript-table">
+                    <thead>
+                        <tr><th class="col-module">Module / UE</th><th>Note/Moy</th><th>Crédit</th><th>Décision</th></tr>
+                    </thead>
+                    <tbody id="grade-body-sem"></tbody>
+                </table>
+            </div>
+            <div class="sem-summary">
+                <div class="summary-box">
+                    <div style="font-size:0.8rem; text-transform:uppercase;">Classement</div>
+                    <div class="summary-value" id="sem-rank">--</div>
+                </div>
+                <div class="summary-box">
+                    <div style="font-size:0.8rem; text-transform:uppercase;">Moyenne</div>
+                    <div class="summary-value" id="sem-avg">--</div>
+                    <div id="sem-decision" style="font-weight:bold; margin-top:5px;">--</div>
+                </div>
+            </div>
+            <div class="palmares-box">
+                <div style="text-align:center; font-weight:bold; color:#b38f00; margin-bottom:10px;">🏆 Top 10 Étudiants</div>
+                <table class="palmares-table"><tbody id="palmares-body"></tbody></table>
+            </div>
+            <button class="print-btn" onclick="window.print()" style="background:#555; color:white; padding:12px; width:100%; border:none; border-radius:5px; margin-top:20px; cursor:pointer;">🖨️ Imprimer</button>
+        </div>
+
+        <!-- 2. OFFICIAL DOC (ANNUEL) -->
         <div id="official-doc" class="official-doc">
-            
-            <!-- Header -->
             <div class="doc-header">
-                <div class="header-left">
-                    <b>République Islamique de Mauritanie</b><br>
-                    Ministère de l'Enseignement Supérieur<br>
-                    et de la Recherche Scientifique<br>
-                    Institut Supérieur de Comptabilité et<br>
-                    d'Administration des Entreprises
-                </div>
-                <div class="header-center">
-                    <div class="logo-placeholder">LOGO ISCAE</div>
-                </div>
-                <div class="header-right" style="text-align:right;">
-                    <b>Service des Affaires Estudiantines</b><br>
-                    Année Universitaire : 2024-2025<br>
-                    Nouakchott, le <span id="current-date">--/--/----</span>
-                </div>
+                <div class="header-left"><b>République Islamique de Mauritanie</b><br>Ministère de l'Enseignement Supérieur<br>et de la Recherche Scientifique<br>Institut Supérieur de Comptabilité et<br>d'Administration des Entreprises</div>
+                <div class="header-center"><div class="logo-placeholder">ISCAE</div></div>
+                <div class="header-right" style="text-align:right;"><b>Service des Affaires Estudiantines</b><br>Année Universitaire : 2024-2025<br>Nouakchott, le <span id="current-date">--/--/----</span></div>
             </div>
-
-            <div class="doc-title" id="doc-title-text">RELEVÉ DE NOTES</div>
-
-            <!-- Student Info -->
+            <div class="doc-title">RELEVÉ DE NOTES</div>
             <div class="info-grid">
-                <div class="info-row"><span class="info-label">Nom et Prénom :</span> <span class="info-val" id="st-name">--</span></div>
-                <div class="info-row"><span class="info-label">Numéro d'inscription :</span> <span class="info-val" id="st-id">--</span></div>
-                <div class="info-row"><span class="info-label">Filière :</span> <span class="info-val" id="st-major">--</span></div>
-                <div class="info-row"><span class="info-label">Niveau :</span> <span class="info-val" id="st-level">--</span></div>
+                <div class="info-row"><span class="info-label">Nom et Prénom :</span> <span class="info-val" id="st-name-ann">--</span></div>
+                <div class="info-row"><span class="info-label">N° Inscription :</span> <span class="info-val" id="st-id-ann">--</span></div>
+                <div class="info-row"><span class="info-label">Filière :</span> <span class="info-val" id="st-major-ann">--</span></div>
+                <div class="info-row"><span class="info-label">Niveau :</span> <span class="info-val" id="st-level-ann">--</span></div>
             </div>
-
-            <!-- Annual Layout (Two Columns) -->
-            <div id="annual-layout" style="display:none;">
-                <div class="semesters-container">
-                    <!-- S1 Table -->
-                    <div class="semester-box">
-                        <div class="sem-header">Premier Semestre</div>
-                        <table class="result-table">
-                            <thead>
-                                <tr>
-                                    <th>Libellé (Synthèse)</th>
-                                    <th>Moyenne</th>
-                                    <th>Décision</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Moyenne Semestrielle S1</td>
-                                    <td class="col-note" id="res-s1">--</td>
-                                    <td id="dec-s1">--</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <!-- S2 Table -->
-                    <div class="semester-box">
-                        <div class="sem-header">Deuxième Semestre</div>
-                        <table class="result-table">
-                            <thead>
-                                <tr>
-                                    <th>Libellé (Synthèse)</th>
-                                    <th>Moyenne</th>
-                                    <th>Décision</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Moyenne Semestrielle S2</td>
-                                    <td class="col-note" id="res-s2">--</td>
-                                    <td id="dec-s2">--</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Semester Layout (Detailed Modules) -->
-            <div id="semester-layout" style="display:none;">
-                <div class="semester-box" style="margin-bottom:20px;">
-                    <div class="sem-header" id="sem-detail-header">Détails du Semestre</div>
+            <div class="semesters-container">
+                <div class="semester-box">
+                    <div class="sem-header">Premier Semestre</div>
                     <table class="result-table">
-                        <thead>
-                            <tr>
-                                <th>Matière / UE</th>
-                                <th>CC</th>
-                                <th>Exam</th>
-                                <th>Note</th>
-                                <th>Crédit</th>
-                                <th>Décision</th>
-                            </tr>
-                        </thead>
-                        <tbody id="modules-body"></tbody>
+                        <thead><tr><th>Libellé</th><th>Moyenne</th><th>Décision</th></tr></thead>
+                        <tbody><tr><td>Moyenne Semestrielle S1/S3/S5</td><td class="col-note" id="res-s1">--</td><td id="dec-s1">--</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="semester-box">
+                    <div class="sem-header">Deuxième Semestre</div>
+                    <table class="result-table">
+                        <thead><tr><th>Libellé</th><th>Moyenne</th><th>Décision</th></tr></thead>
+                        <tbody><tr><td>Moyenne Semestrielle S2/S4/S6</td><td class="col-note" id="res-s2">--</td><td id="dec-s2">--</td></tr></tbody>
                     </table>
                 </div>
             </div>
-
-            <!-- Footer Summary -->
             <div class="summary-section">
                 <div style="width:100%">
                     <table class="summary-table">
-                        <tr>
-                            <td class="summary-label">Moyenne annuelle / Semestrielle</td>
-                            <td class="summary-val" id="final-avg">--</td>
-                        </tr>
-                        <tr>
-                            <td class="summary-label">Décision du jury</td>
-                            <td class="summary-val" id="final-decision" style="text-transform:uppercase;">--</td>
-                        </tr>
-                        <tr>
-                            <td class="summary-label">Total Crédits</td>
-                            <td class="summary-val">60 / 30</td>
-                        </tr>
+                        <tr><td class="summary-label">Moyenne Annuelle</td><td class="summary-val" id="final-avg-ann">--</td></tr>
+                        <tr><td class="summary-label">Décision du jury</td><td class="summary-val" id="final-decision-ann" style="text-transform:uppercase;">--</td></tr>
+                        <tr><td class="summary-label">Total Crédits</td><td class="summary-val">60</td></tr>
                     </table>
                 </div>
-                
-                <div class="signature-section">
-                    <div class="signature-title">Pour le Directeur et P.O<br>Le Directeur des Études</div>
-                </div>
+                <div class="signature-section"><div class="signature-title">Pour le Directeur et P.O<br>Le Directeur des Études</div></div>
             </div>
-
+            <button class="print-btn" onclick="window.print()" style="background:#003366; color:white; padding:12px; width:100%; border:none; border-radius:5px; margin-top:20px; cursor:pointer;">🖨️ Imprimer Relevé Officiel</button>
         </div>
     </main>
 </div>
 
+<footer>
+    <div class="footer-content">
+        <p>Développé avec ❤️ par <span class="dev-name">Mohamed Dah Agove</span></p>
+        <div class="copyright">&copy; 2025 - Tous droits réservés</div>
+    </div>
+</footer>
+
 <script>
-    // Configuration
     const semsData = {
         'l1': {'s1':'Semestre 1', 's2':'Semestre 2', 'annuel':'Résultat Annuel'},
         'l2': {'s3':'Semestre 3', 's4':'Semestre 4', 'annuel':'Résultat Annuel'},
         'l3': {'s5':'Semestre 5', 's6':'Semestre 6', 'annuel':'Résultat Annuel'}
     };
 
-    // Set Date
-    const today = new Date();
-    document.getElementById('current-date').innerText = today.toLocaleDateString('fr-FR');
+    document.getElementById('current-date').innerText = new Date().toLocaleDateString('fr-FR');
 
     function updateSemesters() {
         const lvl = document.getElementById('level').value;
         const semSelect = document.getElementById('semester');
-        const currentVal = semSelect.value;
-        semSelect.innerHTML = ''; // Clear
-        
-        // Add Annuel first
-        let optAnn = document.createElement('option');
-        optAnn.value = 'annuel';
-        optAnn.text = 'Résultat Annuel (سنوي)';
-        semSelect.appendChild(optAnn);
-
+        semSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
         if(lvl && semsData[lvl]) {
             for(let key in semsData[lvl]) {
-                if(key !== 'annuel') {
-                    let opt = document.createElement('option');
-                    opt.value = key;
-                    opt.text = semsData[lvl][key];
-                    semSelect.appendChild(opt);
-                }
+                let opt = document.createElement('option');
+                opt.value = key;
+                opt.text = semsData[lvl][key];
+                semSelect.appendChild(opt);
             }
         }
     }
@@ -331,58 +299,88 @@
     document.getElementById('searchForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
+        // Reset UI
+        document.getElementById('transcript-view').style.display = 'none';
         document.getElementById('official-doc').style.display = 'none';
         document.getElementById('error-msg').style.display = 'none';
+        document.getElementById('congrats-banner').style.display = 'none';
+        stopCelebration();
+        
+        let id = document.getElementById('studentId').value.trim().toUpperCase();
+        if (!id.startsWith('I')) { showError("Le matricule doit commencer par 'I' (ex: I21567)"); return; }
+
         document.getElementById('loader').style.display = 'block';
 
-        let id = document.getElementById('studentId').value.trim().toUpperCase();
         const maj = document.getElementById('major').value.toUpperCase();
         const lvl = document.getElementById('level').value.toUpperCase();
-        const sem = document.getElementById('semester').value.toUpperCase();
+        const sem = document.getElementById('semester').value; 
 
-        // 1. Generate Possible Filenames
         let possibleFiles = [];
-        const suffixes = ['_VD', '_VF', '_FV', '_', '', '__FV', '__VF']; 
+        // Support L1/L12, L2/L22, L3/L32
         const levelVariants = [lvl, lvl + '2']; 
+        const suffixes = ['_VD', '_VF', '_FV', '_', '', '__FV', '__VF', '_Rat', '_RAT', '_C', '_Ratt']; 
 
-        if (sem === 'ANNUEL') {
+        if (sem === 'annuel') {
+            document.body.setAttribute('data-view', 'annuel');
+            // Support various year formats
+            const years = ['(2024-2025)', '(2024_2025)', '']; 
+            
             levelVariants.forEach(l => {
-                suffixes.forEach(s => {
-                    possibleFiles.push(`PV_Annuel_${l}${maj}(2024-2025)${s}.pdf`);
-                    possibleFiles.push(`PV_Annuel_${l}${maj}${s}.pdf`);
+                years.forEach(y => {
+                    suffixes.forEach(s => {
+                        // Example: PV_Annuel_L12BA(2024_2025)_VD.pdf
+                        possibleFiles.push(`PV_Annuel_${l}${maj}${y}${s}.pdf`);
+                    });
                 });
             });
         } else {
-            possibleFiles.push(`${lvl}_${maj}_${sem}.pdf`);
-            possibleFiles.push(`${lvl}2_${maj}_${sem}.pdf`);
+            document.body.setAttribute('data-view', 'semester');
+            const sCode = sem.toUpperCase();
+            // Legacy patterns (L1_BA_S1.pdf)
+            possibleFiles.push(`${lvl}_${maj}_${sCode}.pdf`);
+            possibleFiles.push(`${lvl}2_${maj}_${sCode}.pdf`);
+            
+            // Standard PV patterns (PV_L1BA_S1...)
             levelVariants.forEach(l => {
                 suffixes.forEach(s => {
-                    possibleFiles.push(`PV_${l}${maj}_${sem}${s}.pdf`);
+                    possibleFiles.push(`PV_${l}${maj}_${sCode}${s}.pdf`);
                 });
             });
         }
 
-        // 2. Scan Files
         let foundData = null;
+        let rankInfo = null;
+        let topStudents = [];
+
         for (const filePath of possibleFiles) {
             try {
-                foundData = await processPDF(filePath, id, sem === 'ANNUEL');
-                if (foundData) break;
+                const result = await processPDF(filePath, id, sem === 'annuel');
+                foundData = result.data;
+                rankInfo = result.rankInfo;
+                topStudents = result.topStudents;
+                break; 
             } catch (error) { continue; }
         }
 
         document.getElementById('loader').style.display = 'none';
 
         if (foundData) {
-            renderResult(foundData, sem);
+            if (sem === 'annuel') {
+                renderAnnual(foundData, id, maj, lvl);
+            } else {
+                renderSemester(foundData, id, maj, lvl, sem.toUpperCase(), rankInfo, topStudents);
+            }
         } else {
-            let msg = sem === 'ANNUEL' 
-                ? `Aucun résultat pour ${id} dans le fichier annuel (ex: PV_Annuel_${lvl}${maj}...).` 
-                : `Aucun résultat pour ${id}. Vérifiez le fichier PDF.`;
-            document.getElementById('error-msg').innerText = msg;
-            document.getElementById('error-msg').style.display = 'block';
+            let msg = sem === 'annuel' ? `(ex: PV_Annuel_${lvl}${maj}(2024_2025)_VD.pdf)` : `(ex: PV_${lvl}${maj}_${sem.toUpperCase()}_VD.pdf)`;
+            showError(`Aucun résultat pour ${id}. Fichier non trouvé ou matricule absent. ${msg}`);
         }
     });
+
+    function showError(msg) {
+        const err = document.getElementById('error-msg');
+        err.style.display = 'block';
+        err.innerText = msg;
+    }
 
     function processPDF(url, targetId, isAnnual) {
         return new Promise(async (resolve, reject) => {
@@ -391,182 +389,189 @@
                 const pdf = await loadingTask.promise;
                 let foundRow = null;
                 let studentData = [];
+                let allStudents = [];
                 let isCapturing = false;
 
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
                     const textContent = await page.getTextContent();
-                    
-                    // Group by Y line
                     let lines = {};
+                    
                     textContent.items.forEach(item => {
                         let y = Math.round(item.transform[5]);
-                        let existingY = Object.keys(lines).find(key => Math.abs(key - y) < 5); // Tighter tolerance
+                        // Tolerance for line grouping
+                        let existingY = Object.keys(lines).find(key => Math.abs(key - y) < 6);
                         if (existingY) lines[existingY].push({ t: item.str, x: item.transform[4] });
                         else lines[y] = [{ t: item.str, x: item.transform[4] }];
                     });
 
                     let sortedY = Object.keys(lines).sort((a,b) => b - a);
-                    
                     for (let y of sortedY) {
                         let items = lines[y].sort((a,b) => a.x - b.x);
                         let rowText = items.map(itm => itm.t).join(" ").trim();
-
-                        // Check for Target Student ID
+                        
+                        // 1. Check for Student ID (Lenient check)
                         if (rowText.includes(targetId)) {
-                            // If Annual, we just need this one line usually
-                            if (isAnnual) {
-                                // Annual Pattern: ID Name S1 S2 Ann Decision
-                                // Look for 3 numbers like XX.XX
-                                let grades = rowText.match(/(\d{1,2}[.,]\d{2})/g);
-                                if (grades && grades.length >= 3) {
-                                    foundRow = { type: 'annual', raw: rowText, grades: grades };
-                                    break; 
+                            // Verify it's not part of another word (e.g. module code)
+                            // ID format: I followed by digits
+                            if (/I\d{4,}/.test(rowText)) {
+                                if (isAnnual) {
+                                    // Found student in Annual file
+                                    foundRow = { raw: rowText };
+                                    // Don't break immediately, scan full for ranking? 
+                                    // Annual ranking usually complex, just resolve for now
+                                } else {
+                                    isCapturing = true;
+                                    studentData.push({ type: 'header', text: rowText });
                                 }
-                            } else {
-                                // Semester: Start capturing
-                                isCapturing = true;
-                                studentData.push({ type: 'header', text: rowText });
-                                continue;
                             }
                         }
 
-                        if (isCapturing && !isAnnual) {
-                            if (/(^|\s)(I\d{4,})(\s|$)/.test(rowText) && !rowText.includes(targetId)) {
-                                isCapturing = false; // Next student
-                                break;
+                        // 2. Ranking Collection (Semester Only mostly)
+                        let idMatch = rowText.match(/(I\d{4,})/);
+                        if (!isAnnual && idMatch) {
+                            let sId = idMatch[1];
+                            let grades = rowText.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
+                            if (grades) {
+                                let sAvg = parseFloat(grades[grades.length - 1].replace(',', '.'));
+                                let sName = rowText.replace(sId, "").replace(/[\d\.,]+\s*(Validé|Rattrapage|Admis|Ajourné)?.*$/i, "").trim().replace(/\d{3,}/g, "").trim();
+                                if(!allStudents.some(s=>s.id===sId)) allStudents.push({id:sId, name:sName, avg:sAvg});
                             }
-                            if(rowText.length > 2) studentData.push({ type: 'module', text: rowText });
+                        }
+
+                        // 3. Stop capturing for semester
+                        if (isCapturing && !isAnnual) {
+                            // If we hit another student ID, stop
+                            if (/(^|\s)(I\d{4,})(\s|$)/.test(rowText) && !rowText.includes(targetId)) {
+                                isCapturing = false;
+                            } else if (rowText.length > 2 && !studentData.some(r => r.text === rowText)) {
+                                // Add module rows (exclude duplicates if header was added)
+                                studentData.push({ type: 'module', text: rowText });
+                            }
                         }
                     }
-                    if (foundRow || (studentData.length > 0 && !isCapturing)) break;
                 }
 
-                if (isAnnual && foundRow) resolve(foundRow);
-                else if (!isAnnual && studentData.length > 0) resolve({ type: 'semester', rows: studentData });
-                else reject("Not found");
-
+                if (isAnnual && foundRow) resolve({ data: foundRow });
+                else if (!isAnnual && studentData.length > 0) {
+                    allStudents.sort((a,b) => b.avg - a.avg);
+                    resolve({ 
+                        data: studentData, 
+                        rankInfo: { rank: allStudents.findIndex(s=>s.id===targetId)+1, total: allStudents.length },
+                        topStudents: allStudents.slice(0, 10)
+                    });
+                } else reject("Not Found");
             } catch (error) { reject(error); }
         });
     }
 
-    function renderResult(data, contextSem) {
-        const doc = document.getElementById('official-doc');
-        const stId = document.getElementById('studentId').value.toUpperCase();
-        const maj = document.getElementById('major').options[document.getElementById('major').selectedIndex].text;
-        const lvl = document.getElementById('level').value.toUpperCase();
+    // --- RENDER ANNUAL (OFFICIAL) ---
+    function renderAnnual(data, studentId, maj, lvl) {
+        const raw = data.raw;
+        // Name logic: Remove ID and trailing grades/decision
+        let name = raw.replace(studentId, "").replace(/[\d.,]+\s*(Validé|Admis|Ajourné|Rattrapage)?.*$/i, "").trim().replace(/\d{3,}/g,"").trim();
         
-        // Fill Header Info
-        document.getElementById('st-id').innerText = stId;
-        document.getElementById('st-major').innerText = maj;
-        document.getElementById('st-level').innerText = lvl;
-        document.getElementById('st-name').innerText = extractName(data, stId, contextSem === 'ANNUEL');
-
-        // Layout Switching
-        if (contextSem === 'ANNUEL') {
-            document.getElementById('annual-layout').style.display = 'block';
-            document.getElementById('semester-layout').style.display = 'none';
-            document.getElementById('doc-title-text').innerText = "RELEVÉ DE NOTES ANNUEL";
-            
-            // Extract Grades from Annual Data
-            // Expected data.grades = [S1, S2, Annual, ...]
-            let g = data.grades;
-            // Assuming order: S1, S2, Annuel (standard in PV)
-            // Sometimes it's Annuel first? Usually S1, S2, Annuel.
-            // Let's assume standard: Last is annual? No, middle.
-            // Heuristic: If 3 grades found: [S1, S2, Ann]
-            
-            let s1 = g[0] || "--";
-            let s2 = g[1] || "--";
-            let ann = g[2] || "--";
-            
-            // Fallback logic if parsing failed slightly
-            if (g.length >= 3) {
-                // Usually the last parsed number before credits is Annual.
-                ann = g[g.length - 1]; // This might be wrong if credits are parsed as floats
-                // Let's stick to index 0, 1, 2 for now as most stable
-                s1 = g[0]; s2 = g[1]; ann = g[2];
-            }
-
-            document.getElementById('res-s1').innerText = s1;
-            document.getElementById('res-s2').innerText = s2;
-            document.getElementById('final-avg').innerText = ann;
-            
-            let dec = data.raw.match(/(Admis|Ajourné|Validé|Rattrapage)/i);
-            let decision = dec ? dec[0] : "EN COURS";
-            
-            document.getElementById('final-decision').innerText = decision;
-            document.getElementById('dec-s1').innerText = parseFloat(s1.replace(',','.')) >= 10 ? 'Validé' : 'Ajourné';
-            document.getElementById('dec-s2').innerText = parseFloat(s2.replace(',','.')) >= 10 ? 'Validé' : 'Ajourné';
-
-            if(decision.toUpperCase().includes('ADMIS')) launchConfetti();
-
-        } else {
-            // Semester Logic
-            document.getElementById('annual-layout').style.display = 'none';
-            document.getElementById('semester-layout').style.display = 'block';
-            document.getElementById('doc-title-text').innerText = "RELEVÉ DE NOTES SEMESTRIEL";
-            
-            const tbody = document.getElementById('modules-body');
-            tbody.innerHTML = '';
-            
-            let rows = data.rows;
-            let header = rows[0].text;
-            
-            // Extract Avg from header
-            let grades = header.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
-            let semAvg = grades ? grades[grades.length - 1] : "--";
-            document.getElementById('final-avg').innerText = semAvg;
-            
-            let dec = header.match(/(Admis|Ajourné|Validé|Rattrapage|Compensé)/i);
-            let decision = dec ? dec[0] : "--";
-            document.getElementById('final-decision').innerText = decision;
-
-            // Render Modules
-            rows.slice(1).forEach(r => {
-                let txt = r.text;
-                // Parse: Name CC CF Note Cred Dec
-                let parts = txt.match(/(\d{1,2}[.,]?\d{0,2})\s+(\d{1,2}[.,]?\d{0,2})\s+(\d{1,2}[.,]?\d{0,2})\s+(\d{1,2}[.,]?\d{0,2})\s*(.*)$/i);
-                if (parts) {
-                    let name = txt.substring(0, txt.indexOf(parts[1])).trim();
-                    tbody.innerHTML += `<tr><td>${name}</td><td>${parts[1]}</td><td>${parts[2]}</td><td class="col-note">${parts[3]}</td><td>${parts[4]}</td><td>${parts[5]}</td></tr>`;
-                } else {
-                    // UE Row
-                    let ue = txt.match(/(\d{1,2}[.,]\d{2})\s+(\d{1,2})\s*(.*)$/i);
-                    if(ue) {
-                        let name = txt.substring(0, txt.indexOf(ue[1])).trim();
-                        tbody.innerHTML += `<tr style="background:#f4f4f4; font-weight:bold;"><td>${name}</td><td colspan="2" style="text-align:right">Moy UE:</td><td class="col-note">${ue[1]}</td><td>${ue[2]}</td><td>${ue[3]}</td></tr>`;
-                    }
-                }
-            });
-            if(decision.toUpperCase().includes('VALID') || decision.toUpperCase().includes('ADMIS')) launchConfetti();
+        let grades = raw.match(/(\d{1,2}[.,]\d{2})/g);
+        let s1 = "--", s2 = "--", ann = "--";
+        
+        if (grades && grades.length >= 3) {
+            s1 = grades[0];
+            s2 = grades[1];
+            ann = grades[2];
         }
 
-        doc.style.display = 'block';
+        let decMatch = raw.match(/(Admis|Ajourné|Validé|Rattrapage|Compensé)/i);
+        let decision = decMatch ? decMatch[0] : "EN COURS";
+
+        document.getElementById('st-name-ann').innerText = name;
+        document.getElementById('st-id-ann').innerText = studentId;
+        document.getElementById('st-major-ann').innerText = maj;
+        document.getElementById('st-level-ann').innerText = lvl;
+
+        document.getElementById('res-s1').innerText = s1;
+        document.getElementById('dec-s1').innerText = parseFloat(s1.replace(',','.')) >= 10 ? 'Validé' : 'Ajourné';
+        
+        document.getElementById('res-s2').innerText = s2;
+        document.getElementById('dec-s2').innerText = parseFloat(s2.replace(',','.')) >= 10 ? 'Validé' : 'Ajourné';
+
+        document.getElementById('final-avg-ann').innerText = ann;
+        document.getElementById('final-decision-ann').innerText = decision;
+
+        document.getElementById('official-doc').style.display = 'block';
+        if(decision.toUpperCase().includes('ADMIS')) launchCelebration();
     }
 
-    function extractName(data, id, isAnnual) {
-        let raw = isAnnual ? data.raw : data.rows[0].text;
-        // Remove ID and numbers to leave name
-        let name = raw.replace(id, "").replace(/[\d.,]+\s*(Validé|Admis|Ajourné|Rattrapage)?.*$/i, "").trim();
-        // Remove extra digits if any
-        return name.replace(/\d+/g, "").trim();
+    // --- RENDER SEMESTER (MODERN) ---
+    function renderSemester(rows, studentId, maj, lvl, sem, rankInfo, topStudents) {
+        const tbody = document.getElementById('grade-body-sem');
+        tbody.innerHTML = '';
+        
+        // Rows[0] might be header, but sometimes it is pushed twice or not at all perfectly.
+        // We find the row with the student ID as header.
+        let headerRow = rows.find(r => r.text.includes(studentId))?.text || rows[0].text;
+        
+        let name = headerRow.replace(studentId, "").replace(/(\d{1,2}[\.,]\d{2})\s*(Validé|Rattrapage|Ajourné|Admis|Compensé)?.*$/i, "").trim().replace(/\d{3,}/, "").trim();
+        
+        let grades = headerRow.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
+        let semAvg = grades ? grades[grades.length - 1] : "--";
+        let decMatch = headerRow.match(/(Admis|Ajourné|Validé|Rattrapage|Compensé)/i);
+        let semDec = decMatch ? decMatch[0] : "--";
+
+        document.getElementById('st-name-sem').innerText = name;
+        document.getElementById('st-id-sem').innerText = studentId;
+        document.getElementById('res-context-sem').innerText = `${lvl} - ${maj} - ${sem}`;
+        document.getElementById('sem-avg').innerText = semAvg;
+        document.getElementById('sem-decision').innerText = semDec;
+        
+        let isSuccess = (semDec.includes("Validé") || semDec.includes("Admis"));
+        document.getElementById('sem-decision').style.color = isSuccess ? "#008000" : "#cc0000";
+        if(rankInfo) document.getElementById('sem-rank').innerText = `${rankInfo.rank} / ${rankInfo.total}`;
+
+        document.getElementById('palmares-body').innerHTML = topStudents.map((s, i) => `<tr><td>${i+1}</td><td>${s.id}</td><td>${s.name.split(' ').slice(0,2).join(' ')}</td><td><b>${s.avg}</b></td></tr>`).join('');
+
+        rows.forEach(row => {
+            if(row.text === headerRow) return; // Skip header in table body
+            let raw = row.text;
+            let sm = raw.match(/(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s*(.*)$/i);
+            if (sm) {
+                let dec = sm[5].trim();
+                let decClass = (dec.includes("Validé") || dec.includes("Admis")) ? "status-valid" : "status-ratt";
+                tbody.innerHTML += `<tr><td class="col-module">${raw.substring(0, raw.indexOf(sm[1])).trim()}</td><td>${sm[3]}</td><td>${sm[4]}</td><td class="${decClass}">${dec}</td></tr>`;
+            } else {
+                let um = raw.match(/(\d{1,2}[\.,]\d{2})\s+(\d{1,2})\s*(.*)$/i);
+                if (um) {
+                     let dec = um[3].trim();
+                     let decClass = (dec.includes("Validé") || dec.includes("Admis") || dec.includes("Acquis")) ? "status-valid" : "";
+                     tbody.innerHTML += `<tr class="row-ue"><td class="col-module">${raw.substring(0, raw.indexOf(um[1])).trim()}</td><td><b>${um[1]}</b></td><td>${um[2]}</td><td class="${decClass}">${dec}</td></tr>`;
+                }
+            }
+        });
+
+        document.getElementById('transcript-view').style.display = 'block';
+        if(isSuccess) launchCelebration();
     }
 
-    function launchConfetti() {
-        const symbols = ['🎉', '🎓', '✨', '📜'];
-        for(let i=0; i<30; i++) {
+    let confettiInterval;
+    function launchCelebration() {
+        const banner = document.getElementById('congrats-banner');
+        banner.style.display = 'block';
+        const symbols = ['🎉', '💐', '🌹', '🌺', '❤️', '🎓'];
+        confettiInterval = setInterval(() => {
             const el = document.createElement('div');
             el.classList.add('confetti');
             el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
             el.style.left = Math.random() * 100 + 'vw';
-            el.style.animationDuration = (Math.random() * 2 + 2) + 's';
-            el.style.color = ['#003366', '#c5a017', '#e74c3c'][Math.floor(Math.random()*3)];
+            el.style.animationDuration = (Math.random() * 2 + 2) + 's'; 
             document.body.appendChild(el);
             setTimeout(() => el.remove(), 4000);
-        }
+        }, 100); 
+        setTimeout(stopCelebration, 5000);
+    }
+    function stopCelebration() {
+        clearInterval(confettiInterval);
+        document.querySelectorAll('.confetti').forEach(el => el.remove());
+        document.getElementById('congrats-banner').style.display = 'none';
     }
 </script>
-
 </body>
 </html>
