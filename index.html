@@ -61,13 +61,16 @@
         .info-row { display: flex; }
         .info-label { width: 160px; font-weight: bold; color: #333; }
         .info-val { font-weight: bold; color: #000; }
+        
         .semesters-container { display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-start; }
         .semester-box { flex: 1; border: 1px solid #000; }
+        
         .result-table { width: 100%; border-collapse: collapse; font-size: 11px; }
         .result-table th { border: 1px solid #000; padding: 4px; text-align: center; font-weight: bold; background: white; white-space: nowrap; }
         .result-table td { border: 1px solid #000; padding: 3px; text-align: center; height: 16px; }
         .result-table td.col-lib { text-align: left; padding-left: 5px; font-weight: bold; width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
         .bg-gray { background-color: #d0d0d0 !important; -webkit-print-color-adjust: exact; font-weight: bold; }
+        
         .summary-section { display: flex; justify-content: space-between; margin-top: 20px; font-weight: bold; font-size: 13px; align-items: flex-end; }
         .signature-section { text-align: center; margin-top: 10px; }
 
@@ -335,19 +338,13 @@
         const lvl = document.getElementById('level').value.toUpperCase();
         const sem = document.getElementById('semester').value; 
 
-        // --- ROBUST FILE GENERATION LOGIC ---
         let possibleFiles = [];
-        
-        // 1. Level Variants: L1, L12 (standard), L2, L22...
         const levelVariants = [lvl, lvl + '2']; 
-        
-        // 2. Suffixes: Standard, Validé, Rattrapage, Final, etc.
         const suffixes = ['_VD', '_VF', '_FV', '_', '', '__FV', '__VF', '_Rat', '_RAT', '_C', '_Ratt', 'Rattrapage']; 
 
         if (sem === 'annuel') {
             document.body.setAttribute('data-view', 'annuel');
-            const years = ['(2024-2025)', '(2024_2025)', '']; // Year formats
-            
+            const years = ['(2024-2025)', '(2024_2025)', '']; 
             levelVariants.forEach(l => {
                 years.forEach(y => {
                     suffixes.forEach(s => {
@@ -359,20 +356,12 @@
         } else {
             document.body.setAttribute('data-view', 'semester');
             const sCode = sem.toUpperCase();
-            
-            // A. Standard Patterns PV_
             levelVariants.forEach(l => {
                 suffixes.forEach(s => {
                     possibleFiles.push(`PV_${l}${maj}_${sCode}${s}.pdf`);
                 });
+                possibleFiles.push(`${l}_${maj}_${sCode}.pdf`); // Legacy
             });
-            
-            // B. Legacy/Simple Patterns (L1_BA_S1.pdf, L12_BA_S1.pdf)
-            levelVariants.forEach(l => {
-                possibleFiles.push(`${l}_${maj}_${sCode}.pdf`);
-            });
-
-            // C. Lowercase (l1_ba_s1.pdf)
             possibleFiles.push(`${lvl.toLowerCase()}_${maj.toLowerCase()}_${sem.toLowerCase()}.pdf`);
         }
 
@@ -381,7 +370,7 @@
             try {
                 const result = await processPDF(filePath, id, sem === 'annuel');
                 foundData = result;
-                break; // Stop if found
+                break; 
             } catch (error) { continue; }
         }
 
@@ -395,7 +384,7 @@
                 renderSemester(foundData.data, id, maj, lvl, sem.toUpperCase(), foundData.rankInfo, tops);
             }
         } else {
-            let msg = sem === 'annuel' ? `(ex: PV_Annuel_${lvl}${maj}(2024_2025)_VD.pdf)` : `(ex: PV_${lvl}${maj}_${sem.toUpperCase()}_VD.pdf ou L1_BA_S1.pdf)`;
+            let msg = sem === 'annuel' ? `(ex: PV_Annuel_${lvl}${maj}(2024_2025)_VD.pdf)` : `(ex: PV_${lvl}${maj}_${sem.toUpperCase()}_VD.pdf)`;
             showError(`Aucun résultat pour ${id}. Fichier non trouvé ou matricule absent. ${msg}`);
         }
     });
@@ -422,7 +411,7 @@
                     
                     textContent.items.forEach(item => {
                         let y = Math.round(item.transform[5]);
-                        let existingY = Object.keys(lines).find(key => Math.abs(key - y) < 6); 
+                        let existingY = Object.keys(lines).find(key => Math.abs(key - y) < 6);
                         if (existingY) lines[existingY].push({ t: item.str, x: item.transform[4] });
                         else lines[y] = [{ t: item.str, x: item.transform[4] }];
                     });
@@ -432,7 +421,7 @@
                         let items = lines[y].sort((a,b) => a.x - b.x);
                         let rowText = items.map(itm => itm.t).join(" ").trim();
                         
-                        // --- RANKING LOGIC (Semester) ---
+                        // RANKING
                         if (!isAnnual) {
                             let idMatch = rowText.match(/(I\d{4,})/);
                             if (idMatch) {
@@ -446,7 +435,7 @@
                             }
                         }
 
-                        // --- CAPTURE LOGIC ---
+                        // CAPTURING
                         if (rowText.includes(targetId)) {
                             if (/I\d{4,}/.test(rowText)) {
                                 isCapturing = true;
@@ -460,8 +449,9 @@
                                 isCapturing = false;
                             } else {
                                 if (rowText.length > 3) {
-                                    if(isAnnual && (rowText.toLowerCase().includes('moyenne') || rowText.toLowerCase().includes('décision') || rowText.toLowerCase().includes('crédit'))) {
-                                        studentData.push({ type: 'footer', text: rowText });
+                                    if (isAnnual) {
+                                        // Include data, exclude known footer trash unless it's meaningful
+                                        studentData.push({ type: 'row', text: rowText });
                                     } else {
                                         studentData.push({ type: 'row', text: rowText });
                                     }
@@ -483,7 +473,7 @@
         });
     }
 
-    // --- RENDER ANNUAL ---
+    // --- RENDER ANNUAL (SMART SPLIT) ---
     function renderAnnual(result, id, maj, lvl) {
         const rows = result.data;
         const headerRow = rows.find(r => r.type === 'header').text;
@@ -493,43 +483,77 @@
         document.getElementById('st-id-ann').innerText = id;
         document.getElementById('st-major-ann').innerText = maj;
 
+        // 1. Separate Modules from Stats
         let modules = [];
-        let footerTxt = "";
-        let s1_avg = "--", s2_avg = "--", ann_avg = "--";
-
+        let stats = [];
+        
         rows.forEach(r => {
-            if(r.type === 'row' && !r.text.includes(id)) modules.push(r.text);
-            if(r.type === 'footer') footerTxt += " " + r.text;
+            if(r.type === 'row' && !r.text.includes(id)) {
+                if(r.text.includes("Moyenne du semestre") || r.text.includes("Crédit / 30") || r.text.includes("Moyenne annuelle") || r.text.includes("Décision")) {
+                    stats.push(r.text);
+                } else if(!r.text.includes("Note Rattrapage")) {
+                    modules.push(r.text); // Pure module rows
+                }
+            }
         });
 
-        // Smart Split Logic
-        let splitIndex = -1;
-        modules.forEach((m, i) => { if(m.includes("Moyenne") && splitIndex === -1) splitIndex = i; });
+        // 2. Smart S1/S2 Split based on "Moyenne du semestre" Position
+        // In the PDF, "Moyenne du semestre" usually appears between S1 modules and S2 modules
+        let rawRows = result.data.map(r => r.text);
+        let moyIndices = [];
+        rawRows.forEach((txt, idx) => { if(txt.includes("Moyenne du semestre")) moyIndices.push(idx); });
+
+        let s1Mods = [], s2Mods = [];
         
-        let s1Mods, s2Mods;
-        if(splitIndex !== -1) {
-            s1Mods = modules.slice(0, splitIndex);
-            s2Mods = modules.slice(splitIndex + 1);
+        if (moyIndices.length >= 2) {
+            // We found separation markers!
+            // S1 is between Header and First Moyenne
+            // S2 is between First Moyenne and Second Moyenne
+            let headerIdx = rawRows.findIndex(t => t.includes(id));
+            s1Mods = rawRows.slice(headerIdx + 1, moyIndices[0]).filter(t => !t.includes("Note Rattrapage") && t.length > 5);
+            s2Mods = rawRows.slice(moyIndices[0] + 1, moyIndices[1]).filter(t => !t.includes("Note Rattrapage") && !t.includes("Crédit / 30") && t.length > 5);
         } else {
-            let half = Math.ceil(modules.length / 2);
-            s1Mods = modules.slice(0, half);
-            s2Mods = modules.slice(half);
+            // Fallback: Split clean modules in half
+            let mid = Math.ceil(modules.length / 2);
+            s1Mods = modules.slice(0, mid);
+            s2Mods = modules.slice(mid);
         }
 
-        let allTxt = headerRow + " " + footerTxt;
-        let grades = allTxt.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
+        // 3. Extract Exact Averages from Stats
+        // Look for "Moyenne du semestre / 20   10.0" pattern
+        let s1_avg = "--", s2_avg = "--", ann_avg = "--";
         
-        if(grades && grades.length >= 3) {
-            ann_avg = grades[grades.length-1];
-            s2_avg = grades[grades.length-2];
-            s1_avg = grades[grades.length-3];
+        // Try to find specific values in stats array
+        // Pattern: Text... Number
+        let avgs = [];
+        stats.forEach(s => {
+            if(s.includes("Moyenne du semestre")) {
+                let m = s.match(/(\d{1,2}[.,]\d{2})/);
+                if(m) avgs.push(m[1]);
+            }
+            if(s.includes("Moyenne annuelle")) {
+                let m = s.match(/(\d{1,2}[.,]\d{2})/);
+                if(m) ann_avg = m[1];
+            }
+        });
+
+        if(avgs.length >= 1) s1_avg = avgs[0];
+        if(avgs.length >= 2) s2_avg = avgs[1];
+        
+        // Fallback if Annual Avg not found in stats (check header/footer text blob)
+        if(ann_avg === "--") {
+            let allTxt = rawRows.join(" ");
+            let match = allTxt.match(/Moyenne annuelle\s*[:]?\s*(\d{1,2}[.,]\d{2})/i);
+            if(match) ann_avg = match[1];
         }
 
+        // 4. Render Tables
         const tbodyS1 = document.getElementById('rel-body-s1');
         const tbodyS2 = document.getElementById('rel-body-s2');
         tbodyS1.innerHTML = ''; tbodyS2.innerHTML = '';
 
         const createRow = (txt) => {
+            // Pattern: Name CC CF Note Cred Dec
             let m = txt.match(/(\d{1,2}[.,]?\d{0,2})\s+(\d{1,2}[.,]?\d{0,2})\s+(\d{1,2}[.,]?\d{0,2})\s+(\d{1,2}[.,]?\d{0,2})\s*(.*)$/i);
             if(m) {
                 let n = txt.substring(0, txt.indexOf(m[1])).trim();
@@ -553,11 +577,12 @@
         document.getElementById('rel-dec-s1').innerText = parseFloat(s1_avg.replace(',','.'))>=10?'Validé':'Ajourné';
         document.getElementById('rel-dec-s2').innerText = parseFloat(s2_avg.replace(',','.'))>=10?'Validé':'Ajourné';
 
-        let decMatch = allTxt.match(/(Admis|Ajourné|Validé|Rattrapage|Compensé|Refusé)/i);
-        document.getElementById('final-decision-ann').innerText = decMatch ? decMatch[0] : "--";
+        let allDecTxt = rawRows.join(" ");
+        let decMatch = allDecTxt.match(/Décision du jury\s*[:]?\s*(Admis|Ajourné|Validé|Rattrapage|Compensé)/i);
+        document.getElementById('final-decision-ann').innerText = decMatch ? decMatch[1] : "--";
 
         document.getElementById('official-doc').style.display = 'block';
-        if(decMatch && decMatch[0].toUpperCase().includes("ADMIS")) launchCelebration();
+        if(decMatch && decMatch[1].toUpperCase().includes("ADMIS")) launchCelebration();
     }
 
     // --- RENDER SEMESTER ---
