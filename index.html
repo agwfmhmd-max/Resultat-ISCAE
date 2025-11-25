@@ -62,6 +62,7 @@
         .info-label { width: 160px; font-weight: bold; color: #333; }
         .info-val { font-weight: bold; color: #000; }
         
+        /* Table Layout for S1/S2 */
         .semesters-container { display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-start; }
         .semester-box { flex: 1; border: 1px solid #000; }
         
@@ -360,7 +361,7 @@
                 suffixes.forEach(s => {
                     possibleFiles.push(`PV_${l}${maj}_${sCode}${s}.pdf`);
                 });
-                possibleFiles.push(`${l}_${maj}_${sCode}.pdf`); // Legacy
+                possibleFiles.push(`${l}_${maj}_${sCode}.pdf`);
             });
             possibleFiles.push(`${lvl.toLowerCase()}_${maj.toLowerCase()}_${sem.toLowerCase()}.pdf`);
         }
@@ -421,7 +422,6 @@
                         let items = lines[y].sort((a,b) => a.x - b.x);
                         let rowText = items.map(itm => itm.t).join(" ").trim();
                         
-                        // RANKING
                         if (!isAnnual) {
                             let idMatch = rowText.match(/(I\d{4,})/);
                             if (idMatch) {
@@ -435,7 +435,6 @@
                             }
                         }
 
-                        // CAPTURING
                         if (rowText.includes(targetId)) {
                             if (/I\d{4,}/.test(rowText)) {
                                 isCapturing = true;
@@ -449,12 +448,7 @@
                                 isCapturing = false;
                             } else {
                                 if (rowText.length > 3) {
-                                    if (isAnnual) {
-                                        // Include data, exclude known footer trash unless it's meaningful
-                                        studentData.push({ type: 'row', text: rowText });
-                                    } else {
-                                        studentData.push({ type: 'row', text: rowText });
-                                    }
+                                    studentData.push({ type: 'row', text: rowText });
                                 }
                             }
                         }
@@ -473,7 +467,6 @@
         });
     }
 
-    // --- RENDER ANNUAL (SMART SPLIT) ---
     function renderAnnual(result, id, maj, lvl) {
         const rows = result.data;
         const headerRow = rows.find(r => r.type === 'header').text;
@@ -483,92 +476,86 @@
         document.getElementById('st-id-ann').innerText = id;
         document.getElementById('st-major-ann').innerText = maj;
 
-        // 1. Separate Modules from Stats
-        let modules = [];
-        let stats = [];
+        // --- LOGIC START ---
+        // Gather all lines including 'Moyenne du semestre'
+        let allLines = rows.map(r => r.text);
         
-        rows.forEach(r => {
-            if(r.type === 'row' && !r.text.includes(id)) {
-                if(r.text.includes("Moyenne du semestre") || r.text.includes("Crédit / 30") || r.text.includes("Moyenne annuelle") || r.text.includes("Décision")) {
-                    stats.push(r.text);
-                } else if(!r.text.includes("Note Rattrapage")) {
-                    modules.push(r.text); // Pure module rows
-                }
-            }
-        });
-
-        // 2. Smart S1/S2 Split based on "Moyenne du semestre" Position
-        // In the PDF, "Moyenne du semestre" usually appears between S1 modules and S2 modules
-        let rawRows = result.data.map(r => r.text);
+        // Find separators
+        // Usually there are two "Moyenne du semestre" lines.
         let moyIndices = [];
-        rawRows.forEach((txt, idx) => { if(txt.includes("Moyenne du semestre")) moyIndices.push(idx); });
-
-        let s1Mods = [], s2Mods = [];
-        
-        if (moyIndices.length >= 2) {
-            // We found separation markers!
-            // S1 is between Header and First Moyenne
-            // S2 is between First Moyenne and Second Moyenne
-            let headerIdx = rawRows.findIndex(t => t.includes(id));
-            s1Mods = rawRows.slice(headerIdx + 1, moyIndices[0]).filter(t => !t.includes("Note Rattrapage") && t.length > 5);
-            s2Mods = rawRows.slice(moyIndices[0] + 1, moyIndices[1]).filter(t => !t.includes("Note Rattrapage") && !t.includes("Crédit / 30") && t.length > 5);
-        } else {
-            // Fallback: Split clean modules in half
-            let mid = Math.ceil(modules.length / 2);
-            s1Mods = modules.slice(0, mid);
-            s2Mods = modules.slice(mid);
-        }
-
-        // 3. Extract Exact Averages from Stats
-        // Look for "Moyenne du semestre / 20   10.0" pattern
-        let s1_avg = "--", s2_avg = "--", ann_avg = "--";
-        
-        // Try to find specific values in stats array
-        // Pattern: Text... Number
-        let avgs = [];
-        stats.forEach(s => {
-            if(s.includes("Moyenne du semestre")) {
-                let m = s.match(/(\d{1,2}[.,]\d{2})/);
-                if(m) avgs.push(m[1]);
-            }
-            if(s.includes("Moyenne annuelle")) {
-                let m = s.match(/(\d{1,2}[.,]\d{2})/);
-                if(m) ann_avg = m[1];
-            }
+        allLines.forEach((line, idx) => {
+            if(line.includes("Moyenne du semestre")) moyIndices.push(idx);
         });
 
-        if(avgs.length >= 1) s1_avg = avgs[0];
-        if(avgs.length >= 2) s2_avg = avgs[1];
-        
-        // Fallback if Annual Avg not found in stats (check header/footer text blob)
-        if(ann_avg === "--") {
-            let allTxt = rawRows.join(" ");
-            let match = allTxt.match(/Moyenne annuelle\s*[:]?\s*(\d{1,2}[.,]\d{2})/i);
-            if(match) ann_avg = match[1];
+        let s1Rows = [], s2Rows = [];
+        let s1_avg = "--", s2_avg = "--";
+
+        if (moyIndices.length >= 2) {
+            // S1 is before first moyenne
+            // S2 is between first and second
+            let firstMoyIdx = moyIndices[0];
+            let secondMoyIdx = moyIndices[1];
+
+            s1Rows = allLines.slice(1, firstMoyIdx); // Skip header
+            s2Rows = allLines.slice(firstMoyIdx + 1, secondMoyIdx);
+
+            // Extract exact averages from the lines
+            let m1 = allLines[firstMoyIdx].match(/(\d{1,2}[.,]\d{2})/);
+            if(m1) s1_avg = m1[1];
+
+            let m2 = allLines[secondMoyIdx].match(/(\d{1,2}[.,]\d{2})/);
+            if(m2) s2_avg = m2[1];
+
+        } else {
+            // Fallback if logic fails (e.g. PDF reading order mess)
+            // Try finding lines with module pattern
+            let modules = allLines.filter(l => l.match(/\d{1,2}[.,]\d{1,2}/));
+            let mid = Math.ceil(modules.length / 2);
+            s1Rows = modules.slice(0, mid);
+            s2Rows = modules.slice(mid);
         }
 
-        // 4. Render Tables
+        // Extract Annual Avg
+        let ann_avg = "--";
+        let annLine = allLines.find(l => l.includes("Moyenne annuelle"));
+        if(annLine) {
+            let m = annLine.match(/(\d{1,2}[.,]\d{2})/);
+            if(m) ann_avg = m[1];
+        } else {
+            // Try header last numbers
+            let grades = headerRow.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
+            if(grades && grades.length>=3) ann_avg = grades[grades.length-1];
+        }
+
+        // Filter Clean Modules (Remove extra footer lines like Crédit / 30 inside rows)
+        const clean = (arr) => arr.filter(l => !l.includes("Crédit / 30") && !l.includes("Note Rattrapage") && l.length > 5);
+        s1Rows = clean(s1Rows);
+        s2Rows = clean(s2Rows);
+
+        // Render
         const tbodyS1 = document.getElementById('rel-body-s1');
         const tbodyS2 = document.getElementById('rel-body-s2');
         tbodyS1.innerHTML = ''; tbodyS2.innerHTML = '';
 
         const createRow = (txt) => {
-            // Pattern: Name CC CF Note Cred Dec
+            // Regular Module: Name CC CF Note Cred Dec
             let m = txt.match(/(\d{1,2}[.,]?\d{0,2})\s+(\d{1,2}[.,]?\d{0,2})\s+(\d{1,2}[.,]?\d{0,2})\s+(\d{1,2}[.,]?\d{0,2})\s*(.*)$/i);
             if(m) {
                 let n = txt.substring(0, txt.indexOf(m[1])).trim();
                 return `<tr><td class="col-lib">${n}</td><td>${m[1]}</td><td>${m[2]}</td><td><b>${m[3]}</b></td><td>${m[4]}</td><td>${m[5]}</td></tr>`;
             }
+            // UE Row: Name Avg Cred Dec (Gray)
             let ue = txt.match(/(\d{1,2}[.,]\d{2})\s+(\d{1,2})\s*(.*)$/i);
-            if(ue && (txt.toLowerCase().includes("ue") || txt.toLowerCase().includes("enseignement"))) {
+            if(ue) {
                 let n = txt.substring(0, txt.indexOf(ue[1])).trim();
+                // Ensure it's likely a UE (starts with Enseignement or UE, or just has 2 nums)
                 return `<tr class="bg-gray"><td class="col-lib">${n}</td><td colspan="2"></td><td><b>${ue[1]}</b></td><td>${ue[2]}</td><td>${ue[3]}</td></tr>`;
             }
             return '';
         };
 
-        s1Mods.forEach(t => tbodyS1.innerHTML += createRow(t));
-        s2Mods.forEach(t => tbodyS2.innerHTML += createRow(t));
+        s1Rows.forEach(t => tbodyS1.innerHTML += createRow(t));
+        s2Rows.forEach(t => tbodyS2.innerHTML += createRow(t));
 
         document.getElementById('rel-avg-s1').innerText = s1_avg;
         document.getElementById('rel-avg-s2').innerText = s2_avg;
@@ -577,15 +564,13 @@
         document.getElementById('rel-dec-s1').innerText = parseFloat(s1_avg.replace(',','.'))>=10?'Validé':'Ajourné';
         document.getElementById('rel-dec-s2').innerText = parseFloat(s2_avg.replace(',','.'))>=10?'Validé':'Ajourné';
 
-        let allDecTxt = rawRows.join(" ");
-        let decMatch = allDecTxt.match(/Décision du jury\s*[:]?\s*(Admis|Ajourné|Validé|Rattrapage|Compensé)/i);
+        let decMatch = allLines.join(" ").match(/Décision du jury\s*[:]?\s*(Admis|Ajourné|Validé|Rattrapage|Compensé)/i);
         document.getElementById('final-decision-ann').innerText = decMatch ? decMatch[1] : "--";
 
         document.getElementById('official-doc').style.display = 'block';
         if(decMatch && decMatch[1].toUpperCase().includes("ADMIS")) launchCelebration();
     }
 
-    // --- RENDER SEMESTER ---
     function renderSemester(rows, id, maj, lvl, sem, rankInfo, topStudents) {
         const header = rows.find(r => r.type === 'header').text;
         let name = header.replace(id, "").replace(/[\d.,]+\s*(Validé|Admis|Rattrapage|Ajourné)?.*$/i, "").trim().replace(/\d+/g, "").trim();
