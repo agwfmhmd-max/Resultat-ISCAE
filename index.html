@@ -4,136 +4,415 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#003366">
+    
+    <!-- PWA Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Résultats ISCAE</title>
+    <meta name="apple-mobile-web-app-title" content="ISCAE Res">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991148.png">
+
+    <title>ISCAE Résultats | Live</title>
     
     <!-- PDF.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';</script>
 
     <style>
-        :root { --primary: #003366; --secondary: #c5a017; --bg: #f3f5f8; --text: #333; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; display: flex; flex-direction: column; min-height: 100vh; color: var(--text); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        
-        /* Header */
-        header { background-color: var(--primary); color: white; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-bottom: 4px solid var(--secondary); z-index: 100; position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; }
-        header h1 { margin: 0; font-size: 1.1rem; letter-spacing: 1px; text-transform: uppercase; }
-        
-        /* Install Button */
-        .install-btn { background: var(--secondary); color: white; border: none; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(197, 160, 23, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(197, 160, 23, 0); } 100% { box-shadow: 0 0 0 0 rgba(197, 160, 23, 0); } }
+        :root { 
+            --primary: #003366; 
+            --primary-light: #004c99;
+            --secondary: #FFD700; /* Gold brighter */
+            --bg-gradient: linear-gradient(135deg, #f6f9fc 0%, #eef2f7 100%);
+            --text: #2d3748;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --radius: 16px;
+        }
 
-        .container { display: flex; flex-grow: 1; max-width: 1600px; margin: 0 auto; width: 100%; }
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: var(--bg-gradient); 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            color: var(--text); 
+            overflow-x: hidden; 
+            -webkit-tap-highlight-color: transparent; 
+        }
         
-        /* Sidebar */
-        .sidebar { width: 300px; background: white; padding: 25px; border-right: 1px solid #e1e4e8; display: flex; flex-direction: column; height: calc(100vh - 70px); position: sticky; top: 70px; overflow-y: auto; }
+        /* Modern Header with Glassmorphism */
+        header { 
+            background: rgba(0, 51, 102, 0.95); 
+            backdrop-filter: blur(10px);
+            color: white; 
+            padding: 15px 20px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); 
+            border-bottom: 3px solid var(--secondary); 
+            z-index: 1000; 
+            position: sticky; 
+            top: 0; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        header h1 { 
+            margin: 0; 
+            font-size: 1.2rem; 
+            font-weight: 800; 
+            letter-spacing: 0.5px; 
+            background: linear-gradient(45deg, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
         
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 6px; font-weight: 700; color: #444; font-size: 0.9rem; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box; background: #fff; }
+        /* Animated Install Button */
+        .install-btn { 
+            background: linear-gradient(135deg, var(--secondary), #FFA500); 
+            color: #003366; 
+            border: none; 
+            padding: 8px 16px; 
+            border-radius: 50px; 
+            font-weight: bold; 
+            font-size: 0.85rem; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            box-shadow: 0 4px 15px rgba(197, 160, 23, 0.3);
+            transition: transform 0.2s;
+        }
+        .install-btn:active { transform: scale(0.95); }
+
+        /* --- Stylish Countdown --- */
+        .countdown-container {
+            background: white;
+            margin: 15px auto;
+            max-width: 95%;
+            width: 600px;
+            border-radius: var(--radius);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0,0,0,0.05);
+            animation: slideDown 0.5s ease;
+        }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        button.search-btn { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
+        .countdown-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .countdown-timer {
+            display: flex;
+            gap: 10px;
+            direction: ltr;
+        }
+
+        .time-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 10px;
+            min-width: 55px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .time-value {
+            color: var(--primary);
+            font-size: 1.4rem;
+            font-weight: 800;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .time-label {
+            font-size: 0.65rem;
+            color: #64748b;
+            margin-top: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .separator {
+            font-size: 1.5rem;
+            color: #cbd5e1;
+            font-weight: 300;
+            margin-top: 2px;
+        }
+
+        /* --- Layout --- */
+        .container { 
+            display: flex; 
+            flex-grow: 1; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            width: 100%; 
+            padding: 15px;
+            gap: 20px;
+        }
+        
+        /* Sidebar / Form */
+        .sidebar { 
+            width: 320px; 
+            background: white; 
+            padding: 25px; 
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+        }
+        
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-weight: 700; color: #4a5568; font-size: 0.9rem; }
+        select, input { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            background: #f8fafc; 
+            transition: 0.3s;
+            outline: none;
+        }
+        select:focus, input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+        }
+        
+        button.search-btn { 
+            width: 100%; 
+            padding: 15px; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            margin-top: 10px; 
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3); 
+            transition: all 0.3s; 
+        }
+        button.search-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 51, 102, 0.4); }
         button.search-btn:active { transform: scale(0.98); }
 
-        .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding-bottom: 60px; /* Space for footer */ }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
 
         /* Transcript Card */
-        .transcript-card { background: white; width: 100%; max-width: 900px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-radius: 12px; display: none; border-top: 5px solid var(--primary); margin-bottom: 20px; position: relative; z-index: 10; }
+        .transcript-card { 
+            background: white; 
+            width: 100%; 
+            max-width: 850px; 
+            padding: 30px; 
+            box-shadow: var(--card-shadow); 
+            border-radius: var(--radius); 
+            display: none; 
+            position: relative; 
+            animation: popIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
 
-        .student-header { display: flex; justify-content: space-between; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .student-info h2 { margin: 0; color: var(--primary); font-size: 1.4rem; }
-        .student-info .matricule-badge { background: var(--secondary); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem; display: inline-block; margin-top: 5px; }
+        .student-header { 
+            display: flex; 
+            justify-content: space-between; 
+            border-bottom: 2px solid #f1f5f9; 
+            padding-bottom: 20px; 
+            margin-bottom: 25px; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+        }
+        .student-info h2 { margin: 0; color: var(--primary); font-size: 1.6rem; font-weight: 800; }
+        .matricule-badge { 
+            background: #e2e8f0; 
+            color: #475569; 
+            padding: 5px 12px; 
+            border-radius: 6px; 
+            font-size: 0.9rem; 
+            font-weight: 600;
+            display: inline-block; 
+            margin-top: 5px; 
+        }
         
-        /* Table */
-        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; margin-top: 10px; border: 1px solid #eee; border-radius: 6px; }
+        /* Table Design */
+        .table-wrapper { 
+            overflow-x: auto; 
+            border-radius: 12px; 
+            border: 1px solid #e2e8f0; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
         .transcript-table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        .transcript-table th { background-color: #f4f4f4; padding: 10px; text-align: center; font-weight: 700; border-bottom: 2px solid #ddd; font-size: 0.85rem; white-space: nowrap; }
-        .transcript-table td { padding: 8px; border-bottom: 1px solid #eee; text-align: center; font-size: 0.9rem; }
-        .col-module { text-align: left !important; font-weight: 600; min-width: 180px; }
-        .row-ue { background-color: #f9fbff; }
-        .status-valid { color: #008000; font-weight: bold; }
-        .status-ratt { color: #cc0000; font-weight: bold; }
-
-        /* Summary */
-        .sem-summary { margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .summary-box { border: 2px solid var(--primary); padding: 15px; border-radius: 8px; text-align: center; background: #fff; }
-        .summary-value { font-size: 2rem; font-weight: bold; color: var(--primary); }
+        .transcript-table th { 
+            background-color: #f8fafc; 
+            color: #64748b;
+            padding: 15px; 
+            text-align: center; 
+            font-weight: 700; 
+            border-bottom: 2px solid #e2e8f0; 
+            font-size: 0.85rem; 
+            text-transform: uppercase;
+        }
+        .transcript-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; text-align: center; font-size: 0.95rem; font-weight: 500; }
+        .col-module { text-align: left !important; font-weight: 600; color: var(--primary); }
+        .row-ue { background-color: #f0f9ff; }
         
-        /* Palmares */
-        .palmares-box { margin-top: 30px; background: #fffdf0; border: 1px solid #e0c040; border-radius: 8px; padding: 15px; overflow-x: auto; }
-        .palmares-table { width: 100%; border-collapse: collapse; min-width: 300px; }
-        .palmares-table td { padding: 8px; border-bottom: 1px solid #ddd; }
+        /* Status Badges */
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; }
+        .status-valid { color: #059669; background: #ecfdf5; }
+        .status-ratt { color: #dc2626; background: #fef2f2; }
+
+        /* Summary Boxes */
+        .sem-summary { margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .summary-box { 
+            border: 2px solid transparent;
+            padding: 20px; 
+            border-radius: 12px; 
+            text-align: center; 
+            background: linear-gradient(145deg, #ffffff, #f9fafb);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .summary-box:hover { transform: translateY(-3px); }
+        
+        .box-rank { border-color: var(--secondary); }
+        .box-avg { border-color: var(--primary); }
+        
+        .summary-value { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin: 5px 0; }
+        .label-sm { font-size: 0.8rem; text-transform: uppercase; color: #64748b; letter-spacing: 1px; font-weight: 600; }
+
+        /* Leaderboard / Palmares */
+        .palmares-box { 
+            margin-top: 35px; 
+            background: linear-gradient(to bottom, #fffdf0, #fff); 
+            border: 1px solid #fceeb5; 
+            border-radius: var(--radius); 
+            padding: 20px; 
+            position: relative;
+            overflow: hidden;
+        }
+        .palmares-box::before { content: "🏆"; position: absolute; top: -10px; right: -10px; font-size: 100px; opacity: 0.1; transform: rotate(15deg); }
+        .palmares-table td { padding: 10px; border-bottom: 1px solid #fef3c7; }
+        .rank-medal { font-size: 1.2rem; margin-right: 5px; }
 
         /* Footer Styles */
-        footer {
-            margin-top: auto;
-            background: #002244;
-            color: white;
-            text-align: center;
-            padding: 30px 20px 40px;
-            border-top: 4px solid var(--secondary);
-            font-size: 0.95rem;
-            position: relative;
-            z-index: 20;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+        footer { 
+            margin-top: auto; 
+            background: linear-gradient(to right, #001a33, #003366); /* Rich Gradient */
+            color: white; 
+            text-align: center; 
+            padding: 40px 20px; 
+            font-size: 0.95rem; 
+            position: relative; 
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
         }
-        .footer-content {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .dev-name {
-            color: var(--secondary);
-            font-weight: bold;
-            display: inline-block;
-        }
-        .copyright {
-            font-size: 0.8rem;
-            color: #ccc;
-            margin-top: 8px;
-            letter-spacing: 0.5px;
-        }
-
-        /* Celebration Animation */
-        .confetti { position: fixed; top: -50px; z-index: 9999; pointer-events: none; animation: fall linear forwards; font-size: 25px; }
-        @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        .footer-content { max-width: 600px; margin: 0 auto; line-height: 1.6; }
         
-        .congrats-popup { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(255, 255, 255, 0.98); padding: 20px 40px; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border: 4px solid var(--secondary); z-index: 10000; text-align: center; display: none; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; width: 80%; max-width: 400px; }
-        .congrats-popup h2 { margin: 0; color: var(--primary); font-size: 1.8rem; }
-        @keyframes popIn { to { transform: translate(-50%, -50%) scale(1); } }
-
-        /* Install Guide Modal */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 20px; border-radius: 10px; max-width: 350px; width: 90%; text-align: center; }
-        .modal-step { margin: 10px 0; font-size: 0.95rem; color: #444; }
-        .modal-icon { font-size: 1.5rem; margin-bottom: 5px; display: block; }
+        /* Developer Link Styling */
+        .dev-link {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: rgba(255, 215, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .dev-link:hover {
+            background: var(--secondary);
+            color: #003366;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        /* Modals & Popups */
+        .congrats-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 30px 50px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 4px solid var(--secondary); z-index: 10000; text-align: center; display: none; width: 80%; max-width: 400px; }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
 
         /* Mobile Optimization */
         @media (max-width: 900px) {
-            .container { flex-direction: column; display: block; }
-            .sidebar { width: 100%; height: auto; position: static; padding: 20px; box-sizing: border-box; border-bottom: 1px solid #ddd; }
-            .main-content { padding: 15px; }
+            .container { flex-direction: column; padding: 10px; }
+            .sidebar { width: 100%; position: static; box-sizing: border-box; }
+            .main-content { padding: 5px; }
             .sem-summary { grid-template-columns: 1fr; }
+            .countdown-container { width: 100%; padding: 10px; }
+            .time-value { font-size: 1.1rem; }
+            .time-block { min-width: 45px; }
+            header h1 { font-size: 1rem; }
         }
         
+        /* Print Styles */
         @media print {
-            .sidebar, header, .print-btn, .congrats-popup, .install-btn, footer { display: none; }
-            .container { display: block; }
-            .transcript-card { box-shadow: none; border: none; padding: 0; margin: 0; }
+            .sidebar, header, .countdown-container, .print-btn, .congrats-popup, .install-btn, footer { display: none; }
+            .container { display: block; padding: 0; }
+            .transcript-card { box-shadow: none; border: none; padding: 0; margin: 0; width: 100%; max-width: 100%; }
+            body { background: white; }
         }
 
         .loader { display: none; text-align: center; margin-top: 30px; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #ddd; border-top: 4px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-        .alert { padding: 15px; background: #ffecec; color: #d63031; border-radius: 6px; margin-top: 20px; display: none; text-align: center; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top: 5px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
+        .alert { padding: 15px; background: #fee2e2; color: #991b1b; border-radius: 10px; margin-top: 20px; display: none; text-align: center; border: 1px solid #fecaca; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Install Guide Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; max-width: 350px; width: 90%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
 
 <header>
     <h1>ISCAE Résultats</h1>
-    <button class="install-btn" onclick="openInstallModal()">📲 App</button>
+    <button class="install-btn" id="installBtn">
+        <span>📲</span> Installer
+    </button>
 </header>
+
+<!-- COUNTDOWN -->
+<div id="countdown-wrapper" class="countdown-container" style="display:none;">
+    <div class="countdown-header">
+        <span style="font-size:1.3rem;">🔔</span>
+        <span id="event-name">CHARGEMENT...</span>
+    </div>
+    
+    <div class="countdown-timer">
+        <div class="time-block">
+            <span id="days" class="time-value">00</span>
+            <span class="time-label">Jours</span>
+        </div>
+        <div class="separator">:</div>
+        <div class="time-block">
+            <span id="hours" class="time-value">00</span>
+            <span class="time-label">Hrs</span>
+        </div>
+        <div class="separator">:</div>
+        <div class="time-block">
+            <span id="minutes" class="time-value">00</span>
+            <span class="time-label">Min</span>
+        </div>
+        <div class="separator">:</div>
+        <div class="time-block">
+            <span id="seconds" class="time-value">00</span>
+            <span class="time-label">Sec</span>
+        </div>
+    </div>
+</div>
 
 <div class="container">
     <aside class="sidebar">
@@ -173,29 +452,28 @@
                 <label>Matricule (Ex: I21567):</label>
                 <input type="text" id="studentId" placeholder="Ex: I21567" required style="text-transform: uppercase;">
             </div>
-            <button type="submit" class="search-btn">Rechercher / بحث</button>
+            <button type="submit" class="search-btn">🔍 Rechercher النتائج</button>
         </form>
     </aside>
 
     <main class="main-content">
-        <div id="loader" class="loader"><div class="spinner"></div><p>Traitement...</p></div>
+        <div id="loader" class="loader"><div class="spinner"></div><p style="color:#666; font-weight:bold;">Analyse des données...</p></div>
         <div id="error-msg" class="alert"></div>
 
-        <!-- Banner Celebration -->
         <div id="congrats-banner" class="congrats-popup">
-            <h2>🎉 Félicitations ! 💐</h2>
-            <p style="margin:5px 0; color:#555;">Semestre Validé</p>
+            <h2 style="font-size:2rem; margin-bottom:10px;">🎉 Félicitations ! 💐</h2>
+            <p style="margin:5px 0; color:#555; font-size:1.1rem;">Semestre Validé avec succès</p>
         </div>
 
         <div id="transcript-view" class="transcript-card">
             <div class="student-header">
                 <div class="student-info">
-                    <h2 id="st-name">Nom</h2>
+                    <h2 id="st-name">Nom de l'étudiant</h2>
                     <span class="matricule-badge" id="st-id">I00000</span>
                 </div>
-                <div style="text-align:right; font-size:0.85rem; color:#666;">
-                    <p>2024-2025</p>
-                    <p id="res-context">CONTEXTE</p>
+                <div style="text-align:right; font-size:0.9rem; color:#64748b;">
+                    <p style="font-weight:bold;">Année 2024-2025</p>
+                    <p id="res-context" style="margin-top:5px; background:#f1f5f9; padding:2px 8px; border-radius:4px;">CONTEXTE</p>
                 </div>
             </div>
 
@@ -208,7 +486,7 @@
                             <th>CF</th>
                             <th>Note</th>
                             <th>Crédit</th>
-                            <th>Déc.</th>
+                            <th>Décision</th>
                         </tr>
                     </thead>
                     <tbody id="grade-body"></tbody>
@@ -216,57 +494,142 @@
             </div>
 
             <div class="sem-summary">
-                <div class="summary-box" style="background:#fffdf0; border-color:var(--secondary);">
-                    <div style="font-size:0.8rem; text-transform:uppercase;">Classement</div>
+                <div class="summary-box box-rank">
+                    <div class="label-sm">Classement</div>
                     <div class="summary-value" id="sem-rank" style="color:var(--secondary);">--</div>
                 </div>
-                <div class="summary-box">
-                    <div style="font-size:0.8rem; text-transform:uppercase;">Moyenne</div>
+                <div class="summary-box box-avg">
+                    <div class="label-sm">Moyenne Générale</div>
                     <div class="summary-value" id="sem-avg">--</div>
-                    <div id="sem-decision" style="font-weight:bold; margin-top:5px;">--</div>
+                    <div id="sem-decision" style="font-weight:bold; margin-top:5px; font-size:1.1rem;">--</div>
                 </div>
             </div>
 
             <div class="palmares-box">
-                <!-- MODIFICATION HERE: Changed title to Top 10 -->
-                <div style="text-align:center; font-weight:bold; color:#b38f00; margin-bottom:10px;">🏆 Top 10 Étudiants</div>
+                <div style="text-align:center; font-weight:800; color:#b45309; margin-bottom:15px; font-size:1.1rem; text-transform:uppercase; letter-spacing:1px;">🏆 Top 10 Étudiants</div>
                 <table class="palmares-table">
                     <tbody id="palmares-body"></tbody>
                 </table>
             </div>
 
-            <button class="print-btn" onclick="window.print()" style="background:#555; color:white; padding:12px; width:100%; border:none; border-radius:5px; margin-top:20px; cursor:pointer;">🖨️ Imprimer / PDF</button>
+            <button class="print-btn" onclick="window.print()" style="background:#475569; color:white; padding:15px; width:100%; border:none; border-radius:12px; margin-top:25px; cursor:pointer; font-weight:bold; transition:0.3s;">🖨️ Imprimer / Sauvegarder PDF</button>
         </div>
     </main>
 </div>
 
-<!-- Footer -->
+<!-- Updated Footer -->
 <footer>
     <div class="footer-content">
-        <p>Développé avec ❤️ par <span class="dev-name">Mohamed Dah Agove</span></p>
-        <div class="copyright">&copy; 2025 - Tous droits réservés</div>
+        <p style="margin-bottom:10px; opacity:0.8;">&copy; 2025 ISCAE Résultats - Tous droits réservés</p>
+        <p>
+            Développé avec ❤️ par 
+            <a href="https://wa.me/22220479962" class="dev-link" target="_blank">
+                Mohamed Dah Agove 💬
+            </a>
+        </p>
     </div>
 </footer>
 
 <!-- Install Guide Modal -->
-<div id="installModal" class="modal-overlay" onclick="closeInstallModal(event)">
+<div id="installModal" class="modal-overlay">
     <div class="modal-content">
-        <h3 style="color:var(--primary); margin-top:0;"> تثبيت التطبيق 📲</h3>
-        <p style="font-size:0.9rem;">لتثبيت التطبيق على هاتفك:</p>
-        <div class="modal-step">
-            <span class="modal-icon">🍏 <b>iPhone</b></span>
-            اضغط على زر <b>Mosharka</b> <br> ثم اختر <b>"Sur l'écran d'accueil"</b>
+        <h3 style="color:var(--primary); margin-top:0; font-size:1.5rem;">تثبيت التطبيق 📲</h3>
+        <p style="font-size:1rem; color:#555; margin-bottom:20px;">لتجربة أفضل وسرعة أعلى:</p>
+        
+        <div class="modal-step" style="background:#f8fafc; padding:10px; border-radius:10px; margin-bottom:10px; text-align:right;">
+            <span class="modal-icon">🍏 <b>iPhone (Safari)</b></span><br>
+            اضغط على زر <b>Partager</b> أسفل الشاشة <br> ثم اختر <b>"Sur l'écran d'accueil"</b>
         </div>
-        <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
-        <div class="modal-step">
-            <span class="modal-icon">🤖 <b>Android</b></span>
-            اضغط على الثلاث نقاط (⋮) <br> ثم اختر <b>"Ajouter à l'écran d'accueil"</b>
+        
+        <div class="modal-step" style="background:#f8fafc; padding:10px; border-radius:10px; text-align:right;">
+            <span class="modal-icon">🤖 <b>Android (Chrome)</b></span><br>
+            اضغط على القائمة (⋮) أعلى اليسار <br> ثم اختر <b>"Ajouter à l'écran d'accueil"</b>
         </div>
-        <button onclick="document.getElementById('installModal').style.display='none'" style="margin-top:15px; background:var(--primary); color:white; border:none; padding:8px 20px; border-radius:5px;">Fermer</button>
+        
+        <button id="closeModal" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:12px 30px; border-radius:50px; font-weight:bold; cursor:pointer;">Fermer</button>
     </div>
 </div>
 
 <script>
+    // --- PWA INSTALL LOGIC ---
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    const modal = document.getElementById('installModal');
+    const closeModal = document.getElementById('closeModal');
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW Registered'))
+                .catch(err => console.log('SW Fail', err));
+        });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+        } else {
+            modal.style.display = 'flex';
+        }
+    });
+
+    closeModal.addEventListener('click', () => { modal.style.display = 'none'; });
+    window.onclick = function(event) { if (event.target == modal) modal.style.display = "none"; }
+
+    // --- COUNTDOWN LOGIC ---
+    const academicEvents = [
+        { name: "Devoirs S1 et S3", date: "2025-12-15T08:00:00" },
+        { name: "Devoirs S5", date: "2025-12-22T08:00:00" },
+        { name: "Examens finaux S1 et S3", date: "2026-02-02T08:00:00" },
+        { name: "Examens finaux S5", date: "2026-02-09T08:00:00" },
+        { name: "Devoirs Semestre II", date: "2026-04-20T08:00:00" },
+        { name: "Examens finaux Semestre II", date: "2026-06-01T08:00:00" }
+    ];
+
+    function initCountdown() {
+        const wrapper = document.getElementById('countdown-wrapper');
+        const eventNameEl = document.getElementById('event-name');
+        
+        function updateTimer() {
+            const now = new Date().getTime();
+            let nextEvent = academicEvents.find(e => new Date(e.date).getTime() > now);
+
+            if (!nextEvent) {
+                wrapper.style.display = 'none';
+                return;
+            }
+
+            wrapper.style.display = 'flex';
+            eventNameEl.innerText = nextEvent.name;
+
+            const targetTime = new Date(nextEvent.date).getTime();
+            const dist = targetTime - now;
+
+            const d = Math.floor(dist / (1000 * 60 * 60 * 24));
+            const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((dist % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = d < 10 ? "0" + d : d;
+            document.getElementById('hours').innerText = h < 10 ? "0" + h : h;
+            document.getElementById('minutes').innerText = m < 10 ? "0" + m : m;
+            document.getElementById('seconds').innerText = s < 10 ? "0" + s : s;
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    }
+    
+    document.addEventListener('DOMContentLoaded', initCountdown);
+
+    // --- ACADEMIC LOGIC ---
     const semsData = {
         'l1': {'s1':'Semestre 1','s2':'Semestre 2'},
         'l2': {'s3':'Semestre 3','s4':'Semestre 4'},
@@ -285,13 +648,6 @@
                 semSelect.appendChild(opt);
             }
         }
-    }
-
-    function openInstallModal() {
-        document.getElementById('installModal').style.display = 'flex';
-    }
-    function closeInstallModal(e) {
-        if(e.target.id === 'installModal') document.getElementById('installModal').style.display = 'none';
     }
 
     document.getElementById('searchForm').addEventListener('submit', async function(e) {
@@ -314,27 +670,17 @@
         const lvl = document.getElementById('level').value.toUpperCase();
         const sem = document.getElementById('semester').value.toUpperCase();
 
-        // ---------------------------------------------
-        // المنطق الجديد لتوليد أسماء الملفات (PDF)
-        // ---------------------------------------------
         let possibleFiles = [];
-
-        // 1. الأنماط القديمة (Legacy)
         possibleFiles.push(`${lvl}_${maj}_${sem}.pdf`);
         possibleFiles.push(`${lvl}2_${maj}_${sem}.pdf`);
         possibleFiles.push(`${lvl.toLowerCase()}_${maj.toLowerCase()}_${sem.toLowerCase()}.pdf`);
-
-        // 2. أنماط PV_ مع الأخذ بعين الاعتبار (L1, L12, L2, L22...)
         const levelVariants = [lvl, lvl + '2']; 
         const suffixes = ['_VD', '_VF', '_FV', '_', '', '__FV', '__VF'];
-
         levelVariants.forEach(l => {
             suffixes.forEach(s => {
                 possibleFiles.push(`PV_${l}${maj}_${sem}${s}.pdf`);
             });
         });
-
-        // ---------------------------------------------
 
         let foundData = null;
         let rankInfo = null;
@@ -355,7 +701,7 @@
         if (foundData && foundData.length > 0) {
             renderTranscript(foundData, id, maj, lvl, sem, rankInfo, topStudents);
         } else {
-            showError(`Aucun résultat pour ${id}. Veuillez vérifier que le fichier PDF correspondant (ex: PV_${lvl}${maj}_${sem}_VD.pdf) existe.`);
+            showError(`Aucun résultat pour ${id}. Veuillez vérifier le matricule ou la disponibilité du PDF.`);
         }
     });
 
@@ -390,7 +736,6 @@
                         let items = lines[y].sort((a,b) => a.x - b.x);
                         let rowText = items.map(itm => itm.t).join(" ").trim();
                         
-                        // محاولة التقاط معلومات الطالب للمعدل العام
                         let headerMatch = rowText.match(/(I\d{4,})(.*?)(\b(?:[0-1]?\d|20)[.,]\d{1,2}\b)/);
                         if (headerMatch) {
                             let sId = headerMatch[1];
@@ -419,7 +764,6 @@
                     resolve({ 
                         studentData: studentRows, 
                         rankInfo: { rank: allStudents.findIndex(s => s.id === targetId) + 1, total: allStudents.length },
-                        // MODIFICATION HERE: Changed from slice(0, 3) to slice(0, 10)
                         topStudents: allStudents.slice(0, 10)
                     });
                 } else reject("Not Found");
@@ -445,22 +789,26 @@
         document.getElementById('sem-decision').innerText = semDec;
         
         let isSuccess = (semDec === "Validé" || semDec === "Admis");
-        document.getElementById('sem-decision').style.color = isSuccess ? "#008000" : "#cc0000";
+        const decEl = document.getElementById('sem-decision');
+        if (isSuccess) {
+            decEl.style.color = "#059669";
+            decEl.innerHTML = "✅ " + semDec;
+        } else {
+            decEl.style.color = "#dc2626";
+            decEl.innerHTML = "⚠️ " + semDec;
+        }
+
         if (rankInfo) document.getElementById('sem-rank').innerText = `${rankInfo.rank} / ${rankInfo.total}`;
 
-        // MODIFICATION HERE: Logic to show 10 students with full names
         document.getElementById('palmares-body').innerHTML = topStudents.map((s, i) => {
-            let medal = '';
-            if (i === 0) medal = '🥇';
-            else if (i === 1) medal = '🥈';
-            else if (i === 2) medal = '🥉';
-            
+            let medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : `#${i+1}`));
+            let bgStyle = i < 3 ? 'background-color:rgba(255, 215, 0, 0.1);' : '';
             return `
-            <tr>
-                <td>${medal} ${i+1}</td>
-                <td>${s.id}</td>
-                <td style="text-align:left">${s.name}</td> <!-- Full Name used here -->
-                <td><b>${s.avg}</b></td>
+            <tr style="${bgStyle}">
+                <td><span class="rank-medal">${medal}</span></td>
+                <td><small>${s.id}</small></td>
+                <td style="text-align:left; font-weight:600;">${s.name}</td>
+                <td><b style="color:var(--primary);">${s.avg}</b></td>
             </tr>
             `;
         }).join('');
@@ -471,45 +819,57 @@
             if (sm) {
                 let dec = sm[5].trim();
                 let decClass = (dec.includes("Validé") || dec.includes("Admis")) ? "status-valid" : "status-ratt";
-                tbody.innerHTML += `<tr><td class="col-module">${raw.substring(0, raw.indexOf(sm[1])).trim()}</td><td>${sm[1]}</td><td>${sm[2]}</td><td style="background:#f0f0f0;"><b>${sm[3]}</b></td><td>${sm[4]}</td><td class="${decClass}">${dec}</td></tr>`;
+                let displayDec = dec.includes("Validé") ? "V" : (dec.includes("Rattrapage") ? "R" : dec); // Abbreviate for mobile
+                
+                tbody.innerHTML += `<tr>
+                    <td class="col-module">${raw.substring(0, raw.indexOf(sm[1])).trim()}</td>
+                    <td>${sm[1]}</td>
+                    <td>${sm[2]}</td>
+                    <td style="background:#f1f5f9; font-weight:bold;">${sm[3]}</td>
+                    <td>${sm[4]}</td>
+                    <td><span class="status-badge ${decClass}">${displayDec}</span></td>
+                </tr>`;
             } else {
                 let um = raw.match(/(\d{1,2}[\.,]\d{2})\s+(\d{1,2})\s*(.*)$/i);
                 if (um) {
                      let dec = um[3].trim();
-                     let decClass = (dec.includes("Validé") || dec.includes("Acquis")) ? "status-valid" : "";
-                     tbody.innerHTML += `<tr class="row-ue"><td class="col-module">${raw.substring(0, raw.indexOf(um[1])).trim()}</td><td colspan="2"><small>Moy UE</small></td><td style="background:#e3eefc;"><b>${um[1]}</b></td><td><b>${um[2]}</b></td><td class="${decClass}">${dec}</td></tr>`;
+                     tbody.innerHTML += `<tr class="row-ue"><td class="col-module" style="color:#000;">${raw.substring(0, raw.indexOf(um[1])).trim()}</td><td colspan="2"><small>UE</small></td><td style="background:#e0f2fe; font-weight:bold;">${um[1]}</td><td>${um[2]}</td><td><small>${dec}</small></td></tr>`;
                 }
             }
         });
         document.getElementById('transcript-view').style.display = 'block';
 
         if (isSuccess) launchCelebration();
+        // Smooth scroll to result
+        document.getElementById('transcript-view').scrollIntoView({ behavior: 'smooth' });
     }
 
     let confettiInterval;
     function launchCelebration() {
         const banner = document.getElementById('congrats-banner');
         banner.style.display = 'block';
-        const symbols = ['🎉', '💐', '🌹', '🌺', '❤️', '💖', '✨', '🎓'];
-        const colors = ['#FFD700', '#FF6347', '#32CD32', '#1E90FF', '#FF1493'];
+        const symbols = ['🎉', '✨', '🎓', '🌟'];
+        const colors = ['#FFD700', '#FF4500', '#32CD32', '#1E90FF'];
 
         confettiInterval = setInterval(() => {
             const el = document.createElement('div');
-            el.classList.add('confetti');
-            el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+            el.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+            el.style.position = 'fixed';
             el.style.left = Math.random() * 100 + 'vw';
-            el.style.animationDuration = (Math.random() * 3 + 2) + 's'; 
-            el.style.color = colors[Math.floor(Math.random() * colors.length)];
+            el.style.top = '-50px';
+            el.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            el.style.zIndex = '9999';
+            el.style.pointerEvents = 'none';
+            el.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
             document.body.appendChild(el);
-            setTimeout(() => { el.remove(); }, 4000);
-        }, 100); 
+            setTimeout(() => { el.remove(); }, 5000);
+        }, 150); 
 
-        setTimeout(stopCelebration, 5000);
+        setTimeout(stopCelebration, 6000);
     }
 
     function stopCelebration() {
         clearInterval(confettiInterval);
-        document.querySelectorAll('.confetti').forEach(el => el.remove());
         document.getElementById('congrats-banner').style.display = 'none';
     }
 </script>
