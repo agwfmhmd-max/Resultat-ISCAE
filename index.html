@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#003366">
+    <meta name="theme-color" content="#005C29">
     
     <!-- PWA Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,12 +20,13 @@
 
     <style>
         :root { 
-            --primary: #003366; 
-            --primary-light: #004c99;
-            --secondary: #FFD700; /* Gold brighter */
-            --bg-gradient: linear-gradient(135deg, #f6f9fc 0%, #eef2f7 100%);
-            --text: #2d3748;
-            --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            /* GREEN THEME VARIABLES 💚 */
+            --primary: #005C29;       /* Deep Green */
+            --primary-light: #008f40; /* Lighter Green */
+            --secondary: #FFD700;     /* Gold */
+            --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #e6f7ed 100%); /* Very light green tinted bg */
+            --text: #1a2e1a;
+            --card-shadow: 0 10px 30px rgba(0, 92, 41, 0.08);
             --radius: 16px;
         }
 
@@ -41,9 +42,9 @@
             -webkit-tap-highlight-color: transparent; 
         }
         
-        /* Modern Header with Glassmorphism */
+        /* Header */
         header { 
-            background: rgba(0, 51, 102, 0.95); 
+            background: rgba(0, 92, 41, 0.95); /* Green glass */
             backdrop-filter: blur(10px);
             color: white; 
             padding: 15px 20px; 
@@ -61,15 +62,14 @@
             font-size: 1.2rem; 
             font-weight: 800; 
             letter-spacing: 0.5px; 
-            background: linear-gradient(45deg, #fff, #ffd700);
+            background: linear-gradient(45deg, #fff, #FFD700);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
-        /* Animated Install Button */
         .install-btn { 
             background: linear-gradient(135deg, var(--secondary), #FFA500); 
-            color: #003366; 
+            color: #005C29; /* Green text */
             border: none; 
             padding: 8px 16px; 
             border-radius: 50px; 
@@ -79,12 +79,12 @@
             display: flex; 
             align-items: center; 
             gap: 6px; 
-            box-shadow: 0 4px 15px rgba(197, 160, 23, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
             transition: transform 0.2s;
         }
         .install-btn:active { transform: scale(0.95); }
 
-        /* --- Stylish Countdown --- */
+        /* Countdown */
         .countdown-container {
             background: white;
             margin: 15px auto;
@@ -97,7 +97,7 @@
             align-items: center;
             position: relative;
             box-shadow: var(--card-shadow);
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(0, 92, 41, 0.1);
             animation: slideDown 0.5s ease;
         }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -114,263 +114,132 @@
             letter-spacing: 1px;
         }
 
-        .countdown-timer {
-            display: flex;
-            gap: 10px;
-            direction: ltr;
-        }
+        .countdown-timer { display: flex; gap: 10px; direction: ltr; }
+        .time-block { display: flex; flex-direction: column; align-items: center; background: #f0fdf4; padding: 8px; border-radius: 10px; min-width: 55px; border: 1px solid #dcfce7; }
+        .time-value { color: var(--primary); font-size: 1.4rem; font-weight: 800; line-height: 1; }
+        .time-label { font-size: 0.65rem; color: #166534; margin-top: 4px; font-weight: 600; text-transform: uppercase; }
+        .separator { font-size: 1.5rem; color: #86efac; font-weight: 300; margin-top: 2px; }
 
-        .time-block {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #f8fafc;
-            padding: 8px;
-            border-radius: 10px;
-            min-width: 55px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .time-value {
-            color: var(--primary);
-            font-size: 1.4rem;
-            font-weight: 800;
-            line-height: 1;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .time-label {
-            font-size: 0.65rem;
-            color: #64748b;
-            margin-top: 4px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .separator {
-            font-size: 1.5rem;
-            color: #cbd5e1;
-            font-weight: 300;
-            margin-top: 2px;
-        }
-
-        /* --- Layout --- */
-        .container { 
-            display: flex; 
-            flex-grow: 1; 
-            max-width: 1400px; 
-            margin: 0 auto; 
-            width: 100%; 
-            padding: 15px;
-            gap: 20px;
-        }
-        
-        /* Sidebar / Form */
-        .sidebar { 
-            width: 320px; 
-            background: white; 
-            padding: 25px; 
-            border-radius: var(--radius);
-            box-shadow: var(--card-shadow);
-            height: fit-content;
-            position: sticky;
-            top: 90px;
-        }
+        /* Layout */
+        .container { display: flex; flex-grow: 1; max-width: 1400px; margin: 0 auto; width: 100%; padding: 15px; gap: 20px; }
+        .sidebar { width: 320px; background: white; padding: 25px; border-radius: var(--radius); box-shadow: var(--card-shadow); height: fit-content; position: sticky; top: 90px; }
         
         .form-group { margin-bottom: 18px; }
-        label { display: block; margin-bottom: 8px; font-weight: 700; color: #4a5568; font-size: 0.9rem; }
-        select, input { 
-            width: 100%; 
-            padding: 12px 15px; 
-            border: 2px solid #e2e8f0; 
-            border-radius: 10px; 
-            font-size: 1rem; 
-            background: #f8fafc; 
-            transition: 0.3s;
-            outline: none;
-        }
-        select:focus, input:focus {
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
-        }
+        label { display: block; margin-bottom: 8px; font-weight: 700; color: #14532d; font-size: 0.9rem; }
+        select, input { width: 100%; padding: 12px 15px; border: 2px solid #bbf7d0; border-radius: 10px; font-size: 1rem; background: #f0fdf4; transition: 0.3s; outline: none; }
+        select:focus, input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(0, 92, 41, 0.1); }
         
-        button.search-btn { 
-            width: 100%; 
-            padding: 15px; 
-            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
-            color: white; 
-            border: none; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            font-size: 1.1rem; 
-            font-weight: bold; 
-            margin-top: 10px; 
-            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3); 
-            transition: all 0.3s; 
-        }
-        button.search-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 51, 102, 0.4); }
-        button.search-btn:active { transform: scale(0.98); }
+        button.search-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin-top: 10px; box-shadow: 0 4px 15px rgba(0, 92, 41, 0.3); transition: all 0.3s; }
+        button.search-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 92, 41, 0.4); }
 
         .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
 
         /* Transcript Card */
-        .transcript-card { 
-            background: white; 
-            width: 100%; 
-            max-width: 850px; 
-            padding: 30px; 
-            box-shadow: var(--card-shadow); 
-            border-radius: var(--radius); 
-            display: none; 
-            position: relative; 
-            animation: popIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        .transcript-card { background: white; width: 100%; max-width: 850px; padding: 30px; box-shadow: var(--card-shadow); border-radius: var(--radius); display: none; position: relative; animation: popIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1); z-index: 10; }
+
+        .student-header { display: flex; justify-content: space-between; border-bottom: 2px solid #f0fdf4; padding-bottom: 20px; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        .student-info h2 { margin: 0; color: var(--primary); font-size: 1.6rem; font-weight: 800; }
+        .matricule-badge { background: #dcfce7; color: #14532d; padding: 5px 12px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; display: inline-block; margin-top: 5px; }
+        
+        /* MOVING NOTE STYLES */
+        .ticker-wrap {
+            overflow: hidden;
+            background-color: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 12px 0;
+            margin-bottom: 20px;
+            white-space: nowrap;
+            width: 100%;
+            box-sizing: border-box;
+            color: #92400e;
+        }
+        .ticker-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: ticker 20s linear infinite;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        @keyframes ticker {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
         }
 
-        .student-header { 
-            display: flex; 
-            justify-content: space-between; 
-            border-bottom: 2px solid #f1f5f9; 
-            padding-bottom: 20px; 
-            margin-bottom: 25px; 
-            flex-wrap: wrap; 
-            gap: 15px; 
-        }
-        .student-info h2 { margin: 0; color: var(--primary); font-size: 1.6rem; font-weight: 800; }
-        .matricule-badge { 
-            background: #e2e8f0; 
-            color: #475569; 
-            padding: 5px 12px; 
-            border-radius: 6px; 
-            font-size: 0.9rem; 
-            font-weight: 600;
-            display: inline-block; 
-            margin-top: 5px; 
-        }
-        
-        /* Table Design */
-        .table-wrapper { 
-            overflow-x: auto; 
-            border-radius: 12px; 
-            border: 1px solid #e2e8f0; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-        }
+        .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid #dcfce7; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .transcript-table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        .transcript-table th { 
-            background-color: #f8fafc; 
-            color: #64748b;
-            padding: 15px; 
-            text-align: center; 
-            font-weight: 700; 
-            border-bottom: 2px solid #e2e8f0; 
-            font-size: 0.85rem; 
-            text-transform: uppercase;
-        }
-        .transcript-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; text-align: center; font-size: 0.95rem; font-weight: 500; }
+        .transcript-table th { background-color: #f0fdf4; color: #166534; padding: 15px; text-align: center; font-weight: 700; border-bottom: 2px solid #dcfce7; font-size: 0.85rem; text-transform: uppercase; }
+        .transcript-table td { padding: 12px; border-bottom: 1px solid #f0fdf4; text-align: center; font-size: 0.95rem; font-weight: 500; }
         .col-module { text-align: left !important; font-weight: 600; color: var(--primary); }
-        .row-ue { background-color: #f0f9ff; }
+        .row-ue { background-color: #f0fdf4; }
         
-        /* Status Badges */
         .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; }
-        .status-valid { color: #059669; background: #ecfdf5; }
+        .status-valid { color: #059669; background: #d1fae5; }
         .status-ratt { color: #dc2626; background: #fef2f2; }
 
-        /* Summary Boxes */
         .sem-summary { margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .summary-box { 
-            border: 2px solid transparent;
-            padding: 20px; 
-            border-radius: 12px; 
-            text-align: center; 
-            background: linear-gradient(145deg, #ffffff, #f9fafb);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-        .summary-box:hover { transform: translateY(-3px); }
-        
+        .summary-box { border: 2px solid transparent; padding: 20px; border-radius: 12px; text-align: center; background: linear-gradient(145deg, #ffffff, #f0fdf4); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .box-rank { border-color: var(--secondary); }
         .box-avg { border-color: var(--primary); }
-        
         .summary-value { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin: 5px 0; }
-        .label-sm { font-size: 0.8rem; text-transform: uppercase; color: #64748b; letter-spacing: 1px; font-weight: 600; }
+        .label-sm { font-size: 0.8rem; text-transform: uppercase; color: #15803d; letter-spacing: 1px; font-weight: 600; }
 
-        /* Leaderboard / Palmares */
-        .palmares-box { 
-            margin-top: 35px; 
-            background: linear-gradient(to bottom, #fffdf0, #fff); 
-            border: 1px solid #fceeb5; 
-            border-radius: var(--radius); 
-            padding: 20px; 
-            position: relative;
-            overflow: hidden;
-        }
+        .palmares-box { margin-top: 35px; background: linear-gradient(to bottom, #f0fdf4, #fff); border: 1px solid #86efac; border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
         .palmares-box::before { content: "🏆"; position: absolute; top: -10px; right: -10px; font-size: 100px; opacity: 0.1; transform: rotate(15deg); }
-        .palmares-table td { padding: 10px; border-bottom: 1px solid #fef3c7; }
+        .palmares-table td { padding: 10px; border-bottom: 1px solid #dcfce7; }
         .rank-medal { font-size: 1.2rem; margin-right: 5px; }
 
-        /* Footer Styles */
+        /* Footer */
         footer { 
             margin-top: auto; 
-            background: linear-gradient(to right, #001a33, #003366); /* Rich Gradient */
+            background: linear-gradient(to right, #003317, #005C29); /* Dark Green Gradient */
             color: white; 
             text-align: center; 
             padding: 40px 20px; 
             font-size: 0.95rem; 
             position: relative; 
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1); 
         }
-        .footer-content { max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        .dev-link { color: var(--secondary); text-decoration: none; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 20px; background: rgba(255, 215, 0, 0.1); transition: all 0.3s ease; }
+        .dev-link:hover { background: var(--secondary); color: #005C29; transform: scale(1.05); }
         
-        /* Developer Link Styling */
-        .dev-link {
-            color: var(--secondary);
-            text-decoration: none;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background: rgba(255, 215, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-        .dev-link:hover {
-            background: var(--secondary);
-            color: #003366;
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-        }
+        /* Celebration */
+        .confetti-flower { position: fixed; top: -50px; z-index: 9999; pointer-events: none; animation: fallDown linear forwards; font-size: 25px; }
+        .confetti-heart { position: fixed; bottom: -50px; z-index: 9999; pointer-events: none; animation: riseUp linear forwards; font-size: 25px; }
         
-        /* Modals & Popups */
+        @keyframes fallDown { 
+            0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg) translateX(20px); opacity: 0; }
+        }
+        @keyframes riseUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 0.8; }
+            50% { transform: translateY(-50vh) scale(1.2) translateX(-20px); opacity: 1; }
+            100% { transform: translateY(-110vh) scale(1) translateX(20px); opacity: 0; }
+        }
+
         .congrats-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 30px 50px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 4px solid var(--secondary); z-index: 10000; text-align: center; display: none; width: 80%; max-width: 400px; }
         @keyframes popIn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
 
-        /* Mobile Optimization */
         @media (max-width: 900px) {
             .container { flex-direction: column; padding: 10px; }
             .sidebar { width: 100%; position: static; box-sizing: border-box; }
             .main-content { padding: 5px; }
             .sem-summary { grid-template-columns: 1fr; }
             .countdown-container { width: 100%; padding: 10px; }
-            .time-value { font-size: 1.1rem; }
-            .time-block { min-width: 45px; }
-            header h1 { font-size: 1rem; }
         }
         
-        /* Print Styles */
         @media print {
-            .sidebar, header, .countdown-container, .print-btn, .congrats-popup, .install-btn, footer { display: none; }
+            .sidebar, header, .countdown-container, .print-btn, .congrats-popup, .install-btn, footer, .ticker-wrap { display: none; }
             .container { display: block; padding: 0; }
             .transcript-card { box-shadow: none; border: none; padding: 0; margin: 0; width: 100%; max-width: 100%; }
             body { background: white; }
         }
 
         .loader { display: none; text-align: center; margin-top: 30px; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top: 5px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #dcfce7; border-top: 5px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
         .alert { padding: 15px; background: #fee2e2; color: #991b1b; border-radius: 10px; margin-top: 20px; display: none; text-align: center; border: 1px solid #fecaca; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Install Guide Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 2000; display: none; align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 30px; border-radius: 20px; max-width: 350px; width: 90%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
     </style>
@@ -384,33 +253,19 @@
     </button>
 </header>
 
-<!-- COUNTDOWN -->
 <div id="countdown-wrapper" class="countdown-container" style="display:none;">
     <div class="countdown-header">
         <span style="font-size:1.3rem;">🔔</span>
         <span id="event-name">CHARGEMENT...</span>
     </div>
-    
     <div class="countdown-timer">
-        <div class="time-block">
-            <span id="days" class="time-value">00</span>
-            <span class="time-label">Jours</span>
-        </div>
+        <div class="time-block"><span id="days" class="time-value">00</span><span class="time-label">Jours</span></div>
         <div class="separator">:</div>
-        <div class="time-block">
-            <span id="hours" class="time-value">00</span>
-            <span class="time-label">Hrs</span>
-        </div>
+        <div class="time-block"><span id="hours" class="time-value">00</span><span class="time-label">Hrs</span></div>
         <div class="separator">:</div>
-        <div class="time-block">
-            <span id="minutes" class="time-value">00</span>
-            <span class="time-label">Min</span>
-        </div>
+        <div class="time-block"><span id="minutes" class="time-value">00</span><span class="time-label">Min</span></div>
         <div class="separator">:</div>
-        <div class="time-block">
-            <span id="seconds" class="time-value">00</span>
-            <span class="time-label">Sec</span>
-        </div>
+        <div class="time-block"><span id="seconds" class="time-value">00</span><span class="time-label">Sec</span></div>
     </div>
 </div>
 
@@ -473,7 +328,14 @@
                 </div>
                 <div style="text-align:right; font-size:0.9rem; color:#64748b;">
                     <p style="font-weight:bold;">Année 2024-2025</p>
-                    <p id="res-context" style="margin-top:5px; background:#f1f5f9; padding:2px 8px; border-radius:4px;">CONTEXTE</p>
+                    <p id="res-context" style="margin-top:5px; background:#f0fdf4; padding:2px 8px; border-radius:4px;">CONTEXTE</p>
+                </div>
+            </div>
+
+            <!-- MOVING NOTE -->
+            <div class="ticker-wrap">
+                <div class="ticker-content">
+                    ⚠️ NB: Ces résultats sont affichés avant la session de rattrapage. | ملاحظة: هذه النتائج قبل الدورة الاستدراكية. ⚠️ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚠️ NB: Ces résultats sont affichés avant la session de rattrapage. | ملاحظة: هذه النتائج قبل الدورة الاستدراكية. ⚠️
                 </div>
             </div>
 
@@ -512,12 +374,12 @@
                 </table>
             </div>
 
-            <button class="print-btn" onclick="window.print()" style="background:#475569; color:white; padding:15px; width:100%; border:none; border-radius:12px; margin-top:25px; cursor:pointer; font-weight:bold; transition:0.3s;">🖨️ Imprimer / Sauvegarder PDF</button>
+            <button class="print-btn" onclick="window.print()" style="background:#14532d; color:white; padding:15px; width:100%; border:none; border-radius:12px; margin-top:25px; cursor:pointer; font-weight:bold; transition:0.3s;">🖨️ Imprimer / Sauvegarder PDF</button>
         </div>
     </main>
 </div>
 
-<!-- Updated Footer -->
+<!-- Footer -->
 <footer>
     <div class="footer-content">
         <p style="margin-bottom:10px; opacity:0.8;">&copy; 2025 ISCAE Résultats - Tous droits réservés</p>
@@ -535,22 +397,27 @@
     <div class="modal-content">
         <h3 style="color:var(--primary); margin-top:0; font-size:1.5rem;">تثبيت التطبيق 📲</h3>
         <p style="font-size:1rem; color:#555; margin-bottom:20px;">لتجربة أفضل وسرعة أعلى:</p>
-        
         <div class="modal-step" style="background:#f8fafc; padding:10px; border-radius:10px; margin-bottom:10px; text-align:right;">
             <span class="modal-icon">🍏 <b>iPhone (Safari)</b></span><br>
             اضغط على زر <b>Partager</b> أسفل الشاشة <br> ثم اختر <b>"Sur l'écran d'accueil"</b>
         </div>
-        
         <div class="modal-step" style="background:#f8fafc; padding:10px; border-radius:10px; text-align:right;">
             <span class="modal-icon">🤖 <b>Android (Chrome)</b></span><br>
             اضغط على القائمة (⋮) أعلى اليسار <br> ثم اختر <b>"Ajouter à l'écran d'accueil"</b>
         </div>
-        
         <button id="closeModal" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:12px 30px; border-radius:50px; font-weight:bold; cursor:pointer;">Fermer</button>
     </div>
 </div>
 
 <script>
+    // --- GLOBAL HELPER FOR TOP 10 CLICK ---
+    window.triggerSearch = function(id) {
+        const input = document.getElementById('studentId');
+        input.value = id;
+        window.scrollTo({ top: document.querySelector('.sidebar').offsetTop - 20, behavior: 'smooth' });
+        document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+    };
+
     // --- PWA INSTALL LOGIC ---
     let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
@@ -559,27 +426,14 @@
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('SW Registered'))
-                .catch(err => console.log('SW Fail', err));
+            navigator.serviceWorker.register('./sw.js').then(reg => console.log('SW OK')).catch(err => console.log('SW Fail', err));
         });
     }
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-    });
-
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
     installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            deferredPrompt = null;
-        } else {
-            modal.style.display = 'flex';
-        }
+        if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; }
+        else { modal.style.display = 'flex'; }
     });
-
     closeModal.addEventListener('click', () => { modal.style.display = 'none'; });
     window.onclick = function(event) { if (event.target == modal) modal.style.display = "none"; }
 
@@ -600,17 +454,11 @@
         function updateTimer() {
             const now = new Date().getTime();
             let nextEvent = academicEvents.find(e => new Date(e.date).getTime() > now);
-
-            if (!nextEvent) {
-                wrapper.style.display = 'none';
-                return;
-            }
-
+            if (!nextEvent) { wrapper.style.display = 'none'; return; }
+            
             wrapper.style.display = 'flex';
             eventNameEl.innerText = nextEvent.name;
-
-            const targetTime = new Date(nextEvent.date).getTime();
-            const dist = targetTime - now;
+            const dist = new Date(nextEvent.date).getTime() - now;
 
             const d = Math.floor(dist / (1000 * 60 * 60 * 24));
             const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -622,11 +470,9 @@
             document.getElementById('minutes').innerText = m < 10 ? "0" + m : m;
             document.getElementById('seconds').innerText = s < 10 ? "0" + s : s;
         }
-
         setInterval(updateTimer, 1000);
         updateTimer();
     }
-    
     document.addEventListener('DOMContentLoaded', initCountdown);
 
     // --- ACADEMIC LOGIC ---
@@ -659,13 +505,9 @@
         stopCelebration();
         
         let id = document.getElementById('studentId').value.trim().toUpperCase();
-        if (!id.startsWith('I')) {
-            showError("Le matricule doit commencer par 'I' (ex: I21567)");
-            return;
-        }
+        if (!id.startsWith('I')) { showError("Le matricule doit commencer par 'I' (ex: I21567)"); return; }
 
         document.getElementById('loader').style.display = 'block';
-
         const maj = document.getElementById('major').value.toUpperCase();
         const lvl = document.getElementById('level').value.toUpperCase();
         const sem = document.getElementById('semester').value.toUpperCase();
@@ -676,11 +518,7 @@
         possibleFiles.push(`${lvl.toLowerCase()}_${maj.toLowerCase()}_${sem.toLowerCase()}.pdf`);
         const levelVariants = [lvl, lvl + '2']; 
         const suffixes = ['_VD', '_VF', '_FV', '_', '', '__FV', '__VF'];
-        levelVariants.forEach(l => {
-            suffixes.forEach(s => {
-                possibleFiles.push(`PV_${l}${maj}_${sem}${s}.pdf`);
-            });
-        });
+        levelVariants.forEach(l => { suffixes.forEach(s => { possibleFiles.push(`PV_${l}${maj}_${sem}${s}.pdf`); }); });
 
         let foundData = null;
         let rankInfo = null;
@@ -701,7 +539,7 @@
         if (foundData && foundData.length > 0) {
             renderTranscript(foundData, id, maj, lvl, sem, rankInfo, topStudents);
         } else {
-            showError(`Aucun résultat pour ${id}. Veuillez vérifier le matricule ou la disponibilité du PDF.`);
+            showError(`Aucun résultat pour ${id}. Vérifiez le matricule ou le fichier PDF.`);
         }
     });
 
@@ -786,7 +624,6 @@
         document.getElementById('st-id').innerText = studentId;
         document.getElementById('res-context').innerText = `${lvl.toUpperCase()} - ${maj.toUpperCase()} - ${sem.toUpperCase()}`;
         document.getElementById('sem-avg').innerText = semAvg;
-        document.getElementById('sem-decision').innerText = semDec;
         
         let isSuccess = (semDec === "Validé" || semDec === "Admis");
         const decEl = document.getElementById('sem-decision');
@@ -806,7 +643,7 @@
             return `
             <tr style="${bgStyle}">
                 <td><span class="rank-medal">${medal}</span></td>
-                <td><small>${s.id}</small></td>
+                <td><a href="javascript:void(0)" onclick="triggerSearch('${s.id}')" style="text-decoration:underline; cursor:pointer; color:var(--primary); font-weight:bold;">${s.id}</a></td>
                 <td style="text-align:left; font-weight:600;">${s.name}</td>
                 <td><b style="color:var(--primary);">${s.avg}</b></td>
             </tr>
@@ -819,16 +656,8 @@
             if (sm) {
                 let dec = sm[5].trim();
                 let decClass = (dec.includes("Validé") || dec.includes("Admis")) ? "status-valid" : "status-ratt";
-                let displayDec = dec.includes("Validé") ? "V" : (dec.includes("Rattrapage") ? "R" : dec); // Abbreviate for mobile
-                
-                tbody.innerHTML += `<tr>
-                    <td class="col-module">${raw.substring(0, raw.indexOf(sm[1])).trim()}</td>
-                    <td>${sm[1]}</td>
-                    <td>${sm[2]}</td>
-                    <td style="background:#f1f5f9; font-weight:bold;">${sm[3]}</td>
-                    <td>${sm[4]}</td>
-                    <td><span class="status-badge ${decClass}">${displayDec}</span></td>
-                </tr>`;
+                let displayDec = dec.includes("Validé") ? "V" : (dec.includes("Rattrapage") ? "R" : dec); 
+                tbody.innerHTML += `<tr><td class="col-module">${raw.substring(0, raw.indexOf(sm[1])).trim()}</td><td>${sm[1]}</td><td>${sm[2]}</td><td style="background:#f0fdf4; font-weight:bold;">${sm[3]}</td><td>${sm[4]}</td><td><span class="status-badge ${decClass}">${displayDec}</span></td></tr>`;
             } else {
                 let um = raw.match(/(\d{1,2}[\.,]\d{2})\s+(\d{1,2})\s*(.*)$/i);
                 if (um) {
@@ -838,38 +667,41 @@
             }
         });
         document.getElementById('transcript-view').style.display = 'block';
-
-        if (isSuccess) launchCelebration();
-        // Smooth scroll to result
+        if (isSuccess) launchIntenseCelebration();
         document.getElementById('transcript-view').scrollIntoView({ behavior: 'smooth' });
     }
 
-    let confettiInterval;
-    function launchCelebration() {
+    let celebrationInterval;
+    function launchIntenseCelebration() {
         const banner = document.getElementById('congrats-banner');
         banner.style.display = 'block';
-        const symbols = ['🎉', '✨', '🎓', '🌟'];
-        const colors = ['#FFD700', '#FF4500', '#32CD32', '#1E90FF'];
+        const flowers = ['🌹','🌺','🌸','🌼','🌻','🌷'];
+        const hearts = ['❤️','💖','💗','💓','💞','💕'];
 
-        confettiInterval = setInterval(() => {
-            const el = document.createElement('div');
-            el.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
-            el.style.position = 'fixed';
-            el.style.left = Math.random() * 100 + 'vw';
-            el.style.top = '-50px';
-            el.style.fontSize = (Math.random() * 20 + 20) + 'px';
-            el.style.zIndex = '9999';
-            el.style.pointerEvents = 'none';
-            el.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
-            document.body.appendChild(el);
-            setTimeout(() => { el.remove(); }, 5000);
-        }, 150); 
+        celebrationInterval = setInterval(() => {
+            let f = document.createElement('div');
+            f.className = 'confetti-flower';
+            f.innerText = flowers[Math.floor(Math.random()*flowers.length)];
+            f.style.left = Math.random() * 100 + 'vw';
+            f.style.animationDuration = Math.random() * 3 + 2 + 's';
+            document.body.appendChild(f);
 
-        setTimeout(stopCelebration, 6000);
+            let h = document.createElement('div');
+            h.className = 'confetti-heart';
+            h.innerText = hearts[Math.floor(Math.random()*hearts.length)];
+            h.style.left = Math.random() * 100 + 'vw';
+            h.style.animationDuration = Math.random() * 3 + 3 + 's';
+            document.body.appendChild(h);
+
+            setTimeout(() => f.remove(), 5000);
+            setTimeout(() => h.remove(), 6000);
+        }, 80); 
+
+        setTimeout(stopCelebration, 8000);
     }
 
     function stopCelebration() {
-        clearInterval(confettiInterval);
+        clearInterval(celebrationInterval);
         document.getElementById('congrats-banner').style.display = 'none';
     }
 </script>
