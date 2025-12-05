@@ -20,14 +20,13 @@
 
     <style>
         :root { 
-            /* GREEN THEME VARIABLES 💚 */
             --primary: #005C29;       /* Deep Green */
             --primary-light: #008f40; /* Lighter Green */
             --secondary: #FFD700;     /* Gold */
-            --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #e6f7ed 100%); /* Very light green tinted bg */
+            --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #e6f7ed 100%);
             --text: #1a2e1a;
             --card-shadow: 0 10px 30px rgba(0, 92, 41, 0.08);
-            --radius: 16px;
+            --radius: 20px;
         }
 
         body { 
@@ -42,13 +41,13 @@
             -webkit-tap-highlight-color: transparent; 
         }
         
-        /* Header */
+        /* Modern Header */
         header { 
-            background: rgba(0, 92, 41, 0.95); /* Green glass */
-            backdrop-filter: blur(10px);
+            background: rgba(0, 92, 41, 0.9);
+            backdrop-filter: blur(12px);
             color: white; 
             padding: 15px 20px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
             border-bottom: 3px solid var(--secondary); 
             z-index: 1000; 
             position: sticky; 
@@ -69,7 +68,7 @@
         
         .install-btn { 
             background: linear-gradient(135deg, var(--secondary), #FFA500); 
-            color: #005C29; /* Green text */
+            color: #005C29; 
             border: none; 
             padding: 8px 16px; 
             border-radius: 50px; 
@@ -84,87 +83,139 @@
         }
         .install-btn:active { transform: scale(0.95); }
 
-        /* Countdown */
+        /* --- MODERN COUNTDOWN --- */
         .countdown-container {
             background: white;
-            margin: 15px auto;
+            margin: 20px auto;
             max-width: 95%;
             width: 600px;
             border-radius: var(--radius);
-            padding: 15px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
             box-shadow: var(--card-shadow);
-            border: 1px solid rgba(0, 92, 41, 0.1);
-            animation: slideDown 0.5s ease;
+            border: 1px solid rgba(0, 92, 41, 0.05);
+            animation: slideDown 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .countdown-header {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 10px;
+            margin-bottom: 15px;
             color: var(--primary);
             font-weight: 800;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            background: rgba(0, 92, 41, 0.05);
+            padding: 5px 15px;
+            border-radius: 20px;
         }
 
-        .countdown-timer { display: flex; gap: 10px; direction: ltr; }
-        .time-block { display: flex; flex-direction: column; align-items: center; background: #f0fdf4; padding: 8px; border-radius: 10px; min-width: 55px; border: 1px solid #dcfce7; }
-        .time-value { color: var(--primary); font-size: 1.4rem; font-weight: 800; line-height: 1; }
-        .time-label { font-size: 0.65rem; color: #166534; margin-top: 4px; font-weight: 600; text-transform: uppercase; }
-        .separator { font-size: 1.5rem; color: #86efac; font-weight: 300; margin-top: 2px; }
+        .countdown-timer { display: flex; gap: 15px; direction: ltr; align-items: center; }
+        
+        .time-block { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            background: linear-gradient(145deg, #ffffff, #f0fdf4);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid #dcfce7;
+            box-shadow: 0 5px 15px rgba(0, 92, 41, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .time-block:hover { transform: translateY(-5px); border-color: var(--secondary); }
 
-        /* Layout */
-        .container { display: flex; flex-grow: 1; max-width: 1400px; margin: 0 auto; width: 100%; padding: 15px; gap: 20px; }
-        .sidebar { width: 320px; background: white; padding: 25px; border-radius: var(--radius); box-shadow: var(--card-shadow); height: fit-content; position: sticky; top: 90px; }
+        .time-value { color: var(--primary); font-size: 1.5rem; font-weight: 800; line-height: 1; }
+        .time-label { font-size: 0.6rem; color: #166534; margin-top: 2px; font-weight: 700; text-transform: uppercase; }
+        .separator { font-size: 1.5rem; color: #86efac; font-weight: 300; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        /* --- LAYOUT & FORM --- */
+        .container { display: flex; flex-grow: 1; max-width: 1400px; margin: 0 auto; width: 100%; padding: 20px; gap: 25px; }
         
-        .form-group { margin-bottom: 18px; }
-        label { display: block; margin-bottom: 8px; font-weight: 700; color: #14532d; font-size: 0.9rem; }
-        select, input { width: 100%; padding: 12px 15px; border: 2px solid #bbf7d0; border-radius: 10px; font-size: 1rem; background: #f0fdf4; transition: 0.3s; outline: none; }
-        select:focus, input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(0, 92, 41, 0.1); }
+        .sidebar { 
+            width: 340px; 
+            background: white; 
+            padding: 30px; 
+            border-radius: var(--radius); 
+            box-shadow: var(--card-shadow); 
+            height: fit-content; 
+            position: sticky; 
+            top: 90px; 
+            border: 1px solid rgba(255,255,255,0.5);
+        }
         
-        button.search-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin-top: 10px; box-shadow: 0 4px 15px rgba(0, 92, 41, 0.3); transition: all 0.3s; }
-        button.search-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 92, 41, 0.4); }
+        .form-title {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 800;
+            border-left: 4px solid var(--secondary);
+            padding-left: 10px;
+            text-transform: uppercase;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 700; color: #14532d; font-size: 0.9rem; margin-left: 5px; }
+        
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-icon { position: absolute; left: 15px; font-size: 1.2rem; color: var(--primary); z-index: 10; pointer-events: none; }
+        
+        select, input { 
+            width: 100%; 
+            padding: 14px 15px 14px 45px; 
+            border: 2px solid #bbf7d0; 
+            border-radius: 12px; 
+            font-size: 1rem; 
+            background: #f8fffa; 
+            transition: all 0.3s ease; 
+            outline: none;
+            color: var(--text);
+            font-weight: 500;
+        }
+        select:hover, input:hover { border-color: #86efac; }
+        select:focus, input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(0, 92, 41, 0.1); }
+        
+        button.search-btn { 
+            width: 100%; 
+            padding: 16px; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            margin-top: 10px; 
+            box-shadow: 0 8px 20px rgba(0, 92, 41, 0.25); 
+            transition: all 0.3s; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        button.search-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 92, 41, 0.35); }
+        button.search-btn:active { transform: scale(0.98); }
 
         .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
 
-        /* Transcript Card */
-        .transcript-card { background: white; width: 100%; max-width: 850px; padding: 30px; box-shadow: var(--card-shadow); border-radius: var(--radius); display: none; position: relative; animation: popIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1); z-index: 10; }
+        .transcript-card { background: white; width: 100%; max-width: 850px; padding: 30px; box-shadow: var(--card-shadow); border-radius: var(--radius); display: none; position: relative; animation: popIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1); z-index: 10; border-top: 6px solid var(--primary); }
 
         .student-header { display: flex; justify-content: space-between; border-bottom: 2px solid #f0fdf4; padding-bottom: 20px; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
         .student-info h2 { margin: 0; color: var(--primary); font-size: 1.6rem; font-weight: 800; }
         .matricule-badge { background: #dcfce7; color: #14532d; padding: 5px 12px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; display: inline-block; margin-top: 5px; }
         
-        /* MOVING NOTE STYLES */
-        .ticker-wrap {
-            overflow: hidden;
-            background-color: #fffbeb;
-            border: 1px solid #fcd34d;
-            border-radius: 8px;
-            padding: 12px 0;
-            margin-bottom: 20px;
-            white-space: nowrap;
-            width: 100%;
-            box-sizing: border-box;
-            color: #92400e;
-        }
-        .ticker-content {
-            display: inline-block;
-            padding-left: 100%;
-            animation: ticker 20s linear infinite;
-            font-weight: 700;
-            font-size: 0.95rem;
-        }
-        @keyframes ticker {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
+        .ticker-wrap { overflow: hidden; background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 12px 0; margin-bottom: 20px; white-space: nowrap; width: 100%; box-sizing: border-box; color: #92400e; }
+        .ticker-content { display: inline-block; padding-left: 100%; animation: ticker 25s linear infinite; font-weight: 700; font-size: 0.95rem; }
+        @keyframes ticker { to { transform: translate3d(-100%, 0, 0); } }
 
         .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid #dcfce7; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .transcript-table { width: 100%; border-collapse: collapse; min-width: 600px; }
@@ -189,21 +240,11 @@
         .palmares-table td { padding: 10px; border-bottom: 1px solid #dcfce7; }
         .rank-medal { font-size: 1.2rem; margin-right: 5px; }
 
-        /* Footer */
-        footer { 
-            margin-top: auto; 
-            background: linear-gradient(to right, #003317, #005C29); /* Dark Green Gradient */
-            color: white; 
-            text-align: center; 
-            padding: 40px 20px; 
-            font-size: 0.95rem; 
-            position: relative; 
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1); 
-        }
+        footer { margin-top: auto; background: linear-gradient(to right, #003317, #005C29); color: white; text-align: center; padding: 40px 20px; font-size: 0.95rem; position: relative; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
         .dev-link { color: var(--secondary); text-decoration: none; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 20px; background: rgba(255, 215, 0, 0.1); transition: all 0.3s ease; }
         .dev-link:hover { background: var(--secondary); color: #005C29; transform: scale(1.05); }
         
-        /* Celebration */
+        /* Celebration & Animations */
         .confetti-flower { position: fixed; top: -50px; z-index: 9999; pointer-events: none; animation: fallDown linear forwards; font-size: 25px; }
         .confetti-heart { position: fixed; bottom: -50px; z-index: 9999; pointer-events: none; animation: riseUp linear forwards; font-size: 25px; }
         
@@ -217,7 +258,7 @@
             100% { transform: translateY(-110vh) scale(1) translateX(20px); opacity: 0; }
         }
 
-        .congrats-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 30px 50px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 4px solid var(--secondary); z-index: 10000; text-align: center; display: none; width: 80%; max-width: 400px; }
+        .congrats-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); padding: 30px 40px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 4px solid var(--secondary); z-index: 10000; text-align: center; display: none; width: 85%; max-width: 420px; }
         @keyframes popIn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
 
         @media (max-width: 900px) {
@@ -225,7 +266,9 @@
             .sidebar { width: 100%; position: static; box-sizing: border-box; }
             .main-content { padding: 5px; }
             .sem-summary { grid-template-columns: 1fr; }
-            .countdown-container { width: 100%; padding: 10px; }
+            .countdown-container { width: 100%; padding: 15px; }
+            .time-block { width: 55px; height: 55px; }
+            .time-value { font-size: 1.1rem; }
         }
         
         @media print {
@@ -255,7 +298,7 @@
 
 <div id="countdown-wrapper" class="countdown-container" style="display:none;">
     <div class="countdown-header">
-        <span style="font-size:1.3rem;">🔔</span>
+        <span style="font-size:1.5rem;">⏱️</span>
         <span id="event-name">CHARGEMENT...</span>
     </div>
     <div class="countdown-timer">
@@ -271,43 +314,63 @@
 
 <div class="container">
     <aside class="sidebar">
+        <div class="form-title">Recherche 🔍</div>
         <form id="searchForm">
+            
             <div class="form-group">
-                <label>Filière (التخصص):</label>
-                <select id="major" required>
-                    <option value="">-- Sélectionner --</option>
-                    <option value="ba">Banques Assurances (BA)</option>
-                    <option value="grh">Gestion des RH (GRH)</option>
-                    <option value="fc">Finance Comptabilité (FC)</option>
-                    <option value="fcfp">FCFP</option>
-                    <option value="sae">Statistique appliquée (SAE)</option>
-                    <option value="ig">Informatique de Gestion (IG)</option>
-                    <option value="igfp">IGFP</option>
-                    <option value="di">Développement Info (DI)</option>
-                    <option value="tcm">Marketing (TCM)</option>
-                    <option value="rt">Réseaux Télécom (RT)</option>
-                </select>
+                <label>Filière (التخصص)</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🎓</span>
+                    <select id="major" required>
+                        <option value="">-- Sélectionner --</option>
+                        <option value="ba">Banques Assurances (BA)</option>
+                        <option value="grh">Gestion des RH (GRH)</option>
+                        <option value="fc">Finance Comptabilité (FC)</option>
+                        <option value="fcfp">FCFP</option>
+                        <option value="sae">Statistique appliquée (SAE)</option>
+                        <option value="ig">Informatique de Gestion (IG)</option>
+                        <option value="igfp">IGFP</option>
+                        <option value="di">Développement Info (DI)</option>
+                        <option value="tcm">Marketing (TCM)</option>
+                        <option value="rt">Réseaux Télécom (RT)</option>
+                    </select>
+                </div>
             </div>
+
             <div class="form-group">
-                <label>Niveau (السنة):</label>
-                <select id="level" onchange="updateSemesters()" required>
-                    <option value="">-- Sélectionner --</option>
-                    <option value="l1">Licence 1 (L1)</option>
-                    <option value="l2">Licence 2 (L2)</option>
-                    <option value="l3">Licence 3 (L3)</option>
-                </select>
+                <label>Niveau (السنة)</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">📘</span>
+                    <select id="level" onchange="updateSemesters()" required>
+                        <option value="">-- Sélectionner --</option>
+                        <option value="l1">Licence 1 (L1)</option>
+                        <option value="l2">Licence 2 (L2)</option>
+                        <option value="l3">Licence 3 (L3)</option>
+                    </select>
+                </div>
             </div>
+
             <div class="form-group">
-                <label>Semestre (الفصل):</label>
-                <select id="semester" required>
-                    <option value="">-- Choisir niveau --</option>
-                </select>
+                <label>Semestre (الفصل)</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">📅</span>
+                    <select id="semester" required>
+                        <option value="">-- Choisir niveau --</option>
+                    </select>
+                </div>
             </div>
+
             <div class="form-group">
-                <label>Matricule (Ex: I21567):</label>
-                <input type="text" id="studentId" placeholder="Ex: I21567" required style="text-transform: uppercase;">
+                <label>Matricule (Ex: I21567)</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🆔</span>
+                    <input type="text" id="studentId" placeholder="Ex: I21567" required style="text-transform: uppercase;">
+                </div>
             </div>
-            <button type="submit" class="search-btn">🔍 Rechercher النتائج</button>
+
+            <button type="submit" class="search-btn">
+                <span>بحث</span> 🔍 <span>Rechercher</span>
+            </button>
         </form>
     </aside>
 
@@ -316,8 +379,8 @@
         <div id="error-msg" class="alert"></div>
 
         <div id="congrats-banner" class="congrats-popup">
-            <h2 style="font-size:2rem; margin-bottom:10px;">🎉 Félicitations ! 💐</h2>
-            <p style="margin:5px 0; color:#555; font-size:1.1rem;">Semestre Validé avec succès</p>
+            <h2 style="font-size:2rem; margin-bottom:10px; color:var(--primary);">🎉 ألف مبروك ! 💐</h2>
+            <h3 style="margin:5px 0; color:#166534; font-size:1.5rem;">Semestre Validé ✅</h3>
         </div>
 
         <div id="transcript-view" class="transcript-card">
