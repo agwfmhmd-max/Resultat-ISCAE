@@ -20,9 +20,9 @@
 
     <style>
         :root { 
-            --primary: #005C29;       /* Deep Green */
-            --primary-light: #008f40; /* Lighter Green */
-            --secondary: #FFD700;     /* Gold */
+            --primary: #005C29;       
+            --primary-light: #008f40; 
+            --secondary: #FFD700;     
             --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #e6f7ed 100%);
             --text: #1a2e1a;
             --card-shadow: 0 10px 30px rgba(0, 92, 41, 0.08);
@@ -30,7 +30,7 @@
         }
 
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
             background: var(--bg-gradient); 
             margin: 0; 
             display: flex; 
@@ -43,7 +43,7 @@
         
         /* Modern Header */
         header { 
-            background: rgba(0, 92, 41, 0.95);
+            background: rgba(0, 92, 41, 0.9);
             backdrop-filter: blur(12px);
             color: white; 
             padding: 15px 20px; 
@@ -209,11 +209,15 @@
 
         .transcript-card { background: white; width: 100%; max-width: 850px; padding: 30px; box-shadow: var(--card-shadow); border-radius: var(--radius); display: none; position: relative; animation: popIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1); z-index: 10; border-top: 6px solid var(--primary); }
 
+        /* --- UPDATED STUDENT HEADER --- */
         .student-header { display: flex; justify-content: space-between; border-bottom: 2px solid #f0fdf4; padding-bottom: 20px; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
         .student-info h2 { 
-            margin: 0; color: var(--primary); font-size: 1.6rem; font-weight: 800; 
-            white-space: normal; /* Ensure name wraps */
-            word-wrap: break-word;
+            margin: 0; 
+            color: var(--primary); 
+            font-size: 1.6rem; 
+            font-weight: 800;
+            white-space: nowrap; /* Prevent name wrapping */
+            overflow: visible;
         }
         .matricule-badge { background: #dcfce7; color: #14532d; padding: 5px 12px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; display: inline-block; margin-top: 5px; }
         
@@ -221,34 +225,49 @@
         .ticker-content { display: inline-block; padding-left: 100%; animation: ticker 25s linear infinite; font-weight: 700; font-size: 0.95rem; }
         @keyframes ticker { to { transform: translate3d(-100%, 0, 0); } }
 
-        .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid #dcfce7; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        /* --- UPDATED TABLE STYLES FOR HORIZONTAL SCROLL & NO WRAP --- */
+        .table-wrapper { 
+            overflow-x: auto; /* Enable horizontal scrolling */
+            border-radius: 12px; 
+            border: 1px solid #dcfce7; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
         .transcript-table { width: 100%; border-collapse: collapse; min-width: 600px; }
         
-        /* Updated Table Headers and Cells for Full Text */
         .transcript-table th { 
-            background-color: #f0fdf4; color: #166534; padding: 15px; 
-            text-align: center; font-weight: 700; border-bottom: 2px solid #dcfce7; 
-            font-size: 0.85rem; text-transform: uppercase;
-            white-space: normal; /* Allow text wrapping */
-        }
-        .transcript-table td { 
-            padding: 12px; border-bottom: 1px solid #f0fdf4; text-align: center; 
-            font-size: 0.95rem; font-weight: 500;
-            white-space: normal; /* Allow text wrapping */
-            word-wrap: break-word;
+            background-color: #f0fdf4; 
+            color: #166534; 
+            padding: 15px; 
+            text-align: center; 
+            font-weight: 700; 
+            border-bottom: 2px solid #dcfce7; 
+            font-size: 0.85rem; 
+            text-transform: uppercase;
+            white-space: nowrap; /* Keep headers on one line */
         }
         
-        /* Expanded Module Column */
+        .transcript-table td { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid #f0fdf4; 
+            text-align: center; 
+            font-size: 0.95rem; 
+            font-weight: 500;
+            /* CRITICAL CHANGES FOR NO WRAP */
+            white-space: nowrap !important;
+            overflow: visible;
+            text-overflow: clip;
+        }
+        
         .col-module { 
             text-align: left !important; 
             font-weight: 600; 
             color: var(--primary); 
-            min-width: 250px; /* Wider column */
-            max-width: 400px;
+            min-width: 250px; /* Ensure module column has width */
         }
         .row-ue { background-color: #f0fdf4; }
         
-        .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; }
         .status-valid { color: #059669; background: #d1fae5; }
         .status-ratt { color: #dc2626; background: #fef2f2; }
 
@@ -294,7 +313,7 @@
             border-radius: 30px; 
             box-shadow: 0 25px 80px rgba(0,0,0,0.4); 
             border: 5px solid var(--secondary); 
-            z-index: 10002;
+            z-index: 10002; /* Highest Z-Index */
             text-align: center; 
             display: none; 
             width: 85%; 
@@ -316,6 +335,9 @@
             .countdown-container { width: 100%; padding: 15px; }
             .time-block { width: 55px; height: 55px; }
             .time-value { font-size: 1.1rem; }
+            
+            /* Allow scrolling on mobile if text is too long */
+            .student-info h2 { font-size: 1.4rem; white-space: normal; }
         }
         
         @media print {
@@ -323,6 +345,8 @@
             .container { display: block; padding: 0; }
             .transcript-card { box-shadow: none; border: none; padding: 0; margin: 0; width: 100%; max-width: 100%; }
             body { background: white; }
+            /* On print, we might want wrap */
+            .transcript-table td { white-space: normal !important; }
         }
 
         .loader { display: none; text-align: center; margin-top: 30px; }
@@ -379,7 +403,7 @@
                         <option value="igfp">IGFP</option>
                         <option value="di">Développement Info (DI)</option>
                         <option value="tcm">Marketing (TCM)</option>
-                        <option value="rit">RIT</option>
+                        <option value="rit">RIT</option> <!-- Updated to RIT -->
                     </select>
                 </div>
             </div>
@@ -426,7 +450,7 @@
         <div id="error-msg" class="alert"></div>
 
         <div id="congrats-banner" class="congrats-popup">
-            <h2 style="font-size:2rem; margin-bottom:10px; color:var(--primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">🎉 ألف مبروك 🎉</h2>
+            <h2 style="font-size:2rem; margin-bottom:10px; color:var(--primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">🎉 ألف مبروك ! 💐</h2>
             <h3 style="margin:5px 0; color:#166534; font-size:1.5rem;">Semestre Validé ✅</h3>
         </div>
 
@@ -622,10 +646,9 @@
         const sem = document.getElementById('semester').value.toUpperCase();
 
         let possibleFiles = [];
-        // Support for RIT and RT
         if (maj === 'RIT') {
             possibleFiles.push(`PV_${lvl}RIT_${sem}.pdf`);
-            possibleFiles.push(`PV_${lvl}RT_${sem}.pdf`); // Fallback
+            possibleFiles.push(`PV_${lvl}RT_${sem}.pdf`); 
         } else {
             possibleFiles.push(`${lvl}_${maj}_${sem}.pdf`);
         }
@@ -639,7 +662,6 @@
         levelVariants.forEach(l => { 
             suffixes.forEach(s => { 
                 possibleFiles.push(`PV_${l}${maj}_${sem}${s}.pdf`);
-                // Fallback for RIT searching RT
                 if (maj === 'RIT') possibleFiles.push(`PV_${l}RT_${sem}${s}.pdf`);
             }); 
         });
@@ -698,13 +720,14 @@
                         let items = lines[y].sort((a,b) => a.x - b.x);
                         let rowText = items.map(itm => itm.t).join(" ").trim();
                         
+                        // Extract students for ranking
                         let headerMatch = rowText.match(/(I\d{4,})(.*?)(\b(?:[0-1]?\d|20)[.,]\d{1,2}\b)/);
                         if (headerMatch) {
                             let sId = headerMatch[1];
                             let allNumbers = rowText.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
                             if (allNumbers) {
                                 let sAvg = parseFloat(allNumbers[allNumbers.length - 1].replace(',', '.'));
-                                let rawName = rowText.replace(sId, "").replace(/[\d\.,]+\s*(Validé|Rattrapage|Admis|Ajourné)?.*$/i, "").trim().replace(/\d{3,}/g, "").trim();
+                                let rawName = rowText.replace(sId, "").replace(/[\d\.,]+\s*(Validé|Rattrapage|Admis|Ajourné|Compensé)?.*$/i, "").trim().replace(/\d{3,}/g, "").trim();
                                 if (!allStudents.some(s => s.id === sId)) allStudents.push({ id: sId, name: rawName, avg: sAvg });
                             }
                         }
@@ -738,25 +761,45 @@
         tbody.innerHTML = '';
         
         let headerRow = rows[0].text;
-        let nameClean = headerRow.replace(studentId, "").replace(/(\d{1,2}[\.,]\d{2})\s*(Validé|Rattrapage|Ajourné|Admis|Compensé)?.*$/i, "").trim().replace(/\d{3,}/, "").trim();
-        let textWithoutID = headerRow.replace(studentId, "");
-        let gradeMatch = textWithoutID.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
-        let semAvg = (gradeMatch && gradeMatch.length > 0) ? gradeMatch[gradeMatch.length - 1] : "--";
-        let semDec = headerRow.includes("Validé") ? "Validé" : (headerRow.includes("Admis") ? "Admis" : (headerRow.includes("Rattrapage") ? "Rattrapage" : "Ajourné"));
+
+        // --- NEW NAME PARSING LOGIC ---
+        let textWithoutID = headerRow.replace(studentId, "").trim();
+        // Regex to find name (Group 1) and Average (Group 2, the last float number)
+        let splitMatch = textWithoutID.match(/^(.*?)\s+(\d{1,2}[.,]\d{2})\s*(.*)$/);
+
+        let nameClean = "";
+        let semAvg = "--";
+        let semDec = "--";
+
+        if (splitMatch) {
+            nameClean = splitMatch[1].trim(); 
+            semAvg = splitMatch[2].replace(',', '.'); 
+            semDec = splitMatch[3].trim(); 
+            
+            if (!semDec) {
+                semDec = headerRow.includes("Validé") ? "Validé" : (headerRow.includes("Rattrapage") ? "Rattrapage" : "");
+            }
+        } else {
+            // Fallback
+            nameClean = textWithoutID;
+        }
+
+        // Clean trailing big numbers (total points)
+        nameClean = nameClean.replace(/\s+\d{3,}\s*$/, "").trim();
 
         document.getElementById('st-name').innerText = nameClean;
         document.getElementById('st-id').innerText = studentId;
         document.getElementById('res-context').innerText = `${lvl.toUpperCase()} - ${maj.toUpperCase()} - ${sem.toUpperCase()}`;
         document.getElementById('sem-avg').innerText = semAvg;
         
-        let isSuccess = (semDec === "Validé" || semDec === "Admis");
+        let isSuccess = (semDec.includes("Validé") || semDec.includes("Admis"));
         const decEl = document.getElementById('sem-decision');
         if (isSuccess) {
             decEl.style.color = "#059669";
             decEl.innerHTML = "✅ " + semDec;
         } else {
             decEl.style.color = "#dc2626";
-            decEl.innerHTML = "⚠️ " + semDec;
+            decEl.innerHTML = "⚠️ " + (semDec || "Ajourné/Rattrapage");
         }
 
         if (rankInfo) document.getElementById('sem-rank').innerText = `${rankInfo.rank} / ${rankInfo.total}`;
@@ -774,22 +817,53 @@
             `;
         }).join('');
 
+        // --- MODULE PARSING ---
         rows.slice(1).forEach(row => {
             let raw = row.text;
-            let sm = raw.match(/(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s*(.*)$/i);
-            if (sm) {
-                let dec = sm[5].trim();
+            // Regex to split Module Name (Group 1) from Grades (Groups 2-6)
+            let moduleMatch = raw.match(/^(.*?)\s+(\d{1,2}[.,]?\d{0,2})\s+(\d{1,2}[.,]?\d{0,2})\s+(\d{1,2}[.,]?\d{0,2})\s+(\d{1,2}[.,]?\d{0,2})\s*(.*)$/);
+            
+            if (moduleMatch) {
+                let modName = moduleMatch[1].trim();
+                let cc = moduleMatch[2];
+                let cf = moduleMatch[3];
+                let note = moduleMatch[4];
+                let credit = moduleMatch[5];
+                let dec = moduleMatch[6].trim();
+                
                 let decClass = (dec.includes("Validé") || dec.includes("Admis")) ? "status-valid" : "status-ratt";
                 let displayDec = dec.includes("Validé") ? "V" : (dec.includes("Rattrapage") ? "R" : dec); 
-                tbody.innerHTML += `<tr><td class="col-module">${raw.substring(0, raw.indexOf(sm[1])).trim()}</td><td>${sm[1]}</td><td>${sm[2]}</td><td style="background:#f0fdf4; font-weight:bold;">${sm[3]}</td><td>${sm[4]}</td><td><span class="status-badge ${decClass}">${displayDec}</span></td></tr>`;
+                
+                tbody.innerHTML += `<tr>
+                    <td class="col-module">${modName}</td>
+                    <td>${cc}</td>
+                    <td>${cf}</td>
+                    <td style="background:#f0fdf4; font-weight:bold;">${note}</td>
+                    <td>${credit}</td>
+                    <td><span class="status-badge ${decClass}">${displayDec}</span></td>
+                </tr>`;
             } else {
-                let um = raw.match(/(\d{1,2}[\.,]\d{2})\s+(\d{1,2})\s*(.*)$/i);
-                if (um) {
-                     let dec = um[3].trim();
-                     tbody.innerHTML += `<tr class="row-ue"><td class="col-module" style="color:#000;">${raw.substring(0, raw.indexOf(um[1])).trim()}</td><td colspan="2"><small>UE</small></td><td style="background:#e0f2fe; font-weight:bold;">${um[1]}</td><td>${um[2]}</td><td><small>${dec}</small></td></tr>`;
+                // UE / Complimentary modules
+                let ueMatch = raw.match(/^(.*?)\s+(\d{1,2}[.,]\d{2})\s+(\d{1,2})\s*(.*)$/);
+                if (ueMatch) {
+                     let modName = ueMatch[1].trim();
+                     let note = ueMatch[2];
+                     let credit = ueMatch[3];
+                     let dec = ueMatch[4].trim();
+                     tbody.innerHTML += `<tr class="row-ue">
+                        <td class="col-module" style="color:#000;">${modName}</td>
+                        <td colspan="2"><small>UE</small></td>
+                        <td style="background:#e0f2fe; font-weight:bold;">${note}</td>
+                        <td>${credit}</td>
+                        <td><small>${dec}</small></td>
+                     </tr>`;
+                } else {
+                    // Fallback for weird rows
+                    if(raw.trim().length > 5) tbody.innerHTML += `<tr><td colspan="6">${raw}</td></tr>`;
                 }
             }
         });
+
         document.getElementById('transcript-view').style.display = 'block';
         if (isSuccess) launchIntenseCelebration();
         document.getElementById('transcript-view').scrollIntoView({ behavior: 'smooth' });
