@@ -255,7 +255,8 @@
                 <button type="button" class="btn-top20" onclick="showTop20()">🏆 العشرون الأوائل</button>
             </div>
         </form>
-        <div id="loader" class="loader">⏳ جاري الاتصال بـ GitHub وجلب البيانات...</div>
+        <!-- تم تغيير نص التحميل هنا -->
+        <div id="loader" class="loader">⏳ جاري البحث عن النتائج...</div>
         <div id="error-msg" class="error"></div>
     </div>
 
@@ -352,8 +353,12 @@
         
         const fileNameBase = `${lvl}_${sem}`;
         const baseUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${branchName}`;
+        
+        // تعديل: صيغة الملفات الجديدة كما طلبت
+        // مثال: L1_S1_Resultats_Classement.pdf للقائمة
+        // مثال: L1_S1_Resultats.pdf للنتائج التفصيلية
         return {
-            rankingUrl: `${baseUrl}/${fileNameBase}_Classement.pdf`,
+            rankingUrl: `${baseUrl}/${fileNameBase}_Resultats_Classement.pdf`,
             resultsUrl: `${baseUrl}/${fileNameBase}_Resultats.pdf`
         };
     }
@@ -433,9 +438,10 @@
             document.getElementById('loader').style.display = 'none';
             return students;
         } catch (e) {
-            console.error(e);
+            console.error("File loading error:", e);
             document.getElementById('loader').style.display = 'none';
-            document.getElementById('error-msg').innerText = "خطأ في تحميل الملف. تأكد من أن التخصص والملفات موجودة في GitHub.";
+            // تعديل: رسالة خطأ ودية بدون ذكر GitHub
+            document.getElementById('error-msg').innerText = "عذراً، لم يتم رفع نتائج هذا الفصل للتخصص المطلوب حتى الآن.";
             document.getElementById('error-msg').style.display = 'block';
             return null;
         }
@@ -504,7 +510,10 @@
         msg.style.display = 'block';
 
         try {
-            const existingPdfBytes = await fetch(currentResultsPdfUrl).then(res => res.arrayBuffer());
+            const existingPdfBytes = await fetch(currentResultsPdfUrl).then(res => {
+                if (!res.ok) throw new Error("File not found");
+                return res.arrayBuffer();
+            });
             const loadingTask = pdfjsLib.getDocument({ data: existingPdfBytes });
             const pdfDocjs = await loadingTask.promise;
             
@@ -585,7 +594,7 @@
 
         } catch (error) {
             console.error(error);
-            alert("حدث خطأ أثناء معالجة الملف. تأكد من أن ملف النتائج مطابق لملف الترتيب.");
+            alert("عذراً، لم يتم العثور على الملف التفصيلي للنتيجة، أو لم يتم رفعه بعد.");
         } finally {
             btn.disabled = false;
             btn.classList.remove('loading');
