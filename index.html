@@ -36,14 +36,9 @@
 
         header h1 { margin: 0; font-size: 1.8rem; }
         
-        /* تنسيق اسم المطور في الأعلى */
         .top-dev {
-            color: var(--secondary);
-            font-size: 0.9rem;
-            margin-top: 5px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            opacity: 0.9;
+            color: var(--secondary); font-size: 0.9rem; margin-top: 5px;
+            font-weight: bold; letter-spacing: 0.5px; opacity: 0.9;
         }
         
         .container { max-width: 800px; margin: 20px auto; padding: 5px; }
@@ -109,102 +104,58 @@
         
         /* الاحتفال */
         #celebration-msg {
-            display: none;
-            position: relative;
-            text-align: center;
+            display: none; position: relative; text-align: center;
             background: linear-gradient(135deg, #fff0f5, #fff);
-            padding: 25px;
-            border-radius: 15px;
-            margin-top: 20px;
-            border: 2px solid #f9a8d4;
-            overflow: hidden; 
+            padding: 25px; border-radius: 15px; margin-top: 20px;
+            border: 2px solid #f9a8d4; overflow: hidden; 
             box-shadow: 0 5px 15px rgba(236, 72, 153, 0.2);
         }
 
         .congrats-text {
-            display: block;
-            color: #be185d;
-            font-size: 1.8rem;
-            font-weight: 900;
-            text-shadow: 1px 1px 0 #fff;
-            position: relative;
-            z-index: 10;
+            display: block; color: #be185d; font-size: 1.8rem;
+            font-weight: 900; text-shadow: 1px 1px 0 #fff;
+            position: relative; z-index: 10;
             animation: bounceIn 1s infinite alternate;
         }
 
         .floating-particle {
-            position: absolute;
-            bottom: -20px;
-            font-size: 1.5rem;
-            animation: floatUp linear forwards;
-            opacity: 0;
-            z-index: 1;
+            position: absolute; bottom: -20px; font-size: 1.5rem;
+            animation: floatUp linear forwards; opacity: 0; z-index: 1;
         }
 
         @keyframes floatUp {
             0% { transform: translateY(0) rotate(0deg); opacity: 1; }
             100% { transform: translateY(-150px) rotate(360deg); opacity: 0; }
         }
+        @keyframes bounceIn { from { transform: scale(1); } to { transform: scale(1.1); } }
 
-        @keyframes bounceIn {
-            from { transform: scale(1); }
-            to { transform: scale(1.1); }
-        }
-
-        /* الفوتر المضيء */
+        /* الفوتر */
         .dev-footer {
-            margin-top: 50px;
-            text-align: center;
-            padding: 30px 20px;
-            background: #0f172a;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
-            border: 1px solid #334155;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin-top: 50px; text-align: center; padding: 30px 20px;
+            background: #0f172a; border-radius: 20px; width: 90%;
+            max-width: 600px; margin-left: auto; margin-right: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;
+            overflow: hidden; border: 1px solid #334155;
+            display: flex; justify-content: center; align-items: center;
         }
 
         .dev-link {
-            text-decoration: none;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #fbbf24;
-            display: inline-block;
-            position: relative;
-            z-index: 2;
-            padding: 12px 30px;
-            border-radius: 50px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(5px);
+            text-decoration: none; font-size: 1.2rem; font-weight: bold;
+            color: #fbbf24; display: inline-block; position: relative; z-index: 2;
+            padding: 12px 30px; border-radius: 50px;
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px);
             border: 1px solid rgba(251, 191, 36, 0.3);
-            text-shadow: 0 0 10px rgba(251, 191, 36, 0.8), 0 0 20px rgba(251, 191, 36, 0.5);
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
             box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
             animation: steadyGlow 2s ease-in-out infinite alternate;
             transition: transform 0.3s;
         }
-
         .dev-link:hover { transform: scale(1.05); }
 
         @keyframes steadyGlow {
-            0% {
-                text-shadow: 0 0 5px rgba(251, 191, 36, 0.6);
-                box-shadow: 0 0 5px rgba(251, 191, 36, 0.1);
-                border-color: rgba(251, 191, 36, 0.3);
-            }
-            100% {
-                text-shadow: 0 0 20px rgba(251, 191, 36, 1), 0 0 30px #d97706;
-                box-shadow: 0 0 25px rgba(251, 191, 36, 0.4);
-                border-color: rgba(251, 191, 36, 0.8);
-            }
+            0% { text-shadow: 0 0 5px rgba(251, 191, 36, 0.6); box-shadow: 0 0 5px rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3); }
+            100% { text-shadow: 0 0 20px rgba(251, 191, 36, 1); box-shadow: 0 0 25px rgba(251, 191, 36, 0.4); border-color: rgba(251, 191, 36, 0.8); }
         }
-
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 600px) { .btn-group { flex-direction: column; } .info-row { font-size: 1rem; } }
     </style>
@@ -305,12 +256,9 @@
 </div>
 
 <script>
-    // تسجيل Service Worker للتثبيت (PWA)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('SW registered'))
-                .catch(err => console.log('SW failed', err));
+            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW failed', err));
         });
     }
 
@@ -324,11 +272,11 @@
     let currentStudentId = "";
     let currentResultsPdfUrl = "";
 
-    // ⚠️ هنا التعديل الجوهري: ربط الفصول بأسماء الملفات الدقيقة (S3/S4 للمستوى الثاني، S5/S6 للمستوى الثالث)
+    // 1. تحديد الفصول بناءً على المستوى
     const semsData = {
         'L1': { 'S1': 'Semestre 1', 'S2': 'Semestre 2' },
-        'L2': { 'S3': 'Semestre 3', 'S4': 'Semestre 4' }, // سيولد هذا L2_S3 و L2_S4
-        'L3': { 'S5': 'Semestre 5', 'S6': 'Semestre 6' }  // سيولد هذا L3_S5 و L3_S6
+        'L2': { 'S3': 'Semestre 3', 'S4': 'Semestre 4' },
+        'L3': { 'S5': 'Semestre 5', 'S6': 'Semestre 6' }
     };
 
     function updateSemesters() {
@@ -338,27 +286,35 @@
         if(lvl && semsData[lvl]) {
             for(let key in semsData[lvl]) {
                 let opt = document.createElement('option');
-                opt.value = key; // القيمة هنا ستكون S3, S4, S5, S6 حسب المستوى
+                opt.value = key; 
                 opt.text = semsData[lvl][key];
                 semSelect.appendChild(opt);
             }
         }
     }
 
+    // 2. دالة بناء الروابط (تم التعديل لتكون دقيقة)
+    // النمط: BA_L1_S1_Resultats_Classement.pdf
     function getFileUrls() {
-        const branchName = document.getElementById('major').value;
-        const lvl = document.getElementById('level').value;
-        const sem = document.getElementById('semester').value; // سيحمل القيمة S1, S3, S5 إلخ
+        const major = document.getElementById('major').value; // التخصص (BA)
+        const lvl = document.getElementById('level').value;   // المستوى (L1)
+        const sem = document.getElementById('semester').value; // الفصل (S1)
         
-        if(!branchName || !lvl || !sem) { alert("الرجاء اختيار التخصص، المستوى والفصل."); return null; }
+        if(!major || !lvl || !sem) { 
+            alert("الرجاء اختيار التخصص، المستوى والفصل."); 
+            return null; 
+        }
         
-        // بناء اسم الملف بدقة: L2_S3, L3_S5...
-        const fileNameBase = `${lvl}_${sem}`;
-        const baseUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${branchName}`;
+        // بناء اسم الملف بالشكل المطلوب بالضبط
+        const filePrefix = `${major}_${lvl}_${sem}`;
+        
+        // الرابط يشير دائماً إلى main
+        // تأكد من أن الفرع في جيت هاب اسمه main أو master (الأرجح main)
+        const baseUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main`;
         
         return {
-            rankingUrl: `${baseUrl}/${fileNameBase}_Resultats_Classement.pdf`,
-            resultsUrl: `${baseUrl}/${fileNameBase}_Resultats.pdf`
+            rankingUrl: `${baseUrl}/${filePrefix}_Resultats_Classement.pdf`,
+            resultsUrl: `${baseUrl}/${filePrefix}_Resultats.pdf`
         };
     }
 
@@ -367,38 +323,28 @@
         document.getElementById('top20-container').style.display = 'none';
         document.getElementById('error-msg').style.display = 'none';
         document.getElementById('dl-msg').style.display = 'none';
-        
         const celebBox = document.getElementById('celebration-msg');
         celebBox.style.display = 'none';
-        const particles = celebBox.querySelectorAll('.floating-particle');
-        particles.forEach(p => p.remove());
+        celebBox.querySelectorAll('.floating-particle').forEach(p => p.remove());
     }
 
     function startCelebration() {
         const container = document.getElementById('celebration-msg');
         container.style.display = 'block';
-        
-        const symbols = ['🌸', '❤️', '🎉', '🌹', '💐', '✨', '💖', '🌷'];
-        const particleCount = 25; 
-
-        for (let i = 0; i < particleCount; i++) {
+        const symbols = ['🌸', '❤️', '🎉', '✨', '💖'];
+        for (let i = 0; i < 20; i++) {
             const span = document.createElement('span');
             span.classList.add('floating-particle');
             span.innerText = symbols[Math.floor(Math.random() * symbols.length)];
-            
-            const leftPos = Math.random() * 90 + 5; 
-            const animDuration = Math.random() * 2 + 2; 
-            const delay = Math.random() * 1.5;
-
-            span.style.left = leftPos + '%';
-            span.style.animationDuration = animDuration + 's';
-            span.style.animationDelay = delay + 's';
+            span.style.left = Math.random() * 90 + 5 + '%';
+            span.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            span.style.animationDelay = Math.random() * 1.5 + 's';
             span.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
-
             container.appendChild(span);
         }
     }
 
+    // 3. دالة جلب البيانات (محسنة لتفادي مشاكل القراءة)
     async function fetchRankingData(pdfUrl) {
         document.getElementById('loader').style.display = 'block';
         try {
@@ -409,20 +355,35 @@
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
-                let lines = {};
                 
+                // تجميع الأسطر بشكل ذكي (تسامح في الارتفاع 5 بكسل)
+                let rows = []; 
                 textContent.items.forEach(item => {
-                    const y = Math.round(item.transform[5]);
-                    if(!lines[y]) lines[y] = [];
-                    lines[y].push({ str: item.str, x: item.transform[4] });
+                    const y = item.transform[5]; 
+                    const str = item.str;
+                    const x = item.transform[4];
+                    
+                    // البحث عن سطر قريب
+                    let foundRow = rows.find(r => Math.abs(r.y - y) < 5);
+                    if (foundRow) {
+                        foundRow.items.push({ str, x });
+                    } else {
+                        rows.push({ y, items: [{ str, x }] });
+                    }
                 });
 
-                const sortedY = Object.keys(lines).sort((a,b) => b-a);
-                
-                sortedY.forEach(y => {
-                    const lineItems = lines[y].sort((a,b) => a.x - b.x);
+                // ترتيب الأسطر من الأعلى للأسفل
+                rows.sort((a, b) => b.y - a.y);
+
+                rows.forEach(row => {
+                    // ترتيب الكلمات داخل السطر
+                    const lineItems = row.items.sort((a, b) => a.x - b.x);
                     const lineStr = lineItems.map(t => t.str).join(" ").trim();
-                    const match = lineStr.match(/^(\d+)\s+(I\d+)\s+(.+?)\s+(\d{1,2}[.,]\d{2})\s+(.+)$/i);
+                    
+                    // Regex مرن يقبل الأرقام العشرية والفواصل المختلفة
+                    // المثال: 1  I21180  Mohamed...  12.50  Admis
+                    const match = lineStr.match(/^(\d+)\s+(I\d+)\s+(.+?)\s+(\d{1,2}(?:[.,]\d{1,2})?)\s+(.+)$/i);
+                    
                     if(match) {
                         students.push({
                             rank: parseInt(match[1]),
@@ -439,7 +400,13 @@
         } catch (e) {
             console.error("File loading error:", e);
             document.getElementById('loader').style.display = 'none';
-            document.getElementById('error-msg').innerText = "عذراً، لم يتم رفع نتائج هذا الفصل للتخصص المطلوب حتى الآن.";
+            
+            let msg = "عذراً، حدث خطأ أثناء تحميل الملف.";
+            if (e.name === 'MissingPDFException' || e.status === 404) {
+                msg = `الملف غير موجود في قاعدة البيانات لهذا الفصل حالياً.\n(تأكد من رفعه باسم صحيح)`;
+            }
+            
+            document.getElementById('error-msg').innerText = msg;
             document.getElementById('error-msg').style.display = 'block';
             return null;
         }
@@ -472,12 +439,12 @@
             document.getElementById('res-id').innerText = student.id;
             document.getElementById('res-avg').innerText = student.avg;
             document.getElementById('res-rank').innerText = student.rank;
+            
             const decEl = document.getElementById('res-dec');
             decEl.innerText = student.decision;
             
             const decText = student.decision.toLowerCase();
             const isValid = decText.includes('valid') || decText.includes('admis');
-
             decEl.className = isValid ? 'info-val decision-valid' : 'info-val decision-ratt';
 
             currentStudentId = student.id;
@@ -485,14 +452,10 @@
             
             const card = document.getElementById('student-result');
             card.style.display = 'block';
-            
-            if (isValid) {
-                startCelebration();
-            }
-
+            if (isValid) startCelebration();
             setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         } else {
-            document.getElementById('error-msg').innerText = "رقم التسجيل غير موجود.";
+            document.getElementById('error-msg').innerText = "رقم التسجيل غير موجود في هذه القائمة.";
             document.getElementById('error-msg').style.display = 'block';
         }
     }
@@ -504,7 +467,7 @@
         const msg = document.getElementById('dl-msg');
         btn.disabled = true;
         btn.classList.add('loading');
-        btn.innerText = "⏳ جاري استخراج النتيجة...";
+        btn.innerText = "⏳ جاري المعالجة...";
         msg.style.display = 'block';
 
         try {
@@ -515,11 +478,7 @@
             const loadingTask = pdfjsLib.getDocument({ data: existingPdfBytes });
             const pdfDocjs = await loadingTask.promise;
             
-            let startPage = -1;
-            let startY = 0;
-            let endY = 0;
-            let spansToNextPage = false;
-            let nextPageEndY = 0;
+            let startPage = -1, startY = 0, endY = 0, spansToNextPage = false, nextPageEndY = 0;
 
             for (let i = 1; i <= pdfDocjs.numPages; i++) {
                 const page = await pdfDocjs.getPage(i);
@@ -531,15 +490,14 @@
                         startY = item.transform[5];
                         
                         let nextStudents = content.items.filter(itm => 
-                            itm.str.match(/I\d{4,}/) && 
-                            itm.transform[5] < startY 
+                            itm.str.match(/I\d{4,}/) && itm.transform[5] < startY 
                         );
 
                         if (nextStudents.length > 0) {
                             nextStudents.sort((a, b) => b.transform[5] - a.transform[5]);
                             endY = nextStudents[0].transform[5]; 
                         } else {
-                            endY = 30;
+                            endY = 30; // نهاية الصفحة تقريباً
                             if (i < pdfDocjs.numPages) {
                                 const nextPage = await pdfDocjs.getPage(i + 1);
                                 const nextContent = await nextPage.getTextContent();
@@ -557,27 +515,24 @@
                 if (startPage !== -1) break;
             }
 
-            if (startPage === -1) throw new Error("الطالب غير موجود في ملف النتائج");
+            if (startPage === -1) throw new Error("الطالب غير موجود");
 
             const { PDFDocument } = PDFLib;
             const pdfDoc = await PDFDocument.load(existingPdfBytes);
             const newPdf = await PDFDocument.create();
-
             const [page1] = await newPdf.copyPages(pdfDoc, [startPage]);
             const { width, height } = page1.getSize();
 
             const cropTop = Math.min(height, startY + 60); 
             const cropBottom = spansToNextPage ? 0 : (endY + 10); 
-            const cropHeight = cropTop - cropBottom;
-
-            page1.setCropBox(0, cropBottom, width, cropHeight);
+            
+            page1.setCropBox(0, cropBottom, width, cropTop - cropBottom);
             newPdf.addPage(page1);
 
             if (spansToNextPage) {
                 const [page2] = await newPdf.copyPages(pdfDoc, [startPage + 1]);
-                const page2Top = height; 
                 const page2Bottom = nextPageEndY + 10;
-                page2.setCropBox(0, page2Bottom, width, page2Top - page2Bottom);
+                page2.setCropBox(0, page2Bottom, width, height - page2Bottom);
                 newPdf.addPage(page2);
             }
 
@@ -592,7 +547,7 @@
 
         } catch (error) {
             console.error(error);
-            alert("عذراً، لم يتم العثور على الملف التفصيلي للنتيجة، أو لم يتم رفعه بعد.");
+            alert("لم يتم العثور على الملف التفصيلي، أو لم يتم رفعه بعد.");
         } finally {
             btn.disabled = false;
             btn.classList.remove('loading');
@@ -622,11 +577,7 @@
                 const row = `
                     <tr>
                         <td><b>${s.rank}</b></td>
-                        <td>
-                            <a onclick="triggerQuickSearch('${s.id}')" class="clickable-id">
-                               ${s.id}
-                            </a>
-                        </td>
+                        <td><a onclick="triggerQuickSearch('${s.id}')" class="clickable-id">${s.id}</a></td>
                         <td>${s.name}</td>
                         <td style="color:var(--primary); font-weight:bold;">${s.avg}</td>
                     </tr>
@@ -634,7 +585,6 @@
                 tbody.innerHTML += row;
             });
         }
-
         const topContainer = document.getElementById('top20-container');
         topContainer.style.display = 'block';
         setTimeout(() => topContainer.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
