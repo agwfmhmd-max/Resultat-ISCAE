@@ -255,7 +255,7 @@
                 <button type="button" class="btn-top20" onclick="showTop20()">🏆 العشرون الأوائل</button>
             </div>
         </form>
-        <div id="loader" class="loader">⏳ جاري الاتصال بـ GitHub وجلب البيانات...</div>
+        <div id="loader" class="loader">⏳ جاري البحث عن النتائج...</div>
         <div id="error-msg" class="error"></div>
     </div>
 
@@ -324,10 +324,11 @@
     let currentStudentId = "";
     let currentResultsPdfUrl = "";
 
+    // ⚠️ هنا التعديل الجوهري: ربط الفصول بأسماء الملفات الدقيقة (S3/S4 للمستوى الثاني، S5/S6 للمستوى الثالث)
     const semsData = {
-        'L1': {'S1':'Semestre 1', 'S2':'Semestre 2'},
-        'L2': {'S3':'Semestre 3', 'S4':'Semestre 4'},
-        'L3': {'S5':'Semestre 5', 'S6':'Semestre 6'}
+        'L1': { 'S1': 'Semestre 1', 'S2': 'Semestre 2' },
+        'L2': { 'S3': 'Semestre 3', 'S4': 'Semestre 4' }, // سيولد هذا L2_S3 و L2_S4
+        'L3': { 'S5': 'Semestre 5', 'S6': 'Semestre 6' }  // سيولد هذا L3_S5 و L3_S6
     };
 
     function updateSemesters() {
@@ -337,7 +338,7 @@
         if(lvl && semsData[lvl]) {
             for(let key in semsData[lvl]) {
                 let opt = document.createElement('option');
-                opt.value = key;
+                opt.value = key; // القيمة هنا ستكون S3, S4, S5, S6 حسب المستوى
                 opt.text = semsData[lvl][key];
                 semSelect.appendChild(opt);
             }
@@ -347,13 +348,16 @@
     function getFileUrls() {
         const branchName = document.getElementById('major').value;
         const lvl = document.getElementById('level').value;
-        const sem = document.getElementById('semester').value;
+        const sem = document.getElementById('semester').value; // سيحمل القيمة S1, S3, S5 إلخ
+        
         if(!branchName || !lvl || !sem) { alert("الرجاء اختيار التخصص، المستوى والفصل."); return null; }
         
+        // بناء اسم الملف بدقة: L2_S3, L3_S5...
         const fileNameBase = `${lvl}_${sem}`;
         const baseUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${branchName}`;
+        
         return {
-            rankingUrl: `${baseUrl}/${fileNameBase}_Classement.pdf`,
+            rankingUrl: `${baseUrl}/${fileNameBase}_Resultats_Classement.pdf`,
             resultsUrl: `${baseUrl}/${fileNameBase}_Resultats.pdf`
         };
     }
@@ -433,9 +437,9 @@
             document.getElementById('loader').style.display = 'none';
             return students;
         } catch (e) {
-            console.error(e);
+            console.error("File loading error:", e);
             document.getElementById('loader').style.display = 'none';
-            document.getElementById('error-msg').innerText = "خطأ في تحميل الملف. تأكد من أن التخصص والملفات موجودة في GitHub.";
+            document.getElementById('error-msg').innerText = "عذراً، لم يتم رفع نتائج هذا الفصل للتخصص المطلوب حتى الآن.";
             document.getElementById('error-msg').style.display = 'block';
             return null;
         }
@@ -504,7 +508,10 @@
         msg.style.display = 'block';
 
         try {
-            const existingPdfBytes = await fetch(currentResultsPdfUrl).then(res => res.arrayBuffer());
+            const existingPdfBytes = await fetch(currentResultsPdfUrl).then(res => {
+                if (!res.ok) throw new Error("File not found");
+                return res.arrayBuffer();
+            });
             const loadingTask = pdfjsLib.getDocument({ data: existingPdfBytes });
             const pdfDocjs = await loadingTask.promise;
             
@@ -585,7 +592,7 @@
 
         } catch (error) {
             console.error(error);
-            alert("حدث خطأ أثناء معالجة الملف. تأكد من أن ملف النتائج مطابق لملف الترتيب.");
+            alert("عذراً، لم يتم العثور على الملف التفصيلي للنتيجة، أو لم يتم رفعه بعد.");
         } finally {
             btn.disabled = false;
             btn.classList.remove('loading');
