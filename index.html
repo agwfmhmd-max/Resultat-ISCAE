@@ -3,591 +3,831 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ISCAE Résultats 2026</title>
+    <meta name="theme-color" content="#005C29">
     
     <!-- PWA Settings -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#005C29">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2232/2232688.png">
+    <meta name="apple-mobile-web-app-title" content="ISCAE Res">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991148.png">
 
-    <!-- مكتبات المعالجة -->
+    <title>ISCAE Résultats | Live</title>
+    
+    <!-- PDF.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';</script>
-    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
     <style>
         :root { 
-            --primary: #005C29;
-            --secondary: #FFD700;
+            --primary: #005C29;       /* Deep Green */
+            --primary-light: #008f40; /* Lighter Green */
+            --secondary: #FFD700;     /* Gold */
             --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #e6f7ed 100%);
             --text: #1a2e1a;
-            --radius: 15px;
+            --card-shadow: 0 10px 30px rgba(0, 92, 41, 0.08);
+            --radius: 20px;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-gradient); margin: 0; padding: 15px; color: var(--text); direction: rtl; padding-bottom: 100px; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg-gradient); 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            color: var(--text); 
+            overflow-x: hidden; 
+            -webkit-tap-highlight-color: transparent; 
+        }
         
+        /* Modern Header */
         header { 
-            background: var(--primary); color: white; padding: 20px 15px; 
-            text-align: center; border-bottom: 4px solid var(--secondary);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 0 0 15px 15px;
+            background: rgba(0, 92, 41, 0.95);
+            backdrop-filter: blur(12px);
+            color: white; 
+            padding: 15px 20px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+            border-bottom: 3px solid var(--secondary); 
+            z-index: 1000; 
+            position: sticky; 
+            top: 0; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        header h1 { 
+            margin: 0; 
+            font-size: 1.2rem; 
+            font-weight: 800; 
+            letter-spacing: 0.5px; 
+            background: linear-gradient(45deg, #fff, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .install-btn { 
+            background: linear-gradient(135deg, var(--secondary), #FFA500); 
+            color: #005C29; 
+            border: none; 
+            padding: 8px 16px; 
+            border-radius: 50px; 
+            font-weight: bold; 
+            font-size: 0.85rem; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            transition: transform 0.2s;
+        }
+        .install-btn:active { transform: scale(0.95); }
+
+        /* --- MODERN COUNTDOWN --- */
+        .countdown-container {
+            background: white;
+            margin: 20px auto;
+            max-width: 95%;
+            width: 600px;
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0, 92, 41, 0.05);
+            animation: slideDown 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .countdown-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            background: rgba(0, 92, 41, 0.05);
+            padding: 5px 15px;
+            border-radius: 20px;
         }
 
-        header h1 { margin: 0; font-size: 1.8rem; }
+        .countdown-timer { display: flex; gap: 15px; direction: ltr; align-items: center; }
         
-        .top-dev {
-            color: var(--secondary); font-size: 0.9rem; margin-top: 5px;
-            font-weight: bold; letter-spacing: 0.5px; opacity: 0.9;
+        .time-block { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            background: linear-gradient(145deg, #ffffff, #f0fdf4);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid #dcfce7;
+            box-shadow: 0 5px 15px rgba(0, 92, 41, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .time-block:hover { transform: translateY(-5px); border-color: var(--secondary); }
+
+        .time-value { color: var(--primary); font-size: 1.5rem; font-weight: 800; line-height: 1; }
+        .time-label { font-size: 0.6rem; color: #166534; margin-top: 2px; font-weight: 700; text-transform: uppercase; }
+        .separator { font-size: 1.5rem; color: #86efac; font-weight: 300; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        /* --- LAYOUT & FORM --- */
+        .container { display: flex; flex-grow: 1; max-width: 1400px; margin: 0 auto; width: 100%; padding: 20px; gap: 25px; }
+        
+        .sidebar { 
+            width: 340px; 
+            background: white; 
+            padding: 30px; 
+            border-radius: var(--radius); 
+            box-shadow: var(--card-shadow); 
+            height: fit-content; 
+            position: sticky; 
+            top: 90px; 
+            border: 1px solid rgba(255,255,255,0.5);
         }
         
-        .container { max-width: 800px; margin: 20px auto; padding: 5px; }
-        
-        .search-box { 
-            background: white; padding: 25px; border-radius: var(--radius); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 30px;
+        .form-title {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 800;
+            border-left: 4px solid var(--secondary);
+            padding-left: 10px;
+            text-transform: uppercase;
         }
 
-        .form-group { margin-bottom: 15px; text-align: right; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--primary); }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 700; color: #14532d; font-size: 0.9rem; margin-left: 5px; }
+        
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-icon { position: absolute; left: 15px; font-size: 1.2rem; color: var(--primary); z-index: 10; pointer-events: none; }
         
         select, input { 
-            width: 100%; padding: 12px; border: 2px solid #bbf7d0; 
-            border-radius: 10px; font-size: 1rem; box-sizing: border-box; outline: none;
+            width: 100%; 
+            padding: 14px 15px 14px 45px; 
+            border: 2px solid #bbf7d0; 
+            border-radius: 12px; 
+            font-size: 1rem; 
+            background: #f8fffa; 
+            transition: all 0.3s ease; 
+            outline: none;
+            color: var(--text);
+            font-weight: 500;
         }
-        select:focus, input:focus { border-color: var(--primary); }
+        select:hover, input:hover { border-color: #86efac; }
+        select:focus, input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(0, 92, 41, 0.1); }
         
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button.search-btn { 
+            width: 100%; 
+            padding: 16px; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            margin-top: 10px; 
+            box-shadow: 0 8px 20px rgba(0, 92, 41, 0.25); 
+            transition: all 0.3s; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        button.search-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 92, 41, 0.35); }
+        button.search-btn:active { transform: scale(0.98); }
+
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
+
+        .transcript-card { background: white; width: 100%; max-width: 850px; padding: 30px; box-shadow: var(--card-shadow); border-radius: var(--radius); display: none; position: relative; animation: popIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1); z-index: 10; border-top: 6px solid var(--primary); }
+
+        .student-header { display: flex; justify-content: space-between; border-bottom: 2px solid #f0fdf4; padding-bottom: 20px; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        .student-info h2 { 
+            margin: 0; color: var(--primary); font-size: 1.6rem; font-weight: 800; 
+            white-space: normal; /* Ensure name wraps */
+            word-wrap: break-word;
+        }
+        .matricule-badge { background: #dcfce7; color: #14532d; padding: 5px 12px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; display: inline-block; margin-top: 5px; }
         
-        button { 
-            flex: 1; padding: 15px; border: none; border-radius: 10px; 
-            font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s;
+        .ticker-wrap { overflow: hidden; background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 12px 0; margin-bottom: 20px; white-space: nowrap; width: 100%; box-sizing: border-box; color: #92400e; }
+        .ticker-content { display: inline-block; padding-left: 100%; animation: ticker 25s linear infinite; font-weight: 700; font-size: 0.95rem; }
+        @keyframes ticker { to { transform: translate3d(-100%, 0, 0); } }
+
+        .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid #dcfce7; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .transcript-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        
+        /* Updated Table Headers and Cells for Full Text */
+        .transcript-table th { 
+            background-color: #f0fdf4; color: #166534; padding: 15px; 
+            text-align: center; font-weight: 700; border-bottom: 2px solid #dcfce7; 
+            font-size: 0.85rem; text-transform: uppercase;
+            white-space: normal; /* Allow text wrapping */
+        }
+        .transcript-table td { 
+            padding: 12px; border-bottom: 1px solid #f0fdf4; text-align: center; 
+            font-size: 0.95rem; font-weight: 500;
+            white-space: normal; /* Allow text wrapping */
+            word-wrap: break-word;
         }
         
-        .btn-search { background: var(--primary); color: white; }
-        .btn-top20 { background: var(--secondary); color: #004d22; }
-        button:hover { transform: translateY(-2px); opacity: 0.95; }
-
-        .result-card { 
-            background: white; border-radius: var(--radius); padding: 25px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); display: none; 
-            animation: slideUp 0.5s ease; margin-bottom: 30px;
-            border-top: 6px solid var(--primary); text-align: right;
+        /* Expanded Module Column */
+        .col-module { 
+            text-align: left !important; 
+            font-weight: 600; 
+            color: var(--primary); 
+            min-width: 250px; /* Wider column */
+            max-width: 400px;
         }
-
-        .student-info h2 { color: var(--primary); margin: 0 0 20px 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 1.1rem; }
-        .info-label { font-weight: bold; color: #555; }
-        .info-val { font-weight: bold; color: #000; }
-
-        .decision-valid { color: #059669; background: #d1fae5; padding: 2px 8px; border-radius: 5px; }
-        .decision-ratt { color: #dc2626; background: #fee2e2; padding: 2px 8px; border-radius: 5px; }
-
-        .download-btn {
-            display: block; width: 100%; text-align: center; 
-            background: #1e293b; color: white; padding: 15px; 
-            text-decoration: none; border-radius: 10px; margin-top: 25px;
-            font-weight: bold; transition: 0.3s; box-sizing: border-box; cursor: pointer; border: none;
-        }
-        .download-btn:hover { background: #334155; }
-        .download-btn.loading { background: #94a3b8; cursor: wait; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; direction: ltr; }
-        th { background: #f0fdf4; color: var(--primary); padding: 12px; text-align: left; border-bottom: 2px solid var(--primary); }
-        td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        tr:nth-child(even) { background: #fafafa; }
+        .row-ue { background-color: #f0fdf4; }
         
-        .loader { display: none; text-align: center; padding: 20px; font-weight: bold; color: var(--primary); }
-        .error { color: #dc2626; text-align: center; display: none; margin-top: 10px; padding: 15px; background: #fee2e2; border-radius: 8px; border: 1px solid #fecaca; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+        .status-valid { color: #059669; background: #d1fae5; }
+        .status-ratt { color: #dc2626; background: #fef2f2; }
 
-        .clickable-id { color: var(--primary); text-decoration: underline; font-weight: bold; cursor: pointer; }
+        .sem-summary { margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .summary-box { border: 2px solid transparent; padding: 20px; border-radius: 12px; text-align: center; background: linear-gradient(145deg, #ffffff, #f0fdf4); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .box-rank { border-color: var(--secondary); }
+        .box-avg { border-color: var(--primary); }
+        .summary-value { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin: 5px 0; }
+        .label-sm { font-size: 0.8rem; text-transform: uppercase; color: #15803d; letter-spacing: 1px; font-weight: 600; }
+
+        .palmares-box { margin-top: 35px; background: linear-gradient(to bottom, #f0fdf4, #fff); border: 1px solid #86efac; border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+        .palmares-box::before { content: "🏆"; position: absolute; top: -10px; right: -10px; font-size: 100px; opacity: 0.1; transform: rotate(15deg); }
+        .palmares-table td { padding: 10px; border-bottom: 1px solid #dcfce7; }
+        .rank-medal { font-size: 1.2rem; margin-right: 5px; }
+
+        footer { margin-top: auto; background: linear-gradient(to right, #003317, #005C29); color: white; text-align: center; padding: 40px 20px; font-size: 0.95rem; position: relative; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
+        .dev-link { color: var(--secondary); text-decoration: none; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 20px; background: rgba(255, 215, 0, 0.1); transition: all 0.3s ease; }
+        .dev-link:hover { background: var(--secondary); color: #005C29; transform: scale(1.05); }
         
-        /* الاحتفال */
-        #celebration-msg {
-            display: none; position: relative; text-align: center;
-            background: linear-gradient(135deg, #fff0f5, #fff);
-            padding: 25px; border-radius: 15px; margin-top: 20px;
-            border: 2px solid #f9a8d4; overflow: hidden; 
-            box-shadow: 0 5px 15px rgba(236, 72, 153, 0.2);
+        /* Celebration & Animations */
+        .confetti-flower { position: fixed; top: -50px; z-index: 10001; pointer-events: none; animation: fallDown linear forwards; font-size: 25px; }
+        .confetti-heart { position: fixed; bottom: -50px; z-index: 10001; pointer-events: none; animation: riseUp linear forwards; font-size: 25px; }
+        
+        @keyframes fallDown { 
+            0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg) translateX(20px); opacity: 0; }
+        }
+        @keyframes riseUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 0.8; }
+            50% { transform: translateY(-50vh) scale(1.2) translateX(-20px); opacity: 1; }
+            100% { transform: translateY(-110vh) scale(1) translateX(20px); opacity: 0; }
         }
 
-        .congrats-text {
-            display: block; color: #be185d; font-size: 1.8rem;
-            font-weight: 900; text-shadow: 1px 1px 0 #fff;
-            position: relative; z-index: 10;
-            animation: bounceIn 1s infinite alternate;
+        .congrats-popup { 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%) scale(0.5); 
+            opacity: 0;
+            background: rgba(255, 255, 255, 0.98); 
+            backdrop-filter: blur(15px); 
+            padding: 30px 40px; 
+            border-radius: 30px; 
+            box-shadow: 0 25px 80px rgba(0,0,0,0.4); 
+            border: 5px solid var(--secondary); 
+            z-index: 10002;
+            text-align: center; 
+            display: none; 
+            width: 85%; 
+            max-width: 420px; 
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .congrats-popup.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            display: block;
         }
 
-        .floating-particle {
-            position: absolute; bottom: -20px; font-size: 1.5rem;
-            animation: floatUp linear forwards; opacity: 0; z-index: 1;
+        @media (max-width: 900px) {
+            .container { flex-direction: column; padding: 10px; }
+            .sidebar { width: 100%; position: static; box-sizing: border-box; }
+            .main-content { padding: 5px; }
+            .sem-summary { grid-template-columns: 1fr; }
+            .countdown-container { width: 100%; padding: 15px; }
+            .time-block { width: 55px; height: 55px; }
+            .time-value { font-size: 1.1rem; }
+        }
+        
+        @media print {
+            .sidebar, header, .countdown-container, .print-btn, .congrats-popup, .install-btn, footer, .ticker-wrap { display: none; }
+            .container { display: block; padding: 0; }
+            .transcript-card { box-shadow: none; border: none; padding: 0; margin: 0; width: 100%; max-width: 100%; }
+            body { background: white; }
         }
 
-        @keyframes floatUp {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-150px) rotate(360deg); opacity: 0; }
-        }
-        @keyframes bounceIn { from { transform: scale(1); } to { transform: scale(1.1); } }
+        .loader { display: none; text-align: center; margin-top: 30px; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #dcfce7; border-top: 5px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
+        .alert { padding: 15px; background: #fee2e2; color: #991b1b; border-radius: 10px; margin-top: 20px; display: none; text-align: center; border: 1px solid #fecaca; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* الفوتر */
-        .dev-footer {
-            margin-top: 50px; text-align: center; padding: 30px 20px;
-            background: #0f172a; border-radius: 20px; width: 90%;
-            max-width: 600px; margin-left: auto; margin-right: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;
-            overflow: hidden; border: 1px solid #334155;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        .dev-link {
-            text-decoration: none; font-size: 1.2rem; font-weight: bold;
-            color: #fbbf24; display: inline-block; position: relative; z-index: 2;
-            padding: 12px 30px; border-radius: 50px;
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px);
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
-            animation: steadyGlow 2s ease-in-out infinite alternate;
-            transition: transform 0.3s;
-        }
-        .dev-link:hover { transform: scale(1.05); }
-
-        @keyframes steadyGlow {
-            0% { text-shadow: 0 0 5px rgba(251, 191, 36, 0.6); box-shadow: 0 0 5px rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3); }
-            100% { text-shadow: 0 0 20px rgba(251, 191, 36, 1); box-shadow: 0 0 25px rgba(251, 191, 36, 0.4); border-color: rgba(251, 191, 36, 0.8); }
-        }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 600px) { .btn-group { flex-direction: column; } .info-row { font-size: 1rem; } }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; max-width: 350px; width: 90%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>🎓 ISCAE Résultats</h1>
-    <div class="top-dev">Développé par Mohamed Dah Agove</div>
+    <h1>ISCAE Résultats</h1>
+    <button class="install-btn" id="installBtn">
+        <span>📲</span> Installer
+    </button>
 </header>
 
+<div id="countdown-wrapper" class="countdown-container" style="display:none;">
+    <div class="countdown-header">
+        <span style="font-size:1.5rem;">⏱️</span>
+        <span id="event-name">CHARGEMENT...</span>
+    </div>
+    <div class="countdown-timer">
+        <div class="time-block"><span id="days" class="time-value">00</span><span class="time-label">Jours</span></div>
+        <div class="separator">:</div>
+        <div class="time-block"><span id="hours" class="time-value">00</span><span class="time-label">Hrs</span></div>
+        <div class="separator">:</div>
+        <div class="time-block"><span id="minutes" class="time-value">00</span><span class="time-label">Min</span></div>
+        <div class="separator">:</div>
+        <div class="time-block"><span id="seconds" class="time-value">00</span><span class="time-label">Sec</span></div>
+    </div>
+</div>
+
 <div class="container">
-    <div class="search-box">
+    <aside class="sidebar">
+        <div class="form-title">Recherche 🔍</div>
         <form id="searchForm">
+            
             <div class="form-group">
-                <label>التخصص (Filière)</label>
-                <select id="major" required>
-                    <option value="">-- اختر التخصص --</option>
-                    <option value="BA">Banque Assurance (BA)</option>
-                    <option value="FC">Finance Comptabilité (FC)</option>
-                    <option value="GRH">Gestion des RH (GRH)</option>
-                    <option value="IG">Informatique de Gestion (IG)</option>
-                    <option value="TCM">Techniques Commerciales (TCM)</option>
-                    <option value="SAE">Secrétariat et Administration (SAE)</option>
-                </select>
+                <label>Filière (التخصص)</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🎓</span>
+                    <select id="major" required>
+                        <option value="">-- Sélectionner --</option>
+                        <option value="ba">Banques Assurances (BA)</option>
+                        <option value="grh">Gestion des RH (GRH)</option>
+                        <option value="fc">Finance Comptabilité (FC)</option>
+                        <option value="fcfp">FCFP</option>
+                        <option value="sae">Statistique appliquée (SAE)</option>
+                        <option value="ig">Informatique de Gestion (IG)</option>
+                        <option value="igfp">IGFP</option>
+                        <option value="di">Développement Info (DI)</option>
+                        <option value="tcm">Marketing (TCM)</option>
+                        <option value="rit">RIT</option>
+                    </select>
+                </div>
             </div>
+
             <div class="form-group">
-                <label>المستوى (Niveau)</label>
-                <select id="level" onchange="updateSemesters()" required>
-                    <option value="">-- اختر المستوى --</option>
-                    <option value="L1">Licence 1 (L1)</option>
-                    <option value="L2">Licence 2 (L2)</option>
-                    <option value="L3">Licence 3 (L3)</option>
-                </select>
+                <label>Niveau (السنة)</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">📘</span>
+                    <select id="level" onchange="updateSemesters()" required>
+                        <option value="">-- Sélectionner --</option>
+                        <option value="l1">Licence 1 (L1)</option>
+                        <option value="l2">Licence 2 (L2)</option>
+                        <option value="l3">Licence 3 (L3)</option>
+                    </select>
+                </div>
             </div>
+
             <div class="form-group">
-                <label>الفصل (Semestre)</label>
-                <select id="semester" required>
-                    <option value="">-- اختر المستوى أولاً --</option>
-                </select>
+                <label>Semestre (الفصل)</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">📅</span>
+                    <select id="semester" required>
+                        <option value="">-- Choisir niveau --</option>
+                    </select>
+                </div>
             </div>
+
             <div class="form-group">
-                <label>رقم التسجيل (Matricule)</label>
-                <input type="text" id="matricule" placeholder="مثال: I21180" style="text-transform: uppercase; text-align: left; direction: ltr;">
+                <label>Matricule (Ex: I21567)</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🆔</span>
+                    <input type="text" id="studentId" placeholder="Ex: I21567" required style="text-transform: uppercase;">
+                </div>
             </div>
-            <div class="btn-group">
-                <button type="button" class="btn-search" onclick="searchStudent()">🔍 عرض النتيجة</button>
-                <button type="button" class="btn-top20" onclick="showTop20()">🏆 العشرون الأوائل</button>
-            </div>
+
+            <button type="submit" class="search-btn">
+                <span>بحث</span> 🔍 <span>Rechercher</span>
+            </button>
         </form>
-        <div id="loader" class="loader">⏳ جاري البحث عن النتائج...</div>
-        <div id="error-msg" class="error"></div>
-    </div>
+    </aside>
 
-    <!-- بطاقة النتيجة -->
-    <div id="student-result" class="result-card">
-        <div class="student-info">
-            <h2 id="res-name">اسم الطالب</h2>
-            <div class="info-row"><span>رقم التسجيل:</span> <span id="res-id" class="info-val"></span></div>
-            <div class="info-row"><span>المعدل العام:</span> <span id="res-avg" class="info-val" style="color:var(--primary); font-size:1.3rem;"></span></div>
-            <div class="info-row"><span>الترتيب:</span> <span id="res-rank" class="info-val" style="color:var(--secondary);"></span></div>
-            <div class="info-row"><span>القرار:</span> <span id="res-dec" class="info-val"></span></div>
+    <main class="main-content">
+        <div id="loader" class="loader"><div class="spinner"></div><p style="color:#666; font-weight:bold;">Analyse des données...</p></div>
+        <div id="error-msg" class="alert"></div>
+
+        <div id="congrats-banner" class="congrats-popup">
+            <h2 style="font-size:2rem; margin-bottom:10px; color:var(--primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">🎉 ألف مبروك 🎉</h2>
+            <h3 style="margin:5px 0; color:#166534; font-size:1.5rem;">Semestre Validé ✅</h3>
         </div>
 
-        <div id="celebration-msg">
-            <span class="congrats-text">🎉 ألف مبروك النجاح 🎉</span>
-        </div>
-        
-        <button id="download-btn" class="download-btn" onclick="downloadPrecisePDF()">
-            📥 تنزيل كشف النقاط (نسخة الطالب فقط)
-        </button>
-        <div id="dl-msg" style="text-align:center; font-size:0.8rem; color:#666; margin-top:5px; display:none;">جاري المعالجة والقص الدقيق...</div>
-    </div>
+        <div id="transcript-view" class="transcript-card">
+            <div class="student-header">
+                <div class="student-info">
+                    <h2 id="st-name">Nom de l'étudiant</h2>
+                    <span class="matricule-badge" id="st-id">I00000</span>
+                </div>
+                <div style="text-align:right; font-size:0.9rem; color:#64748b;">
+                    <p style="font-weight:bold;">Année 2024-2025</p>
+                    <p id="res-context" style="margin-top:5px; background:#f0fdf4; padding:2px 8px; border-radius:4px;">CONTEXTE</p>
+                </div>
+            </div>
 
-    <div id="top20-container" class="result-card">
-        <h2 style="color:var(--primary); text-align:center;">🏆 قائمة العشرون الأوائل</h2>
-        <div style="overflow-x:auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Matricule</th>
-                        <th>Nom et Prénom</th>
-                        <th>Moyenne</th>
-                    </tr>
-                </thead>
-                <tbody id="top20-body"></tbody>
-            </table>
-        </div>
-    </div>
+            <!-- MOVING NOTE -->
+            <div class="ticker-wrap">
+                <div class="ticker-content">
+                    ⚠️ NB: Ces résultats sont affichés avant la session de rattrapage. | ملاحظة: هذه النتائج قبل الدورة الاستدراكية. ⚠️ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ⚠️ NB: Ces résultats sont affichés avant la session de rattrapage. | ملاحظة: هذه النتائج قبل الدورة الاستدراكية. ⚠️
+                </div>
+            </div>
 
-    <!-- تذييل المطور -->
-    <div class="dev-footer">
-        <a href="https://wa.me/22220479962" target="_blank" class="dev-link">
-             Développé par Mohamed Dah Agove ✨
-        </a>
+            <div class="table-wrapper">
+                <table class="transcript-table">
+                    <thead>
+                        <tr>
+                            <th class="col-module">Module</th>
+                            <th>CC</th>
+                            <th>CF</th>
+                            <th>Note</th>
+                            <th>Crédit</th>
+                            <th>Décision</th>
+                        </tr>
+                    </thead>
+                    <tbody id="grade-body"></tbody>
+                </table>
+            </div>
+
+            <div class="sem-summary">
+                <div class="summary-box box-rank">
+                    <div class="label-sm">Classement</div>
+                    <div class="summary-value" id="sem-rank" style="color:var(--secondary);">--</div>
+                </div>
+                <div class="summary-box box-avg">
+                    <div class="label-sm">Moyenne Générale</div>
+                    <div class="summary-value" id="sem-avg">--</div>
+                    <div id="sem-decision" style="font-weight:bold; margin-top:5px; font-size:1.1rem;">--</div>
+                </div>
+            </div>
+
+            <div class="palmares-box">
+                <div style="text-align:center; font-weight:800; color:#b45309; margin-bottom:15px; font-size:1.1rem; text-transform:uppercase; letter-spacing:1px;">🏆 Top 10 Étudiants</div>
+                <table class="palmares-table">
+                    <tbody id="palmares-body"></tbody>
+                </table>
+            </div>
+
+            <button class="print-btn" onclick="window.print()" style="background:#14532d; color:white; padding:15px; width:100%; border:none; border-radius:12px; margin-top:25px; cursor:pointer; font-weight:bold; transition:0.3s;">🖨️ Imprimer / Sauvegarder PDF</button>
+        </div>
+    </main>
+</div>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-content">
+        <p style="margin-bottom:10px; opacity:0.8;">&copy; 2025 ISCAE Résultats - Tous droits réservés</p>
+        <p>
+            Développé avec ❤️ par 
+            <a href="https://wa.me/22220479962" class="dev-link" target="_blank">
+                Mohamed Dah Agove 💬
+            </a>
+        </p>
+    </div>
+</footer>
+
+<!-- Install Guide Modal -->
+<div id="installModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 style="color:var(--primary); margin-top:0; font-size:1.5rem;">تثبيت التطبيق 📲</h3>
+        <p style="font-size:1rem; color:#555; margin-bottom:20px;">لتجربة أفضل وسرعة أعلى:</p>
+        <div class="modal-step" style="background:#f8fafc; padding:10px; border-radius:10px; margin-bottom:10px; text-align:right;">
+            <span class="modal-icon">🍏 <b>iPhone (Safari)</b></span><br>
+            اضغط على زر <b>Partager</b> أسفل الشاشة <br> ثم اختر <b>"Sur l'écran d'accueil"</b>
+        </div>
+        <div class="modal-step" style="background:#f8fafc; padding:10px; border-radius:10px; text-align:right;">
+            <span class="modal-icon">🤖 <b>Android (Chrome)</b></span><br>
+            اضغط على القائمة (⋮) أعلى اليسار <br> ثم اختر <b>"Ajouter à l'écran d'accueil"</b>
+        </div>
+        <button id="closeModal" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:12px 30px; border-radius:50px; font-weight:bold; cursor:pointer;">Fermer</button>
     </div>
 </div>
 
 <script>
+    // --- GLOBAL HELPER FOR TOP 10 CLICK ---
+    window.triggerSearch = function(id) {
+        const input = document.getElementById('studentId');
+        input.value = id;
+        window.scrollTo({ top: document.querySelector('.sidebar').offsetTop - 20, behavior: 'smooth' });
+        document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+    };
+
+    // --- PWA INSTALL LOGIC ---
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    const modal = document.getElementById('installModal');
+    const closeModal = document.getElementById('closeModal');
+
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW failed', err));
+            navigator.serviceWorker.register('./sw.js').then(reg => console.log('SW OK')).catch(err => console.log('SW Fail', err));
         });
     }
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; }
+        else { modal.style.display = 'flex'; }
+    });
+    closeModal.addEventListener('click', () => { modal.style.display = 'none'; });
+    window.onclick = function(event) { if (event.target == modal) modal.style.display = "none"; }
 
-    // ==========================================
-    // ⚠️ إعدادات GitHub
-    // ==========================================
-    const GITHUB_USERNAME = "agwfmhmd-max";
-    const REPO_NAME = "Resultat-ISCAE";
-    // ==========================================
+    // --- COUNTDOWN LOGIC ---
+    const academicEvents = [
+        { name: "Devoirs S1 et S3", date: "2025-12-15T08:00:00" },
+        { name: "Devoirs S5", date: "2025-12-22T08:00:00" },
+        { name: "Examens finaux S1 et S3", date: "2026-02-02T08:00:00" },
+        { name: "Examens finaux S5", date: "2026-02-09T08:00:00" },
+        { name: "Devoirs Semestre II", date: "2026-04-20T08:00:00" },
+        { name: "Examens finaux Semestre II", date: "2026-06-01T08:00:00" }
+    ];
 
-    let currentStudentId = "";
-    let currentResultsPdfUrl = "";
+    function initCountdown() {
+        const wrapper = document.getElementById('countdown-wrapper');
+        const eventNameEl = document.getElementById('event-name');
+        
+        function updateTimer() {
+            const now = new Date().getTime();
+            let nextEvent = academicEvents.find(e => new Date(e.date).getTime() > now);
+            if (!nextEvent) { wrapper.style.display = 'none'; return; }
+            
+            wrapper.style.display = 'flex';
+            eventNameEl.innerText = nextEvent.name;
+            const dist = new Date(nextEvent.date).getTime() - now;
 
-    // 1. تحديد الفصول بناءً على المستوى
+            const d = Math.floor(dist / (1000 * 60 * 60 * 24));
+            const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((dist % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = d < 10 ? "0" + d : d;
+            document.getElementById('hours').innerText = h < 10 ? "0" + h : h;
+            document.getElementById('minutes').innerText = m < 10 ? "0" + m : m;
+            document.getElementById('seconds').innerText = s < 10 ? "0" + s : s;
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    }
+    document.addEventListener('DOMContentLoaded', initCountdown);
+
+    // --- ACADEMIC LOGIC ---
     const semsData = {
-        'L1': { 'S1': 'Semestre 1', 'S2': 'Semestre 2' },
-        'L2': { 'S3': 'Semestre 3', 'S4': 'Semestre 4' },
-        'L3': { 'S5': 'Semestre 5', 'S6': 'Semestre 6' }
+        'l1': {'s1':'Semestre 1','s2':'Semestre 2'},
+        'l2': {'s3':'Semestre 3','s4':'Semestre 4'},
+        'l3': {'s5':'Semestre 5','s6':'Semestre 6'}
     };
 
     function updateSemesters() {
         const lvl = document.getElementById('level').value;
         const semSelect = document.getElementById('semester');
-        semSelect.innerHTML = '<option value="">-- اختر الفصل --</option>';
+        semSelect.innerHTML = '<option value="">-- Sélectionner --</option>';
         if(lvl && semsData[lvl]) {
             for(let key in semsData[lvl]) {
                 let opt = document.createElement('option');
-                opt.value = key; 
+                opt.value = key;
                 opt.text = semsData[lvl][key];
                 semSelect.appendChild(opt);
             }
         }
     }
 
-    // 2. دالة بناء الروابط (تم التعديل لتكون دقيقة)
-    // النمط: BA_L1_S1_Resultats_Classement.pdf
-    function getFileUrls() {
-        const major = document.getElementById('major').value; // التخصص (BA)
-        const lvl = document.getElementById('level').value;   // المستوى (L1)
-        const sem = document.getElementById('semester').value; // الفصل (S1)
+    document.getElementById('searchForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        if(!major || !lvl || !sem) { 
-            alert("الرجاء اختيار التخصص، المستوى والفصل."); 
-            return null; 
-        }
-        
-        // بناء اسم الملف بالشكل المطلوب بالضبط
-        const filePrefix = `${major}_${lvl}_${sem}`;
-        
-        // الرابط يشير دائماً إلى main
-        // تأكد من أن الفرع في جيت هاب اسمه main أو master (الأرجح main)
-        const baseUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main`;
-        
-        return {
-            rankingUrl: `${baseUrl}/${filePrefix}_Resultats_Classement.pdf`,
-            resultsUrl: `${baseUrl}/${filePrefix}_Resultats.pdf`
-        };
-    }
-
-    function resetView() {
-        document.getElementById('student-result').style.display = 'none';
-        document.getElementById('top20-container').style.display = 'none';
+        document.getElementById('transcript-view').style.display = 'none';
         document.getElementById('error-msg').style.display = 'none';
-        document.getElementById('dl-msg').style.display = 'none';
-        const celebBox = document.getElementById('celebration-msg');
-        celebBox.style.display = 'none';
-        celebBox.querySelectorAll('.floating-particle').forEach(p => p.remove());
-    }
+        stopCelebration();
+        
+        let id = document.getElementById('studentId').value.trim().toUpperCase();
+        if (!id.startsWith('I')) { showError("Le matricule doit commencer par 'I' (ex: I21567)"); return; }
 
-    function startCelebration() {
-        const container = document.getElementById('celebration-msg');
-        container.style.display = 'block';
-        const symbols = ['🌸', '❤️', '🎉', '✨', '💖'];
-        for (let i = 0; i < 20; i++) {
-            const span = document.createElement('span');
-            span.classList.add('floating-particle');
-            span.innerText = symbols[Math.floor(Math.random() * symbols.length)];
-            span.style.left = Math.random() * 90 + 5 + '%';
-            span.style.animationDuration = (Math.random() * 2 + 2) + 's';
-            span.style.animationDelay = Math.random() * 1.5 + 's';
-            span.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
-            container.appendChild(span);
-        }
-    }
-
-    // 3. دالة جلب البيانات (محسنة لتفادي مشاكل القراءة)
-    async function fetchRankingData(pdfUrl) {
         document.getElementById('loader').style.display = 'block';
-        try {
-            const loadingTask = pdfjsLib.getDocument(pdfUrl);
-            const pdf = await loadingTask.promise;
-            let students = [];
+        const maj = document.getElementById('major').value.toUpperCase();
+        const lvl = document.getElementById('level').value.toUpperCase();
+        const sem = document.getElementById('semester').value.toUpperCase();
 
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                
-                // تجميع الأسطر بشكل ذكي (تسامح في الارتفاع 5 بكسل)
-                let rows = []; 
-                textContent.items.forEach(item => {
-                    const y = item.transform[5]; 
-                    const str = item.str;
-                    const x = item.transform[4];
-                    
-                    // البحث عن سطر قريب
-                    let foundRow = rows.find(r => Math.abs(r.y - y) < 5);
-                    if (foundRow) {
-                        foundRow.items.push({ str, x });
-                    } else {
-                        rows.push({ y, items: [{ str, x }] });
-                    }
-                });
-
-                // ترتيب الأسطر من الأعلى للأسفل
-                rows.sort((a, b) => b.y - a.y);
-
-                rows.forEach(row => {
-                    // ترتيب الكلمات داخل السطر
-                    const lineItems = row.items.sort((a, b) => a.x - b.x);
-                    const lineStr = lineItems.map(t => t.str).join(" ").trim();
-                    
-                    // Regex مرن يقبل الأرقام العشرية والفواصل المختلفة
-                    // المثال: 1  I21180  Mohamed...  12.50  Admis
-                    const match = lineStr.match(/^(\d+)\s+(I\d+)\s+(.+?)\s+(\d{1,2}(?:[.,]\d{1,2})?)\s+(.+)$/i);
-                    
-                    if(match) {
-                        students.push({
-                            rank: parseInt(match[1]),
-                            id: match[2].toUpperCase(),
-                            name: match[3].trim(),
-                            avg: match[4].replace(',', '.'),
-                            decision: match[5].trim()
-                        });
-                    }
-                });
-            }
-            document.getElementById('loader').style.display = 'none';
-            return students;
-        } catch (e) {
-            console.error("File loading error:", e);
-            document.getElementById('loader').style.display = 'none';
-            
-            let msg = "عذراً، حدث خطأ أثناء تحميل الملف.";
-            if (e.name === 'MissingPDFException' || e.status === 404) {
-                msg = `الملف غير موجود في قاعدة البيانات لهذا الفصل حالياً.\n(تأكد من رفعه باسم صحيح)`;
-            }
-            
-            document.getElementById('error-msg').innerText = msg;
-            document.getElementById('error-msg').style.display = 'block';
-            return null;
-        }
-    }
-
-    function triggerQuickSearch(id) {
-        document.getElementById('matricule').value = id;
-        searchStudent();
-    }
-
-    async function searchStudent() {
-        resetView();
-        const urls = getFileUrls();
-        if(!urls) return;
-
-        const matricule = document.getElementById('matricule').value.trim().toUpperCase();
-        if(!matricule) { 
-            document.getElementById('error-msg').innerText = "الرجاء إدخال رقم التسجيل.";
-            document.getElementById('error-msg').style.display = 'block';
-            return; 
-        }
-
-        const students = await fetchRankingData(urls.rankingUrl);
-        if(!students) return;
-
-        const student = students.find(s => s.id === matricule);
-
-        if(student) {
-            document.getElementById('res-name').innerText = student.name;
-            document.getElementById('res-id').innerText = student.id;
-            document.getElementById('res-avg').innerText = student.avg;
-            document.getElementById('res-rank').innerText = student.rank;
-            
-            const decEl = document.getElementById('res-dec');
-            decEl.innerText = student.decision;
-            
-            const decText = student.decision.toLowerCase();
-            const isValid = decText.includes('valid') || decText.includes('admis');
-            decEl.className = isValid ? 'info-val decision-valid' : 'info-val decision-ratt';
-
-            currentStudentId = student.id;
-            currentResultsPdfUrl = urls.resultsUrl;
-            
-            const card = document.getElementById('student-result');
-            card.style.display = 'block';
-            if (isValid) startCelebration();
-            setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+        let possibleFiles = [];
+        // Support for RIT and RT
+        if (maj === 'RIT') {
+            possibleFiles.push(`PV_${lvl}RIT_${sem}.pdf`);
+            possibleFiles.push(`PV_${lvl}RT_${sem}.pdf`); // Fallback
         } else {
-            document.getElementById('error-msg').innerText = "رقم التسجيل غير موجود في هذه القائمة.";
-            document.getElementById('error-msg').style.display = 'block';
+            possibleFiles.push(`${lvl}_${maj}_${sem}.pdf`);
         }
+        
+        possibleFiles.push(`${lvl}2_${maj}_${sem}.pdf`);
+        possibleFiles.push(`${lvl.toLowerCase()}_${maj.toLowerCase()}_${sem.toLowerCase()}.pdf`);
+        
+        const levelVariants = [lvl, lvl + '2']; 
+        const suffixes = ['_VD', '_VF', '_FV', '_', '', '__FV', '__VF'];
+        
+        levelVariants.forEach(l => { 
+            suffixes.forEach(s => { 
+                possibleFiles.push(`PV_${l}${maj}_${sem}${s}.pdf`);
+                // Fallback for RIT searching RT
+                if (maj === 'RIT') possibleFiles.push(`PV_${l}RT_${sem}${s}.pdf`);
+            }); 
+        });
+
+        let foundData = null;
+        let rankInfo = null;
+        let topStudents = [];
+
+        for (const filePath of possibleFiles) {
+            try {
+                const result = await processPDF(filePath, id);
+                foundData = result.studentData;
+                rankInfo = result.rankInfo;
+                topStudents = result.topStudents;
+                break; 
+            } catch (error) { continue; }
+        }
+
+        document.getElementById('loader').style.display = 'none';
+
+        if (foundData && foundData.length > 0) {
+            renderTranscript(foundData, id, maj, lvl, sem, rankInfo, topStudents);
+        } else {
+            showError(`Aucun résultat pour ${id}. Vérifiez le matricule ou le fichier PDF.`);
+        }
+    });
+
+    function showError(msg) {
+        const err = document.getElementById('error-msg');
+        err.style.display = 'block';
+        err.innerText = msg;
     }
 
-    async function downloadPrecisePDF() {
-        if (!currentStudentId || !currentResultsPdfUrl) return;
+    function processPDF(url, targetId) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const loadingTask = pdfjsLib.getDocument(url);
+                const pdf = await loadingTask.promise;
+                let isCapturing = false;
+                let studentRows = [];
+                let allStudents = [];
 
-        const btn = document.getElementById('download-btn');
-        const msg = document.getElementById('dl-msg');
-        btn.disabled = true;
-        btn.classList.add('loading');
-        btn.innerText = "⏳ جاري المعالجة...";
-        msg.style.display = 'block';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    let lines = {};
+                    textContent.items.forEach(item => {
+                        let y = Math.round(item.transform[5]);
+                        let existingY = Object.keys(lines).find(key => Math.abs(key - y) < 8);
+                        if (existingY) lines[existingY].push({ t: item.str, x: item.transform[4] });
+                        else lines[y] = [{ t: item.str, x: item.transform[4] }];
+                    });
 
-        try {
-            const existingPdfBytes = await fetch(currentResultsPdfUrl).then(res => {
-                if (!res.ok) throw new Error("File not found");
-                return res.arrayBuffer();
-            });
-            const loadingTask = pdfjsLib.getDocument({ data: existingPdfBytes });
-            const pdfDocjs = await loadingTask.promise;
-            
-            let startPage = -1, startY = 0, endY = 0, spansToNextPage = false, nextPageEndY = 0;
-
-            for (let i = 1; i <= pdfDocjs.numPages; i++) {
-                const page = await pdfDocjs.getPage(i);
-                const content = await page.getTextContent();
-                
-                for (let item of content.items) {
-                    if (item.str.includes(currentStudentId)) {
-                        startPage = i - 1;
-                        startY = item.transform[5];
+                    let sortedY = Object.keys(lines).sort((a,b) => b - a);
+                    for (let y of sortedY) {
+                        let items = lines[y].sort((a,b) => a.x - b.x);
+                        let rowText = items.map(itm => itm.t).join(" ").trim();
                         
-                        let nextStudents = content.items.filter(itm => 
-                            itm.str.match(/I\d{4,}/) && itm.transform[5] < startY 
-                        );
-
-                        if (nextStudents.length > 0) {
-                            nextStudents.sort((a, b) => b.transform[5] - a.transform[5]);
-                            endY = nextStudents[0].transform[5]; 
-                        } else {
-                            endY = 30; // نهاية الصفحة تقريباً
-                            if (i < pdfDocjs.numPages) {
-                                const nextPage = await pdfDocjs.getPage(i + 1);
-                                const nextContent = await nextPage.getTextContent();
-                                let page2Students = nextContent.items.filter(itm => itm.str.match(/I\d{4,}/));
-                                if (page2Students.length > 0) {
-                                    spansToNextPage = true;
-                                    page2Students.sort((a, b) => b.transform[5] - a.transform[5]);
-                                    nextPageEndY = page2Students[0].transform[5];
-                                }
+                        let headerMatch = rowText.match(/(I\d{4,})(.*?)(\b(?:[0-1]?\d|20)[.,]\d{1,2}\b)/);
+                        if (headerMatch) {
+                            let sId = headerMatch[1];
+                            let allNumbers = rowText.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
+                            if (allNumbers) {
+                                let sAvg = parseFloat(allNumbers[allNumbers.length - 1].replace(',', '.'));
+                                let rawName = rowText.replace(sId, "").replace(/[\d\.,]+\s*(Validé|Rattrapage|Admis|Ajourné)?.*$/i, "").trim().replace(/\d{3,}/g, "").trim();
+                                if (!allStudents.some(s => s.id === sId)) allStudents.push({ id: sId, name: rawName, avg: sAvg });
                             }
                         }
-                        break;
+
+                        if (rowText.includes(targetId) && new RegExp("(^|\\s|\\|)" + targetId + "(\\s|\\||$)").test(rowText)) {
+                            isCapturing = true;
+                            studentRows.push({ type: 'header', text: rowText });
+                            continue;
+                        }
+                        if (isCapturing) {
+                            if (/(^|\s)(I\d{4,})(\s|$)/.test(rowText) && !rowText.includes(targetId)) isCapturing = false;
+                            else if (rowText.length > 2 && !rowText.includes("Nom et Prénom")) studentRows.push({ type: 'data', text: rowText });
+                        }
                     }
                 }
-                if (startPage !== -1) break;
-            }
 
-            if (startPage === -1) throw new Error("الطالب غير موجود");
-
-            const { PDFDocument } = PDFLib;
-            const pdfDoc = await PDFDocument.load(existingPdfBytes);
-            const newPdf = await PDFDocument.create();
-            const [page1] = await newPdf.copyPages(pdfDoc, [startPage]);
-            const { width, height } = page1.getSize();
-
-            const cropTop = Math.min(height, startY + 60); 
-            const cropBottom = spansToNextPage ? 0 : (endY + 10); 
-            
-            page1.setCropBox(0, cropBottom, width, cropTop - cropBottom);
-            newPdf.addPage(page1);
-
-            if (spansToNextPage) {
-                const [page2] = await newPdf.copyPages(pdfDoc, [startPage + 1]);
-                const page2Bottom = nextPageEndY + 10;
-                page2.setCropBox(0, page2Bottom, width, height - page2Bottom);
-                newPdf.addPage(page2);
-            }
-
-            const pdfBytes = await newPdf.save();
-            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `Resultat_${currentStudentId}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-        } catch (error) {
-            console.error(error);
-            alert("لم يتم العثور على الملف التفصيلي، أو لم يتم رفعه بعد.");
-        } finally {
-            btn.disabled = false;
-            btn.classList.remove('loading');
-            btn.innerText = "📥 تنزيل كشف النقاط (نسخة الطالب فقط)";
-            msg.style.display = 'none';
-        }
+                if (studentRows.length > 0) {
+                    allStudents.sort((a, b) => b.avg - a.avg);
+                    resolve({ 
+                        studentData: studentRows, 
+                        rankInfo: { rank: allStudents.findIndex(s => s.id === targetId) + 1, total: allStudents.length },
+                        topStudents: allStudents.slice(0, 10)
+                    });
+                } else reject("Not Found");
+            } catch (error) { reject(error); }
+        });
     }
 
-    async function showTop20() {
-        resetView();
-        const urls = getFileUrls();
-        if(!urls) return;
-
-        const students = await fetchRankingData(urls.rankingUrl);
-        if(!students) return;
-
-        students.sort((a,b) => a.rank - b.rank);
-        const top20 = students.slice(0, 20);
-
-        const tbody = document.getElementById('top20-body');
+    function renderTranscript(rows, studentId, maj, lvl, sem, rankInfo, topStudents) {
+        const tbody = document.getElementById('grade-body');
         tbody.innerHTML = '';
+        
+        let headerRow = rows[0].text;
+        let nameClean = headerRow.replace(studentId, "").replace(/(\d{1,2}[\.,]\d{2})\s*(Validé|Rattrapage|Ajourné|Admis|Compensé)?.*$/i, "").trim().replace(/\d{3,}/, "").trim();
+        let textWithoutID = headerRow.replace(studentId, "");
+        let gradeMatch = textWithoutID.match(/\b(?:[0-1]?\d|20)[.,]\d{1,2}\b/g);
+        let semAvg = (gradeMatch && gradeMatch.length > 0) ? gradeMatch[gradeMatch.length - 1] : "--";
+        let semDec = headerRow.includes("Validé") ? "Validé" : (headerRow.includes("Admis") ? "Admis" : (headerRow.includes("Rattrapage") ? "Rattrapage" : "Ajourné"));
 
-        if(top20.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد بيانات متاحة.</td></tr>';
+        document.getElementById('st-name').innerText = nameClean;
+        document.getElementById('st-id').innerText = studentId;
+        document.getElementById('res-context').innerText = `${lvl.toUpperCase()} - ${maj.toUpperCase()} - ${sem.toUpperCase()}`;
+        document.getElementById('sem-avg').innerText = semAvg;
+        
+        let isSuccess = (semDec === "Validé" || semDec === "Admis");
+        const decEl = document.getElementById('sem-decision');
+        if (isSuccess) {
+            decEl.style.color = "#059669";
+            decEl.innerHTML = "✅ " + semDec;
         } else {
-            top20.forEach(s => {
-                const row = `
-                    <tr>
-                        <td><b>${s.rank}</b></td>
-                        <td><a onclick="triggerQuickSearch('${s.id}')" class="clickable-id">${s.id}</a></td>
-                        <td>${s.name}</td>
-                        <td style="color:var(--primary); font-weight:bold;">${s.avg}</td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
+            decEl.style.color = "#dc2626";
+            decEl.innerHTML = "⚠️ " + semDec;
         }
-        const topContainer = document.getElementById('top20-container');
-        topContainer.style.display = 'block';
-        setTimeout(() => topContainer.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+
+        if (rankInfo) document.getElementById('sem-rank').innerText = `${rankInfo.rank} / ${rankInfo.total}`;
+
+        document.getElementById('palmares-body').innerHTML = topStudents.map((s, i) => {
+            let medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : `#${i+1}`));
+            let bgStyle = i < 3 ? 'background-color:rgba(255, 215, 0, 0.1);' : '';
+            return `
+            <tr style="${bgStyle}">
+                <td><span class="rank-medal">${medal}</span></td>
+                <td><a href="javascript:void(0)" onclick="triggerSearch('${s.id}')" style="text-decoration:underline; cursor:pointer; color:var(--primary); font-weight:bold;">${s.id}</a></td>
+                <td style="text-align:left; font-weight:600;">${s.name}</td>
+                <td><b style="color:var(--primary);">${s.avg}</b></td>
+            </tr>
+            `;
+        }).join('');
+
+        rows.slice(1).forEach(row => {
+            let raw = row.text;
+            let sm = raw.match(/(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s+(\d{1,2}[\.,]?\d{0,2})\s*(.*)$/i);
+            if (sm) {
+                let dec = sm[5].trim();
+                let decClass = (dec.includes("Validé") || dec.includes("Admis")) ? "status-valid" : "status-ratt";
+                let displayDec = dec.includes("Validé") ? "V" : (dec.includes("Rattrapage") ? "R" : dec); 
+                tbody.innerHTML += `<tr><td class="col-module">${raw.substring(0, raw.indexOf(sm[1])).trim()}</td><td>${sm[1]}</td><td>${sm[2]}</td><td style="background:#f0fdf4; font-weight:bold;">${sm[3]}</td><td>${sm[4]}</td><td><span class="status-badge ${decClass}">${displayDec}</span></td></tr>`;
+            } else {
+                let um = raw.match(/(\d{1,2}[\.,]\d{2})\s+(\d{1,2})\s*(.*)$/i);
+                if (um) {
+                     let dec = um[3].trim();
+                     tbody.innerHTML += `<tr class="row-ue"><td class="col-module" style="color:#000;">${raw.substring(0, raw.indexOf(um[1])).trim()}</td><td colspan="2"><small>UE</small></td><td style="background:#e0f2fe; font-weight:bold;">${um[1]}</td><td>${um[2]}</td><td><small>${dec}</small></td></tr>`;
+                }
+            }
+        });
+        document.getElementById('transcript-view').style.display = 'block';
+        if (isSuccess) launchIntenseCelebration();
+        document.getElementById('transcript-view').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    let celebrationInterval;
+    function launchIntenseCelebration() {
+        const banner = document.getElementById('congrats-banner');
+        banner.classList.add('show');
+        const flowers = ['🌹','🌺','🌸','🌼','🌻','🌷'];
+        const hearts = ['❤️','💖','💗','💓','💞','💕'];
+
+        celebrationInterval = setInterval(() => {
+            let f = document.createElement('div');
+            f.className = 'confetti-flower';
+            f.innerText = flowers[Math.floor(Math.random()*flowers.length)];
+            f.style.left = Math.random() * 100 + 'vw';
+            f.style.animationDuration = Math.random() * 3 + 2 + 's';
+            document.body.appendChild(f);
+
+            let h = document.createElement('div');
+            h.className = 'confetti-heart';
+            h.innerText = hearts[Math.floor(Math.random()*hearts.length)];
+            h.style.left = Math.random() * 100 + 'vw';
+            h.style.animationDuration = Math.random() * 3 + 3 + 's';
+            document.body.appendChild(h);
+
+            setTimeout(() => f.remove(), 5000);
+            setTimeout(() => h.remove(), 6000);
+        }, 80); 
+
+        setTimeout(stopCelebration, 8000);
+    }
+
+    function stopCelebration() {
+        clearInterval(celebrationInterval);
+        const banner = document.getElementById('congrats-banner');
+        banner.classList.remove('show');
     }
 </script>
 
