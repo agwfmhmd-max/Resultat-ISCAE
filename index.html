@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ISCAE Résultats 2026</title>
     
-    <!-- مكتبة قراءة ملفات PDF -->
+    <!-- مكتبة PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';</script>
 
@@ -90,7 +90,6 @@
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* تنسيق للجوال */
         @media (max-width: 600px) {
             .btn-group { flex-direction: column; }
             .info-row { font-size: 1rem; }
@@ -148,7 +147,7 @@
                 <button type="button" class="btn-top20" onclick="showTop20()">🏆 العشرون الأوائل</button>
             </div>
         </form>
-        <div id="loader" class="loader">⏳ جاري تحميل البيانات...</div>
+        <div id="loader" class="loader">⏳ جاري الاتصال بـ GitHub وجلب البيانات...</div>
         <div id="error-msg" class="error"></div>
     </div>
 
@@ -188,7 +187,13 @@
 </div>
 
 <script>
-    // --- تحديث الفصول الدراسية ---
+    // ==========================================
+    // ⚠️ إعدادات المستودع الخاصة بك ⚠️
+    // ==========================================
+    const GITHUB_USERNAME = "agwfmhmd-max";
+    const REPO_NAME = "Resultat-ISCAE";
+    // ==========================================
+
     const semsData = {
         'L1': {'S1':'Semestre 1', 'S2':'Semestre 2'},
         'L2': {'S3':'Semestre 3', 'S4':'Semestre 4'},
@@ -209,24 +214,27 @@
         }
     }
 
-    // --- بناء مسار الملفات ---
-    function getFilePaths() {
-        const maj = document.getElementById('major').value;
+    // --- بناء رابط GitHub Raw للفرع ---
+    function getFileUrls() {
+        const branchName = document.getElementById('major').value; // اسم الفرع = اسم التخصص
         const lvl = document.getElementById('level').value;
         const sem = document.getElementById('semester').value;
         
-        if(!maj || !lvl || !sem) {
+        if(!branchName || !lvl || !sem) {
             showError("الرجاء اختيار التخصص، المستوى والفصل.");
             return null;
         }
 
-        // اسم الملف يجب أن يكون دقيقاً: L1_S1
+        // اسم الملف يجب أن يكون دقيقاً كما سترفعه
+        // مثال: L1_S1_Classement.pdf
         const fileNameBase = `${lvl}_${sem}`;
         
-        // المسار: اسم_المجلد/اسم_الملف
+        // الرابط المباشر للملف في الفرع الآخر
+        const baseUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${branchName}`;
+
         return {
-            rankingUrl: `${maj}/${fileNameBase}_Classement.pdf`,
-            resultsUrl: `${maj}/${fileNameBase}_Resultats.pdf`
+            rankingUrl: `${baseUrl}/${fileNameBase}_Classement.pdf`,
+            resultsUrl: `${baseUrl}/${fileNameBase}_Resultats.pdf`
         };
     }
 
@@ -255,7 +263,6 @@
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
                 
-                // تجميع النصوص بناءً على المحاذاة العمودية (Y position)
                 let lines = {};
                 textContent.items.forEach(item => {
                     const y = Math.round(item.transform[5]);
@@ -263,22 +270,19 @@
                     lines[y].push({ str: item.str, x: item.transform[4] });
                 });
 
-                // ترتيب الأسطر من الأعلى للأسفل
                 const sortedY = Object.keys(lines).sort((a,b) => b-a);
                 
                 sortedY.forEach(y => {
-                    // ترتيب الكلمات من اليسار لليمين
                     const lineItems = lines[y].sort((a,b) => a.x - b.x);
                     const lineStr = lineItems.map(t => t.str).join(" ").trim();
                     
-                    // البحث عن نمط سطر الطالب: رقم ترتيب + Ixxxxx + اسم + معدل + قرار
-                    // Regex: Rank | ID | Name | Avg | Decision
+                    // تحليل سطر الطالب (الترتيب، الرقم، الاسم، المعدل، القرار)
                     const match = lineStr.match(/^(\d+)\s+(I\d{4,})\s+(.+?)\s+(\d{1,2}[.,]\d{2})\s+(\w+)$/i);
                     
                     if(match) {
                         students.push({
                             rank: parseInt(match[1]),
-                            id: match[2].toUpperCase(), // توحيد حالة الأحرف
+                            id: match[2].toUpperCase(),
                             name: match[3],
                             avg: match[4],
                             decision: match[5]
@@ -292,27 +296,25 @@
 
         } catch (e) {
             console.error(e);
-            showError("لم يتم العثور على الملف. تأكد من رفع ملفات الـ PDF داخل المجلدات الصحيحة وتسميتها بشكل صحيح.");
+            showError("فشل تحميل الملف. تأكد من أن الفرع (Branch) يحمل اسم التخصص بالضبط (مثل BA) وأن الملفات داخله تحمل الاسم الصحيح (مثل L1_S1_Classement.pdf).");
             return null;
         }
     }
 
-    // --- البحث عن طالب ---
     async function searchStudent() {
         resetView();
-        const paths = getFilePaths();
-        if(!paths) return;
+        const urls = getFileUrls();
+        if(!urls) return;
 
         const matricule = document.getElementById('matricule').value.trim().toUpperCase();
         if(!matricule) { showError("الرجاء إدخال رقم التسجيل."); return; }
 
-        const students = await fetchRankingData(paths.rankingUrl);
+        const students = await fetchRankingData(urls.rankingUrl);
         if(!students) return;
 
         const student = students.find(s => s.id === matricule);
 
         if(student) {
-            // ملء البيانات
             document.getElementById('res-name').innerText = student.name;
             document.getElementById('res-id').innerText = student.id;
             document.getElementById('res-avg').innerText = student.avg;
@@ -321,7 +323,6 @@
             const decEl = document.getElementById('res-dec');
             decEl.innerText = student.decision;
             
-            // تلوين القرار
             const decText = student.decision.toLowerCase();
             if(decText.includes('valid') || decText.includes('admis')) {
                 decEl.className = 'info-val decision-valid';
@@ -329,27 +330,23 @@
                 decEl.className = 'info-val decision-ratt';
             }
 
-            // رابط ملف التفاصيل
             const linkBtn = document.getElementById('download-link');
-            // هنا نضع رابط ملف النتائج التفصيلي
-            linkBtn.href = paths.resultsUrl;
+            linkBtn.href = urls.resultsUrl; // الرابط المباشر لملف النتائج من الفرع
             
             document.getElementById('student-result').style.display = 'block';
         } else {
-            showError("رقم التسجيل غير موجود في ملف الترتيب لهذا التخصص.");
+            showError("رقم التسجيل غير موجود في هذا التخصص.");
         }
     }
 
-    // --- عرض الأوائل ---
     async function showTop20() {
         resetView();
-        const paths = getFilePaths();
-        if(!paths) return;
+        const urls = getFileUrls();
+        if(!urls) return;
 
-        const students = await fetchRankingData(paths.rankingUrl);
+        const students = await fetchRankingData(urls.rankingUrl);
         if(!students) return;
 
-        // ترتيب الطلاب حسب الرتبة للتأكد
         students.sort((a,b) => a.rank - b.rank);
         const top20 = students.slice(0, 20);
 
