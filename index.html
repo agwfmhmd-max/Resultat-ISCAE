@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ISCAE Résultats 2026</title>
     
-    <!-- مكتبة PDF.js -->
+    <!-- مكتبات المعالجة -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';</script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
     <style>
         :root { 
@@ -18,7 +19,7 @@
             --radius: 15px;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-gradient); margin: 0; padding: 15px; color: var(--text); direction: rtl; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-gradient); margin: 0; padding: 15px; color: var(--text); direction: rtl; padding-bottom: 100px; }
         
         header { 
             background: var(--primary); color: white; padding: 15px; 
@@ -28,7 +29,6 @@
         
         .container { max-width: 800px; margin: 20px auto; padding: 5px; }
         
-        /* صندوق البحث */
         .search-box { 
             background: white; padding: 25px; border-radius: var(--radius); 
             box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 30px;
@@ -52,10 +52,8 @@
         
         .btn-search { background: var(--primary); color: white; }
         .btn-top20 { background: var(--secondary); color: #004d22; }
-        
         button:hover { transform: translateY(-2px); opacity: 0.95; }
 
-        /* عرض النتائج */
         .result-card { 
             background: white; border-radius: var(--radius); padding: 25px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.08); display: none; 
@@ -75,11 +73,11 @@
             display: block; width: 100%; text-align: center; 
             background: #1e293b; color: white; padding: 15px; 
             text-decoration: none; border-radius: 10px; margin-top: 25px;
-            font-weight: bold; transition: 0.3s; box-sizing: border-box;
+            font-weight: bold; transition: 0.3s; box-sizing: border-box; cursor: pointer; border: none;
         }
         .download-btn:hover { background: #334155; }
+        .download-btn.loading { background: #94a3b8; cursor: wait; }
 
-        /* الجداول */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; direction: ltr; }
         th { background: #f0fdf4; color: var(--primary); padding: 12px; text-align: left; border-bottom: 2px solid var(--primary); }
         td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
@@ -88,12 +86,118 @@
         .loader { display: none; text-align: center; padding: 20px; font-weight: bold; color: var(--primary); }
         .error { color: #dc2626; text-align: center; display: none; margin-top: 10px; padding: 15px; background: #fee2e2; border-radius: 8px; border: 1px solid #fecaca; }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .clickable-id { color: var(--primary); text-decoration: underline; font-weight: bold; cursor: pointer; }
         
-        @media (max-width: 600px) {
-            .btn-group { flex-direction: column; }
-            .info-row { font-size: 1rem; }
+        /* ------------------------------------------- */
+        /* ✨ تأثيرات الاحتفال المتحركة (قلوب وورود) ✨ */
+        /* ------------------------------------------- */
+        #celebration-msg {
+            display: none;
+            position: relative;
+            text-align: center;
+            background: linear-gradient(135deg, #fff0f5, #fff);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 2px solid #f9a8d4;
+            overflow: hidden; 
+            box-shadow: 0 5px 15px rgba(236, 72, 153, 0.2);
         }
+
+        .congrats-text {
+            display: block;
+            color: #be185d;
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-shadow: 1px 1px 0 #fff;
+            position: relative;
+            z-index: 10;
+            animation: bounceIn 1s infinite alternate;
+        }
+
+        /* العناصر الطائرة (قلوب، ورود) */
+        .floating-particle {
+            position: absolute;
+            bottom: -20px;
+            font-size: 1.5rem;
+            animation: floatUp linear forwards;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-150px) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes bounceIn {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        /* ------------------------------------------- */
+        /* ✨ تصميم التذييل الاحترافي المضيء ✨ */
+        /* ------------------------------------------- */
+        .dev-footer {
+            margin-top: 50px;
+            text-align: center;
+            padding: 30px 20px;
+            background: #0f172a; /* خلفية داكنة */
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #334155;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* رابط المطور المضيء */
+        .dev-link {
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fbbf24; /* لون ذهبي */
+            display: inline-block;
+            position: relative;
+            z-index: 2;
+            padding: 12px 30px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            
+            /* الإضاءة المستمرة */
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.8), 0 0 20px rgba(251, 191, 36, 0.5);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+            animation: steadyGlow 2s ease-in-out infinite alternate;
+            transition: transform 0.3s;
+        }
+
+        .dev-link:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes steadyGlow {
+            0% {
+                text-shadow: 0 0 5px rgba(251, 191, 36, 0.6);
+                box-shadow: 0 0 5px rgba(251, 191, 36, 0.1);
+                border-color: rgba(251, 191, 36, 0.3);
+            }
+            100% {
+                text-shadow: 0 0 20px rgba(251, 191, 36, 1), 0 0 30px #d97706;
+                box-shadow: 0 0 25px rgba(251, 191, 36, 0.4);
+                border-color: rgba(251, 191, 36, 0.8);
+            }
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 600px) { .btn-group { flex-direction: column; } .info-row { font-size: 1rem; } }
     </style>
 </head>
 <body>
@@ -103,8 +207,6 @@
 </header>
 
 <div class="container">
-    
-    <!-- نموذج البحث -->
     <div class="search-box">
         <form id="searchForm">
             <div class="form-group">
@@ -119,7 +221,6 @@
                     <option value="SAE">Secrétariat et Administration (SAE)</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>المستوى (Niveau)</label>
                 <select id="level" onchange="updateSemesters()" required>
@@ -129,19 +230,16 @@
                     <option value="L3">Licence 3 (L3)</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>الفصل (Semestre)</label>
                 <select id="semester" required>
                     <option value="">-- اختر المستوى أولاً --</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>رقم التسجيل (Matricule)</label>
                 <input type="text" id="matricule" placeholder="مثال: I21180" style="text-transform: uppercase; text-align: left; direction: ltr;">
             </div>
-
             <div class="btn-group">
                 <button type="button" class="btn-search" onclick="searchStudent()">🔍 عرض النتيجة</button>
                 <button type="button" class="btn-top20" onclick="showTop20()">🏆 العشرون الأوائل</button>
@@ -151,7 +249,7 @@
         <div id="error-msg" class="error"></div>
     </div>
 
-    <!-- بطاقة نتيجة الطالب -->
+    <!-- بطاقة النتيجة -->
     <div id="student-result" class="result-card">
         <div class="student-info">
             <h2 id="res-name">اسم الطالب</h2>
@@ -160,13 +258,20 @@
             <div class="info-row"><span>الترتيب:</span> <span id="res-rank" class="info-val" style="color:var(--secondary);"></span></div>
             <div class="info-row"><span>القرار:</span> <span id="res-dec" class="info-val"></span></div>
         </div>
+
+        <!-- رسالة التهنئة المتحركة (بدون علامات) -->
+        <div id="celebration-msg">
+            <span class="congrats-text">🎉 ألف مبروك النجاح 🎉</span>
+        </div>
         
-        <a id="download-link" href="#" target="_blank" class="download-btn">
-            📥 تنزيل النتيجة بالتفصيل (PDF)
-        </a>
+        <!-- زر التنزيل -->
+        <button id="download-btn" class="download-btn" onclick="downloadPrecisePDF()">
+            📥 تنزيل كشف النقاط (نسخة الطالب فقط)
+        </button>
+        <div id="dl-msg" style="text-align:center; font-size:0.8rem; color:#666; margin-top:5px; display:none;">جاري المعالجة والقص الدقيق...</div>
     </div>
 
-    <!-- جدول الأوائل -->
+    <!-- الأوائل -->
     <div id="top20-container" class="result-card">
         <h2 style="color:var(--primary); text-align:center;">🏆 قائمة العشرون الأوائل</h2>
         <div style="overflow-x:auto;">
@@ -184,15 +289,24 @@
         </div>
     </div>
 
+    <!-- تذييل المطور (بالفرنسية وبدون رسالة إضافية) -->
+    <div class="dev-footer">
+        <a href="https://wa.me/22220479962" target="_blank" class="dev-link">
+             Développé par Mohamed Dah Agove ✨
+        </a>
+    </div>
 </div>
 
 <script>
     // ==========================================
-    // ⚠️ إعدادات المستودع الخاصة بك ⚠️
+    // ⚠️ إعدادات GitHub
     // ==========================================
     const GITHUB_USERNAME = "agwfmhmd-max";
     const REPO_NAME = "Resultat-ISCAE";
     // ==========================================
+
+    let currentStudentId = "";
+    let currentResultsPdfUrl = "";
 
     const semsData = {
         'L1': {'S1':'Semestre 1', 'S2':'Semestre 2'},
@@ -214,44 +328,57 @@
         }
     }
 
-    // --- بناء رابط GitHub Raw للفرع ---
     function getFileUrls() {
-        const branchName = document.getElementById('major').value; // اسم الفرع = اسم التخصص
+        const branchName = document.getElementById('major').value;
         const lvl = document.getElementById('level').value;
         const sem = document.getElementById('semester').value;
+        if(!branchName || !lvl || !sem) { alert("الرجاء اختيار التخصص، المستوى والفصل."); return null; }
         
-        if(!branchName || !lvl || !sem) {
-            showError("الرجاء اختيار التخصص، المستوى والفصل.");
-            return null;
-        }
-
-        // اسم الملف يجب أن يكون دقيقاً كما سترفعه
-        // مثال: L1_S1_Classement.pdf
         const fileNameBase = `${lvl}_${sem}`;
-        
-        // الرابط المباشر للملف في الفرع الآخر
         const baseUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${branchName}`;
-
         return {
             rankingUrl: `${baseUrl}/${fileNameBase}_Classement.pdf`,
             resultsUrl: `${baseUrl}/${fileNameBase}_Resultats.pdf`
         };
     }
 
-    function showError(msg) {
-        const err = document.getElementById('error-msg');
-        err.style.display = 'block';
-        err.innerText = msg;
-        document.getElementById('loader').style.display = 'none';
-    }
-
     function resetView() {
         document.getElementById('student-result').style.display = 'none';
         document.getElementById('top20-container').style.display = 'none';
         document.getElementById('error-msg').style.display = 'none';
+        document.getElementById('dl-msg').style.display = 'none';
+        
+        const celebBox = document.getElementById('celebration-msg');
+        celebBox.style.display = 'none';
+        const particles = celebBox.querySelectorAll('.floating-particle');
+        particles.forEach(p => p.remove());
     }
 
-    // --- استخراج البيانات من ملف PDF ---
+    function startCelebration() {
+        const container = document.getElementById('celebration-msg');
+        container.style.display = 'block';
+        
+        const symbols = ['🌸', '❤️', '🎉', '🌹', '💐', '✨', '💖', '🌷'];
+        const particleCount = 25; 
+
+        for (let i = 0; i < particleCount; i++) {
+            const span = document.createElement('span');
+            span.classList.add('floating-particle');
+            span.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+            
+            const leftPos = Math.random() * 90 + 5; 
+            const animDuration = Math.random() * 2 + 2; 
+            const delay = Math.random() * 1.5;
+
+            span.style.left = leftPos + '%';
+            span.style.animationDuration = animDuration + 's';
+            span.style.animationDelay = delay + 's';
+            span.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+
+            container.appendChild(span);
+        }
+    }
+
     async function fetchRankingData(pdfUrl) {
         document.getElementById('loader').style.display = 'block';
         try {
@@ -262,8 +389,8 @@
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
-                
                 let lines = {};
+                
                 textContent.items.forEach(item => {
                     const y = Math.round(item.transform[5]);
                     if(!lines[y]) lines[y] = [];
@@ -275,30 +402,32 @@
                 sortedY.forEach(y => {
                     const lineItems = lines[y].sort((a,b) => a.x - b.x);
                     const lineStr = lineItems.map(t => t.str).join(" ").trim();
-                    
-                    // تحليل سطر الطالب (الترتيب، الرقم، الاسم، المعدل، القرار)
-                    const match = lineStr.match(/^(\d+)\s+(I\d{4,})\s+(.+?)\s+(\d{1,2}[.,]\d{2})\s+(\w+)$/i);
-                    
+                    const match = lineStr.match(/^(\d+)\s+(I\d+)\s+(.+?)\s+(\d{1,2}[.,]\d{2})\s+(.+)$/i);
                     if(match) {
                         students.push({
                             rank: parseInt(match[1]),
                             id: match[2].toUpperCase(),
-                            name: match[3],
-                            avg: match[4],
-                            decision: match[5]
+                            name: match[3].trim(),
+                            avg: match[4].replace(',', '.'),
+                            decision: match[5].trim()
                         });
                     }
                 });
             }
-            
             document.getElementById('loader').style.display = 'none';
             return students;
-
         } catch (e) {
             console.error(e);
-            showError("فشل تحميل الملف. تأكد من أن الفرع (Branch) يحمل اسم التخصص بالضبط (مثل BA) وأن الملفات داخله تحمل الاسم الصحيح (مثل L1_S1_Classement.pdf).");
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('error-msg').innerText = "خطأ في تحميل الملف. تأكد من أن التخصص والملفات موجودة في GitHub.";
+            document.getElementById('error-msg').style.display = 'block';
             return null;
         }
+    }
+
+    function triggerQuickSearch(id) {
+        document.getElementById('matricule').value = id;
+        searchStudent();
     }
 
     async function searchStudent() {
@@ -307,7 +436,11 @@
         if(!urls) return;
 
         const matricule = document.getElementById('matricule').value.trim().toUpperCase();
-        if(!matricule) { showError("الرجاء إدخال رقم التسجيل."); return; }
+        if(!matricule) { 
+            document.getElementById('error-msg').innerText = "الرجاء إدخال رقم التسجيل.";
+            document.getElementById('error-msg').style.display = 'block';
+            return; 
+        }
 
         const students = await fetchRankingData(urls.rankingUrl);
         if(!students) return;
@@ -319,23 +452,129 @@
             document.getElementById('res-id').innerText = student.id;
             document.getElementById('res-avg').innerText = student.avg;
             document.getElementById('res-rank').innerText = student.rank;
-            
             const decEl = document.getElementById('res-dec');
             decEl.innerText = student.decision;
             
             const decText = student.decision.toLowerCase();
-            if(decText.includes('valid') || decText.includes('admis')) {
-                decEl.className = 'info-val decision-valid';
-            } else {
-                decEl.className = 'info-val decision-ratt';
+            const isValid = decText.includes('valid') || decText.includes('admis');
+
+            decEl.className = isValid ? 'info-val decision-valid' : 'info-val decision-ratt';
+
+            currentStudentId = student.id;
+            currentResultsPdfUrl = urls.resultsUrl;
+            
+            const card = document.getElementById('student-result');
+            card.style.display = 'block';
+            
+            if (isValid) {
+                startCelebration();
             }
 
-            const linkBtn = document.getElementById('download-link');
-            linkBtn.href = urls.resultsUrl; // الرابط المباشر لملف النتائج من الفرع
-            
-            document.getElementById('student-result').style.display = 'block';
+            setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         } else {
-            showError("رقم التسجيل غير موجود في هذا التخصص.");
+            document.getElementById('error-msg').innerText = "رقم التسجيل غير موجود.";
+            document.getElementById('error-msg').style.display = 'block';
+        }
+    }
+
+    async function downloadPrecisePDF() {
+        if (!currentStudentId || !currentResultsPdfUrl) return;
+
+        const btn = document.getElementById('download-btn');
+        const msg = document.getElementById('dl-msg');
+        btn.disabled = true;
+        btn.classList.add('loading');
+        btn.innerText = "⏳ جاري استخراج النتيجة...";
+        msg.style.display = 'block';
+
+        try {
+            const existingPdfBytes = await fetch(currentResultsPdfUrl).then(res => res.arrayBuffer());
+            const loadingTask = pdfjsLib.getDocument({ data: existingPdfBytes });
+            const pdfDocjs = await loadingTask.promise;
+            
+            let startPage = -1;
+            let startY = 0;
+            let endY = 0;
+            let spansToNextPage = false;
+            let nextPageEndY = 0;
+
+            for (let i = 1; i <= pdfDocjs.numPages; i++) {
+                const page = await pdfDocjs.getPage(i);
+                const content = await page.getTextContent();
+                
+                for (let item of content.items) {
+                    if (item.str.includes(currentStudentId)) {
+                        startPage = i - 1;
+                        startY = item.transform[5];
+                        
+                        let nextStudents = content.items.filter(itm => 
+                            itm.str.match(/I\d{4,}/) && 
+                            itm.transform[5] < startY 
+                        );
+
+                        if (nextStudents.length > 0) {
+                            nextStudents.sort((a, b) => b.transform[5] - a.transform[5]);
+                            endY = nextStudents[0].transform[5]; 
+                        } else {
+                            endY = 30;
+                            if (i < pdfDocjs.numPages) {
+                                const nextPage = await pdfDocjs.getPage(i + 1);
+                                const nextContent = await nextPage.getTextContent();
+                                let page2Students = nextContent.items.filter(itm => itm.str.match(/I\d{4,}/));
+                                if (page2Students.length > 0) {
+                                    spansToNextPage = true;
+                                    page2Students.sort((a, b) => b.transform[5] - a.transform[5]);
+                                    nextPageEndY = page2Students[0].transform[5];
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+                if (startPage !== -1) break;
+            }
+
+            if (startPage === -1) throw new Error("الطالب غير موجود في ملف النتائج");
+
+            const { PDFDocument } = PDFLib;
+            const pdfDoc = await PDFDocument.load(existingPdfBytes);
+            const newPdf = await PDFDocument.create();
+
+            const [page1] = await newPdf.copyPages(pdfDoc, [startPage]);
+            const { width, height } = page1.getSize();
+
+            const cropTop = Math.min(height, startY + 60); 
+            const cropBottom = spansToNextPage ? 0 : (endY + 10); 
+            const cropHeight = cropTop - cropBottom;
+
+            page1.setCropBox(0, cropBottom, width, cropHeight);
+            newPdf.addPage(page1);
+
+            if (spansToNextPage) {
+                const [page2] = await newPdf.copyPages(pdfDoc, [startPage + 1]);
+                const page2Top = height; 
+                const page2Bottom = nextPageEndY + 10;
+                page2.setCropBox(0, page2Bottom, width, page2Top - page2Bottom);
+                newPdf.addPage(page2);
+            }
+
+            const pdfBytes = await newPdf.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Resultat_${currentStudentId}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+        } catch (error) {
+            console.error(error);
+            alert("حدث خطأ أثناء معالجة الملف. تأكد من أن ملف النتائج مطابق لملف الترتيب.");
+        } finally {
+            btn.disabled = false;
+            btn.classList.remove('loading');
+            btn.innerText = "📥 تنزيل كشف النقاط (نسخة الطالب فقط)";
+            msg.style.display = 'none';
         }
     }
 
@@ -354,13 +593,17 @@
         tbody.innerHTML = '';
 
         if(top20.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد بيانات.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد بيانات متاحة.</td></tr>';
         } else {
             top20.forEach(s => {
                 const row = `
                     <tr>
                         <td><b>${s.rank}</b></td>
-                        <td>${s.id}</td>
+                        <td>
+                            <a onclick="triggerQuickSearch('${s.id}')" class="clickable-id">
+                               ${s.id}
+                            </a>
+                        </td>
                         <td>${s.name}</td>
                         <td style="color:var(--primary); font-weight:bold;">${s.avg}</td>
                     </tr>
@@ -369,9 +612,10 @@
             });
         }
 
-        document.getElementById('top20-container').style.display = 'block';
+        const topContainer = document.getElementById('top20-container');
+        topContainer.style.display = 'block';
+        setTimeout(() => topContainer.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
     }
-
 </script>
 
 </body>
